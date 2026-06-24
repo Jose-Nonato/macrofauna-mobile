@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  ActivityIndicator,
-  RefreshControl,
-  TouchableOpacity,
-  TextInput,
-  Alert,
-} from "react-native";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import RegisterSampleModal from "../register-sample-modal";
+import SampleDetailModal from "../sample-detail-modal";
 
 interface Sample {
   id: string;
@@ -35,6 +36,11 @@ export default function HomeTab() {
   const [refreshing, setRefreshing] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  // Estados de controle para exibição detalhada da amostra selecionada
+  const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
+  const [sampleToEdit, setSampleToEdit] = useState<Sample | null>(null);
 
   // Estados dos Filtros
   const [filterCity, setFilterCity] = useState("");
@@ -86,7 +92,7 @@ export default function HomeTab() {
         } else {
           Alert.alert(
             "Data Inválida",
-            "Por favor, digite a data inicial no formato DD/MM/AAAA."
+            "Por favor, digite a data inicial no formato DD/MM/AAAA.",
           );
           setLoading(false);
           setRefreshing(false);
@@ -101,7 +107,7 @@ export default function HomeTab() {
         } else {
           Alert.alert(
             "Data Inválida",
-            "Por favor, digite a data final no formato DD/MM/AAAA."
+            "Por favor, digite a data final no formato DD/MM/AAAA.",
           );
           setLoading(false);
           setRefreshing(false);
@@ -356,14 +362,21 @@ export default function HomeTab() {
           </View>
         }
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => {
+              setSelectedSample(item);
+              setDetailVisible(true);
+            }}
+            activeOpacity={0.8}
+          >
             {/* Linha principal: Score no topo esquerdo, Data de criação no topo direito */}
             <View style={styles.cardHeader}>
               <View style={styles.scoreContainer}>
-                <Text style={styles.scoreLabel}>Score</Text>
+                <Text style={styles.scoreLabel}>Score IQMS</Text>
                 <Text style={styles.scoreValue}>
                   {item.sample_score !== null
-                    ? item.sample_score.toFixed(1)
+                    ? item.sample_score.toFixed(2)
                     : "N/A"}
                 </Text>
               </View>
@@ -393,8 +406,8 @@ export default function HomeTab() {
                 {item.city && item.state && item.country
                   ? `${item.city}, ${item.state} - ${item.country}`
                   : item.city && item.state
-                  ? `${item.city}, ${item.state}`
-                  : "Local não informado"}
+                    ? `${item.city}, ${item.state}`
+                    : "Local não informado"}
               </Text>
             </View>
 
@@ -412,7 +425,7 @@ export default function HomeTab() {
                 </Text>
               </View>
 
-              <View style={styles.bodyItem}>
+              {/* <View style={styles.bodyItem}>
                 <Ionicons name="bug" size={16} color="#54A676" />
                 <Text style={styles.itemLabel}>Animais:</Text>
                 <Text style={styles.itemValue}>
@@ -420,15 +433,30 @@ export default function HomeTab() {
                     ? `${item.animal_quantity} un`
                     : "0 un"}
                 </Text>
-              </View>
+              </View> */}
             </View>
-          </View>
+          </TouchableOpacity>
         )}
       />
 
       <RegisterSampleModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={() => {
+          setModalVisible(false);
+          setSampleToEdit(null); // Reseta ao fechar o modal
+        }}
+        onSuccess={fetchSamples}
+        sampleToEdit={sampleToEdit}
+      />
+
+      <SampleDetailModal
+        visible={detailVisible}
+        sample={selectedSample}
+        onClose={() => setDetailVisible(false)}
+        onEdit={(sample) => {
+          setSampleToEdit(sample);
+          setModalVisible(true);
+        }}
         onSuccess={fetchSamples}
       />
     </View>

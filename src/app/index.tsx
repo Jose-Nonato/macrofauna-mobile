@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { useEffect, useState } from "react";
@@ -40,8 +41,8 @@ export default function Home() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        Alert.alert("Erro", "Sessão inválida. Por favor, entre novamente.");
         setLoading(false);
+        router.replace("/login");
         return;
       }
 
@@ -97,12 +98,18 @@ export default function Home() {
         style: "destructive",
         onPress: async () => {
           setLoading(true);
-          const { error } = await supabase.auth.signOut();
-          if (error) {
-            Alert.alert("Erro ao sair", error.message);
+          try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+              Alert.alert("Erro ao sair", error.message);
+              setLoading(false);
+            } else {
+              setLoading(false);
+              router.replace("/login");
+            }
+          } catch (err: any) {
+            Alert.alert("Erro ao sair", err.message || "Erro inesperado.");
             setLoading(false);
-          } else {
-            Alert.alert("Sucesso", "Você saiu da conta.");
           }
         },
       },

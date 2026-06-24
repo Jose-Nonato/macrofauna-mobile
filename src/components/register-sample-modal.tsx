@@ -10,13 +10,14 @@ import {
   Platform,
 } from "react-native";
 import { supabase } from "@/lib/supabase";
+import { createSample, insertInsects, uploadPhoto, updateSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
 import { Ionicons } from "@expo/vector-icons";
 
 // Importação dos passos modularizados do Wizard
 import StepVideo from "./register-sample-steps/step-video";
 import StepPhotos from "./register-sample-steps/step-photos";
 import StepTaxonomy, {
-  TAXON_LABELS,
+  TAXON_LIST,
   TaxonKey,
 } from "./register-sample-steps/step-taxonomy";
 import StepLocation from "./register-sample-steps/step-location";
@@ -25,12 +26,14 @@ interface RegisterSampleModalProps {
   visible: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  sampleToEdit?: any;
 }
 
 export default function RegisterSampleModal({
   visible,
   onClose,
   onSuccess,
+  sampleToEdit,
 }: RegisterSampleModalProps) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [loading, setLoading] = useState(false);
@@ -41,22 +44,24 @@ export default function RegisterSampleModal({
   const [photoLeste, setPhotoLeste] = useState<string[]>([]);
   const [photoOeste, setPhotoOeste] = useState<string[]>([]);
 
-  // Passo 3: Taxonomia da Macrofauna
-  const [taxons, setTaxons] = useState<Record<TaxonKey, number>>({
-    earthworm: 0,
-    ant: 0,
-    isoptera: 0,
-    blattaria: 0,
-    coleoptera: 0,
-    arachnida: 0,
-    diplopoda: 0,
-    chilopoda: 0,
-    hemiptera: 0,
-    lepidoptera: 0,
-    gasteropoda: 0,
-    dermaptera: 0,
-    others: 0,
-  });
+  // Passo 3: Taxonomia da Macrofauna (Suporta múltiplos níveis)
+  const [taxonLevels, setTaxonLevels] = useState<Record<TaxonKey, number>[]>([
+    {
+      earthworm: 0,
+      ant: 0,
+      isoptera: 0,
+      blattaria: 0,
+      coleoptera: 0,
+      arachnida: 0,
+      diplopoda: 0,
+      chilopoda: 0,
+      hemiptera: 0,
+      lepidoptera: 0,
+      gasteropoda: 0,
+      dermaptera: 0,
+      others: 0,
+    },
+  ]);
 
   // Passo 4: Localização
   const [locationMode, setLocationMode] = useState<"gps" | "manual">("gps");
@@ -65,6 +70,95 @@ export default function RegisterSampleModal({
   const [country, setCountry] = useState("Brasil");
   const [latitude, setLatitude] = useState<string>("");
   const [longitude, setLongitude] = useState<string>("");
+
+  const isLocationFilled = !!(city.trim() && state.trim() && country.trim() && latitude && longitude);
+
+  React.useEffect(() => {
+    if (visible) {
+      if (sampleToEdit) {
+        // Pre-encher estados de localização
+        setCity(sampleToEdit.city || "");
+        setState(sampleToEdit.state || "");
+        setCountry(sampleToEdit.country || "Brasil");
+        setLatitude(sampleToEdit.latitude?.toString() || "");
+        setLongitude(sampleToEdit.longitude?.toString() || "");
+        setLocationMode(sampleToEdit.latitude && sampleToEdit.longitude ? "manual" : "gps");
+
+        // Carregar taxons e fotos da amostra de forma assíncrona
+        loadSampleDetails(sampleToEdit.id);
+      } else {
+        // Modo de criação: resetar tudo
+        setStep(1);
+        setPhotoNorte([]);
+        setPhotoSul([]);
+        setPhotoLeste([]);
+        setPhotoOeste([]);
+        setTaxonLevels([
+          {
+            earthworm: 0,
+            ant: 0,
+            isoptera: 0,
+            blattaria: 0,
+            coleoptera: 0,
+            arachnida: 0,
+            diplopoda: 0,
+            chilopoda: 0,
+            hemiptera: 0,
+            lepidoptera: 0,
+            gasteropoda: 0,
+            dermaptera: 0,
+            others: 0,
+          },
+        ]);
+        setCity("");
+        setState("");
+        setCountry("Brasil");
+        setLatitude("");
+        setLongitude("");
+      }
+    }
+  }, [visible]);
+
+  const loadSampleDetails = async (sampleId: any) => {
+    setLoading(true);
+    try {
+      const [insectsData, photosData] = await Promise.all([
+        getInsectsBySample(sampleId),
+        getPhotosBySample(sampleId),
+      ]);
+
+      if (insectsData && insectsData.length > 0) {
+        // Mapear cada linha de inseto retornada para o seu nível correspondente
+        const levels = insectsData.map((insect: any) => ({
+          earthworm: insect.earthworm || 0,
+          ant: insect.ant || 0,
+          isoptera: insect.isoptera || 0,
+          blattaria: insect.blattaria || 0,
+          coleoptera: insect.coleoptera || 0,
+          arachnida: insect.arachnida || 0,
+          diplopoda: insect.diplopoda || 0,
+          chilopoda: insect.chilopoda || 0,
+          hemiptera: insect.hemiptera || 0,
+          lepidoptera: insect.lepidoptera || 0,
+          gasteropoda: insect.gasteropoda || 0,
+          others: insect.others || 0,
+          dermaptera: insect.dermaptera || 0,
+        }));
+        setTaxonLevels(levels);
+      }
+
+      if (photosData) {
+        setPhotoNorte(photosData.filter((p) => p.direction === "norte").map((p) => p.photo));
+        setPhotoSul(photosData.filter((p) => p.direction === "sul").map((p) => p.photo));
+        setPhotoLeste(photosData.filter((p) => p.direction === "leste").map((p) => p.photo));
+        setPhotoOeste(photosData.filter((p) => p.direction === "oeste").map((p) => p.photo));
+      }
+    } catch (error) {
+      console.warn("Erro ao carregar detalhes da amostra para edição:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleNext = () => {
     if (step < 4) {
@@ -104,22 +198,6 @@ export default function RegisterSampleModal({
       setPhotoOeste((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Callback de alteração de taxons (Passo 3)
-  const handleTaxonCountChange = (key: TaxonKey, amount: number) => {
-    setTaxons((prev) => ({
-      ...prev,
-      [key]: Math.max(0, (prev[key] || 0) + amount),
-    }));
-  };
-
-  // Callback de alteração manual absoluta de taxons (Passo 3)
-  const handleTaxonCountSet = (key: TaxonKey, value: number) => {
-    setTaxons((prev) => ({
-      ...prev,
-      [key]: Math.max(0, value),
-    }));
-  };
-
   // Submissão Geral para o Supabase
   const handleSaveSample = async () => {
     if (!city.trim() || !state.trim()) {
@@ -138,91 +216,232 @@ export default function RegisterSampleModal({
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado.");
 
-      // 2. Calcular Métricas de Campo
-      // Quantidade total de animais coletados
-      const totalAnimals = Object.keys(TAXON_LABELS).reduce((sum, key) => {
-        return sum + (taxons[key as TaxonKey] || 0);
-      }, 0);
+      // 2. Mapeamento e Cálculos de Acordo com a Fórmula Oficial de IQMS e Densidade
+      const numLevels = taxonLevels.length;
+      const getAverageTaxon = (key: TaxonKey) => {
+        const sum = taxonLevels.reduce((acc, lvl) => acc + (lvl[key] || 0), 0);
+        return Number((sum / numLevels).toFixed(2));
+      };
 
-      // Densidade: Calculada com base no monólito padrão (25x25cm = 0.0625 m² area)
-      // Densidade = Animais / Área = Animais * 16 por metro quadrado
-      const calculatedDensity = totalAnimals * 16;
+      const getTotalTaxon = (key: TaxonKey) => {
+        return taxonLevels.reduce((acc, lvl) => acc + (lvl[key] || 0), 0);
+      };
 
-      // Diversidade de Classes Taxonômicas Presentes (contagem de chaves > 0)
-      const diversityCount = Object.keys(TAXON_LABELS).reduce((count, key) => {
-        return count + ((taxons[key as TaxonKey] || 0) > 0 ? 1 : 0);
-      }, 0);
+      const taxValues = {
+        EW: getAverageTaxon("earthworm"),
+        AN: getAverageTaxon("ant"),
+        TER: getAverageTaxon("isoptera"),
+        BLA: getAverageTaxon("blattaria"),
+        COL: getAverageTaxon("coleoptera"),
+        ARA: getAverageTaxon("arachnida"),
+        DIPLO: getAverageTaxon("diplopoda"),
+        CHI: getAverageTaxon("chilopoda"),
+        HEMI: getAverageTaxon("hemiptera"),
+        DER: getAverageTaxon("dermaptera"),
+        LEP: getAverageTaxon("lepidoptera"),
+        GAS: getAverageTaxon("gasteropoda"),
+        OT: getAverageTaxon("others"),
+      };
 
-      // Score Biológico de Qualidade do Solo: Diversidade / Total de Classes * 10
-      const calculatedScore =
-        (diversityCount * 10) / Object.keys(TAXON_LABELS).length;
+      const taxTotals = {
+        EW: getTotalTaxon("earthworm"),
+        AN: getTotalTaxon("ant"),
+        TER: getTotalTaxon("isoptera"),
+        BLA: getTotalTaxon("blattaria"),
+        COL: getTotalTaxon("coleoptera"),
+        ARA: getTotalTaxon("arachnida"),
+        DIPLO: getTotalTaxon("diplopoda"),
+        CHI: getTotalTaxon("chilopoda"),
+        HEMI: getTotalTaxon("hemiptera"),
+        DER: getTotalTaxon("dermaptera"),
+        LEP: getTotalTaxon("lepidoptera"),
+        GAS: getTotalTaxon("gasteropoda"),
+        OT: getTotalTaxon("others"),
+      };
 
-      // 3. Salvar Tabela "samples"
-      const { data: sampleData, error: sampleError } = await supabase
-        .from("samples")
-        .insert({
-          user_id: user.id,
-          sample_score: parseFloat(calculatedScore.toFixed(2)),
-          sample_density: parseFloat(calculatedDensity.toFixed(2)),
+      const keys = [
+        "EW",
+        "AN",
+        "TER",
+        "BLA",
+        "COL",
+        "ARA",
+        "DIPLO",
+        "CHI",
+        "HEMI",
+        "DER",
+        "LEP",
+        "GAS",
+        "OT",
+      ] as const;
+
+      const WEIGHTS = {
+        EW: 19.2,
+        AN: 17.5,
+        TER: 20.9,
+        BLA: 9.8,
+        COL: 20.4,
+        ARA: 17.5,
+        DIPLO: 20.1,
+        CHI: 21.8,
+        HEMI: 13.5,
+        DER: 8.9,
+        LEP: 15.5,
+        GAS: 16.7,
+        OT: 21.9,
+      };
+
+      // 2.1 Quantidade total de animais coletados (animal_quantity) como o somatório
+      const totalAnimals = keys.reduce((sum, k) => sum + (taxTotals[k] || 0), 0);
+
+      // 2.2 Log-Densidade (sample_density): log10(Média_Total * 16 + 1)
+      const totalAnimalsAverage = keys.reduce((sum, k) => sum + (taxValues[k] || 0), 0);
+      const logDensity = Math.log10(totalAnimalsAverage * 16 + 1);
+      const densityValue = Number(logDensity.toFixed(2));
+
+      // 2.3 Riqueza de Grupos (rt): Número de classes taxonômicas com quantidade média > 0
+      const rt = keys.filter((k) => (taxValues[k] || 0) > 0).length;
+
+      // 2.4 Cálculo do IQMS (sample_score)
+      let iqmsSum = 0;
+      keys.forEach((k) => {
+        const val = taxValues[k] || 0;
+        if (val > 0) {
+          iqmsSum += Math.log10(WEIGHTS[k] * val);
+        }
+      });
+      if (densityValue > 0) {
+        iqmsSum += Math.log10(31.8 * densityValue);
+      }
+      if (rt > 0) {
+        iqmsSum += Math.log10(31.8 * rt);
+      }
+      const calculatedScore = Number((iqmsSum * 0.0014 + 0.1).toFixed(2));
+
+      // 3. Salvar no Supabase (Diferencia Modo de Edição e Criação)
+      let sampleId = "";
+      if (sampleToEdit) {
+        sampleId = sampleToEdit.id;
+        await updateSample(sampleId, {
+          sample_score: calculatedScore,
+          sample_density: densityValue,
           animal_quantity: totalAnimals,
           country: country.trim(),
           state: state.trim().toUpperCase(),
           city: city.trim(),
           latitude: latitude ? parseFloat(latitude) : null,
           longitude: longitude ? parseFloat(longitude) : null,
-        })
-        .select()
-        .single();
+        });
 
-      if (sampleError) throw sampleError;
-      const sampleId = sampleData.id;
+        // 4. Salvar Tabela "insect" em Modo de Edição (Deleta anterior e reinsere todos os níveis)
+        await supabase.from("insect").delete().eq("sample_id", sampleId);
+        const insectsToInsertEdit = taxonLevels.map((level) => ({
+          sample_id: sampleId,
+          sample_density: densityValue,
+          iqms: calculatedScore,
+          earthworm: level.earthworm || 0,
+          ant: level.ant || 0,
+          isoptera: level.isoptera || 0,
+          blattaria: level.blattaria || 0,
+          coleoptera: level.coleoptera || 0,
+          arachnida: level.arachnida || 0,
+          diplopoda: level.diplopoda || 0,
+          chilopoda: level.chilopoda || 0,
+          hemiptera: level.hemiptera || 0,
+          lepidoptera: level.lepidoptera || 0,
+          gasteropoda: level.gasteropoda || 0,
+          others: level.others || 0,
+        }));
+        await insertInsects(insectsToInsertEdit);
 
-      // 4. Salvar Tabela "insect" (Taxonomia da macrofauna)
-      const { error: insectError } = await supabase.from("insect").insert({
-        sample_id: sampleId,
-        sample_density: parseFloat(calculatedDensity.toFixed(2)),
-        iqms: parseFloat(calculatedScore.toFixed(2)), // Índice de Qualidade de Solo
-        earthworm: taxons.earthworm,
-        ant: taxons.ant,
-        isoptera: taxons.isoptera,
-        blattaria: taxons.blattaria,
-        coleoptera: taxons.coleoptera,
-        arachnida: taxons.arachnida,
-        diplopoda: taxons.diplopoda,
-        chilopoda: taxons.chilopoda,
-        hemiptera: taxons.hemiptera,
-        lepidoptera: taxons.lepidoptera,
-        gasteropoda: taxons.gasteropoda,
-        others: taxons.others,
-      } as any);
+        // 5. Salvar Tabela "photos" em Modo de Edição (Deleta relações anteriores e reinsere)
+        await supabase.from("photos").delete().eq("sample_id", sampleId);
 
-      if (insectError) throw insectError;
+        const directions = [
+          { paths: photoNorte, key: "norte" },
+          { paths: photoSul, key: "sul" },
+          { paths: photoLeste, key: "leste" },
+          { paths: photoOeste, key: "oeste" },
+        ];
 
-      // 5. Salvar Tabela "photos" (Anexa TODAS as fotos cadastradas por direção)
-      const directions = [
-        { paths: photoNorte, key: "norte" },
-        { paths: photoSul, key: "sul" },
-        { paths: photoLeste, key: "leste" },
-        { paths: photoOeste, key: "oeste" },
-      ];
+        for (const dir of directions) {
+          for (const path of dir.paths) {
+            if (path.startsWith("http")) {
+              // Se já for imagem remota no Storage, apenas reinsere na tabela
+              await supabase.from("photos").insert({
+                sample_id: sampleId,
+                direction: dir.key,
+                photo: path,
+              });
+            } else {
+              // Se for URI local nova, faz upload pro Storage
+              await uploadPhoto(path, dir.key, sampleId);
+            }
+          }
+        }
+      } else {
+        // MODO CRIAÇÃO: Criar novo registro
+        const sampleData = await createSample({
+          sample_score: calculatedScore,
+          sample_density: densityValue,
+          animal_quantity: totalAnimals,
+          country: country.trim(),
+          state: state.trim().toUpperCase(),
+          city: city.trim(),
+          latitude: latitude ? parseFloat(latitude) : null,
+          longitude: longitude ? parseFloat(longitude) : null,
+        });
 
-      for (const dir of directions) {
-        for (const path of dir.paths) {
-          const { error: photoError } = await supabase.from("photos").insert({
-            sample_id: sampleId,
-            photo: path, // Salva o caminho local da imagem
-            direction: dir.key,
-          });
-          if (photoError) console.error("Erro ao salvar foto:", photoError);
+        sampleId = sampleData.id;
+
+        // 4. Salvar Tabela "insect" (Insere todos os níveis)
+        const insectsToInsert = taxonLevels.map((level) => ({
+          sample_id: sampleId,
+          sample_density: densityValue,
+          iqms: calculatedScore,
+          earthworm: level.earthworm || 0,
+          ant: level.ant || 0,
+          isoptera: level.isoptera || 0,
+          blattaria: level.blattaria || 0,
+          coleoptera: level.coleoptera || 0,
+          arachnida: level.arachnida || 0,
+          diplopoda: level.diplopoda || 0,
+          chilopoda: level.chilopoda || 0,
+          hemiptera: level.hemiptera || 0,
+          lepidoptera: level.lepidoptera || 0,
+          gasteropoda: level.gasteropoda || 0,
+          others: level.others || 0,
+        }));
+        await insertInsects(insectsToInsert);
+
+        // 5. Enviar e Salvar Fotos
+        const directions = [
+          { paths: photoNorte, key: "norte" },
+          { paths: photoSul, key: "sul" },
+          { paths: photoLeste, key: "leste" },
+          { paths: photoOeste, key: "oeste" },
+        ];
+
+        for (const dir of directions) {
+          for (const path of dir.paths) {
+            await uploadPhoto(path, dir.key, sampleId);
+          }
         }
       }
 
-      // 6. Finalização e Alerta
+      // 6. Finalização e Alerta de Sucesso
+      const alertTitle = sampleToEdit ? "Amostra Atualizada!" : "Amostra Cadastrada!";
+      const alertMessage = sampleToEdit
+        ? `Sua amostra foi editada e salva com sucesso no Supabase.\nScore IQMS: ${calculatedScore.toFixed(
+            2
+          )}/1.0\nDensidade: ${densityValue.toFixed(2)}`
+        : `Sua amostra foi gravada com sucesso no Supabase.\nScore IQMS: ${calculatedScore.toFixed(
+            2
+          )}/1.0\nDensidade: ${densityValue.toFixed(2)}`;
+
       Alert.alert(
-        "Amostra Cadastrada!",
-        `Sua amostra foi gravada com sucesso no Supabase.\nScore de Biodiversidade: ${calculatedScore.toFixed(
-          1
-        )}/10\nDensidade: ${calculatedDensity.toFixed(1)}/m²`,
+        alertTitle,
+        alertMessage,
         [
           {
             text: "Finalizar",
@@ -233,21 +452,23 @@ export default function RegisterSampleModal({
               setPhotoSul([]);
               setPhotoLeste([]);
               setPhotoOeste([]);
-              setTaxons({
-                earthworm: 0,
-                ant: 0,
-                isoptera: 0,
-                blattaria: 0,
-                coleoptera: 0,
-                arachnida: 0,
-                diplopoda: 0,
-                chilopoda: 0,
-                hemiptera: 0,
-                lepidoptera: 0,
-                gasteropoda: 0,
-                dermaptera: 0,
-                others: 0,
-              } as any);
+              setTaxonLevels([
+                {
+                  earthworm: 0,
+                  ant: 0,
+                  isoptera: 0,
+                  blattaria: 0,
+                  coleoptera: 0,
+                  arachnida: 0,
+                  diplopoda: 0,
+                  chilopoda: 0,
+                  hemiptera: 0,
+                  lepidoptera: 0,
+                  gasteropoda: 0,
+                  dermaptera: 0,
+                  others: 0,
+                },
+              ]);
               setCity("");
               setState("");
               setCountry("Brasil");
@@ -286,9 +507,8 @@ export default function RegisterSampleModal({
       case 3:
         return (
           <StepTaxonomy
-            taxons={taxons}
-            onTaxonCountChange={handleTaxonCountChange}
-            onTaxonCountSet={handleTaxonCountSet}
+            levels={taxonLevels}
+            setLevels={setTaxonLevels}
           />
         );
       case 4:
@@ -317,7 +537,9 @@ export default function RegisterSampleModal({
         <View style={styles.modalContent}>
           {/* Header do Wizard */}
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Nova Amostra</Text>
+            <Text style={styles.modalTitle}>
+              {sampleToEdit ? "Editar Amostra" : "Nova Amostra"}
+            </Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Ionicons name="close" size={24} color="#4b5563" />
             </TouchableOpacity>
@@ -376,9 +598,9 @@ export default function RegisterSampleModal({
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                style={styles.saveStepButton}
+                style={[styles.saveStepButton, !isLocationFilled && styles.saveStepButtonDisabled]}
                 onPress={handleSaveSample}
-                disabled={loading}
+                disabled={loading || !isLocationFilled}
               >
                 {loading ? (
                   <ActivityIndicator color="#ffffff" />
@@ -506,6 +728,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
+  },
+  saveStepButtonDisabled: {
+    backgroundColor: "#94a3b8",
   },
   saveStepButtonText: {
     color: "#ffffff",
