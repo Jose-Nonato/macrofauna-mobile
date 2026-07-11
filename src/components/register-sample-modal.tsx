@@ -10,7 +10,8 @@ import {
   Platform,
 } from "react-native";
 import { supabase } from "@/lib/supabase";
-import { createSample, insertInsects, uploadPhoto, updateSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
+import { createSample, insertInsects, updateSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
+import { uploadPhotoToStorage } from "@/lib/uploadService";
 import { Ionicons } from "@expo/vector-icons";
 
 // Importação dos passos modularizados do Wizard
@@ -154,7 +155,6 @@ export default function RegisterSampleModal({
         setPhotoOeste(photosData.filter((p) => p.direction === "oeste").map((p) => p.photo));
       }
     } catch (error) {
-      console.warn("Erro ao carregar detalhes da amostra para edição:", error);
     } finally {
       setLoading(false);
     }
@@ -209,7 +209,10 @@ export default function RegisterSampleModal({
     }
 
     setLoading(true);
+    let sampleId = "";
+
     try {
+
       // 1. Obter Usuário Autenticado
       const {
         data: { user },
@@ -318,45 +321,61 @@ export default function RegisterSampleModal({
       }
       const calculatedScore = Number((iqmsSum * 0.0014 + 0.1).toFixed(2));
 
-      // 3. Salvar no Supabase (Diferencia Modo de Edição e Criação)
-      let sampleId = "";
-      if (sampleToEdit) {
-        sampleId = sampleToEdit.id;
-        await updateSample(sampleId, {
-          sample_score: calculatedScore,
-          sample_density: densityValue,
-          animal_quantity: totalAnimals,
-          country: country.trim(),
-          state: state.trim().toUpperCase(),
-          city: city.trim(),
-          latitude: latitude ? parseFloat(latitude) : null,
-          longitude: longitude ? parseFloat(longitude) : null,
-        });
+      // 3. Preparar dados dos insetos antes de qualquer operação no banco
+      const insectsToInsert = taxonLevels.map((level) => ({
+        sample_id: sampleToEdit ? sampleToEdit.id : "", // será preenchido após criar amostra
+        sample_density: densityValue,
+        iqms: calculatedScore,
+        earthworm: level.earthworm || 0,
+        ant: level.ant || 0,
+        isoptera: level.isoptera || 0,
+        blattaria: level.blattaria || 0,
+        coleoptera: level.coleoptera || 0,
+        arachnida: level.arachnida || 0,
+        diplopoda: level.diplopoda || 0,
+        chilopoda: level.chilopoda || 0,
+        hemiptera: level.hemiptera || 0,
+        lepidoptera: level.lepidoptera || 0,
+        gasteropoda: level.gasteropoda || 0,
+        others: level.others || 0,
+      }));
 
-        // 4. Salvar Tabela "insect" em Modo de Edição (Deleta anterior e reinsere todos os níveis)
-        await supabase.from("insect").delete().eq("sample_id", sampleId);
-        const insectsToInsertEdit = taxonLevels.map((level) => ({
-          sample_id: sampleId,
-          sample_density: densityValue,
-          iqms: calculatedScore,
-          earthworm: level.earthworm || 0,
-          ant: level.ant || 0,
-          isoptera: level.isoptera || 0,
-          blattaria: level.blattaria || 0,
-          coleoptera: level.coleoptera || 0,
-          arachnida: level.arachnida || 0,
-          diplopoda: level.diplopoda || 0,
-          chilopoda: level.chilopoda || 0,
-          hemiptera: level.hemiptera || 0,
-          lepidoptera: level.lepidoptera || 0,
-          gasteropoda: level.gasteropoda || 0,
-          others: level.others || 0,
-        }));
-        await insertInsects(insectsToInsertEdit);
+      const sampleData = {
+        sample_score: calculatedScore,
+        sample_density: densityValue,
+        animal_quantity: totalAnimals,
+        country: country.trim(),
+        state: state.trim().toUpperCase(),
+        city: city.trim(),
+        latitude: latitude ? parseFloat(latitude) : null,
+        longitude: longitude ? parseFloat(longitude) : null,
+      };
 
-        // 5. Salvar Tabela "photos" em Modo de Edição (Deleta relações anteriores e reinsere)
-        await supabase.from("photos").delete().eq("sample_id", sampleId);
+      // 4. Se modo criação, criar amostra primeiro
+      let sampleCreatedForRollback = false;
 
+      try {
+        if (!sampleToEdit) {
+          const result = await createSample(sampleData);
+          sampleId = result.id;
+          sampleCreatedForRollback = true;
+          // Atualizar insectsToInsert com o novo sampleId
+          insectsToInsert.forEach((insect) => {
+            insect.sample_id = sampleId;
+          });
+        } else {
+          sampleId = sampleToEdit.id;
+          // Atualizar amostra existente
+          await updateSample(sampleId, sampleData);
+          // Deletar insetos e fotos anteriores
+          await supabase.from("insect").delete().eq("sample_id", sampleId);
+          await supabase.from("photos").delete().eq("sample_id", sampleId);
+        }
+
+        // 5. Inserir insetos
+        await insertInsects(insectsToInsert);
+
+        // 6. Fazer upload e salvar fotos
         const directions = [
           { paths: photoNorte, key: "norte" },
           { paths: photoSul, key: "sul" },
@@ -366,70 +385,34 @@ export default function RegisterSampleModal({
 
         for (const dir of directions) {
           for (const path of dir.paths) {
-            if (path.startsWith("http")) {
-              // Se já for imagem remota no Storage, apenas reinsere na tabela
+            if (!path.startsWith("http")) {
+              // Se for URI local, faz upload pro Storage com novo serviço
+              await uploadPhotoToStorage(path, dir.key, sampleId);
+            } else if (sampleToEdit) {
+              // Se for imagem remota em modo edição, apenas reinsere na tabela
               await supabase.from("photos").insert({
                 sample_id: sampleId,
                 direction: dir.key,
                 photo: path,
               });
-            } else {
-              // Se for URI local nova, faz upload pro Storage
-              await uploadPhoto(path, dir.key, sampleId);
             }
           }
         }
-      } else {
-        // MODO CRIAÇÃO: Criar novo registro
-        const sampleData = await createSample({
-          sample_score: calculatedScore,
-          sample_density: densityValue,
-          animal_quantity: totalAnimals,
-          country: country.trim(),
-          state: state.trim().toUpperCase(),
-          city: city.trim(),
-          latitude: latitude ? parseFloat(latitude) : null,
-          longitude: longitude ? parseFloat(longitude) : null,
-        });
+      } catch (photoError: any) {
 
-        sampleId = sampleData.id;
-
-        // 4. Salvar Tabela "insect" (Insere todos os níveis)
-        const insectsToInsert = taxonLevels.map((level) => ({
-          sample_id: sampleId,
-          sample_density: densityValue,
-          iqms: calculatedScore,
-          earthworm: level.earthworm || 0,
-          ant: level.ant || 0,
-          isoptera: level.isoptera || 0,
-          blattaria: level.blattaria || 0,
-          coleoptera: level.coleoptera || 0,
-          arachnida: level.arachnida || 0,
-          diplopoda: level.diplopoda || 0,
-          chilopoda: level.chilopoda || 0,
-          hemiptera: level.hemiptera || 0,
-          lepidoptera: level.lepidoptera || 0,
-          gasteropoda: level.gasteropoda || 0,
-          others: level.others || 0,
-        }));
-        await insertInsects(insectsToInsert);
-
-        // 5. Enviar e Salvar Fotos
-        const directions = [
-          { paths: photoNorte, key: "norte" },
-          { paths: photoSul, key: "sul" },
-          { paths: photoLeste, key: "leste" },
-          { paths: photoOeste, key: "oeste" },
-        ];
-
-        for (const dir of directions) {
-          for (const path of dir.paths) {
-            await uploadPhoto(path, dir.key, sampleId);
+        // Rollback: deletar amostra criada se algo der erro
+        if (sampleCreatedForRollback && sampleId) {
+          try {
+            await supabase.from("samples").delete().eq("id", sampleId);
+          } catch (rollbackError) {
           }
         }
+
+        // Relançar o erro original
+        throw photoError;
       }
 
-      // 6. Finalização e Alerta de Sucesso
+      // 7. Finalização e Alerta de Sucesso
       const alertTitle = sampleToEdit ? "Amostra Atualizada!" : "Amostra Cadastrada!";
       const alertMessage = sampleToEdit
         ? `Sua amostra foi editada e salva com sucesso no Supabase.\nScore IQMS: ${calculatedScore.toFixed(

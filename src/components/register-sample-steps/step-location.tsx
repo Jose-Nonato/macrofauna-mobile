@@ -225,7 +225,6 @@ export default function StepLocation({
       }));
       setCountries(mapped);
     } catch (error) {
-      console.warn("Erro ao buscar países da API:", error);
       Alert.alert("Erro de Conexão", "Não foi possível carregar a lista de países.");
     } finally {
       setLoadingCountries(false);
@@ -256,7 +255,6 @@ export default function StepLocation({
       if (json.error) throw new Error(json.msg || "Erro na resposta da API");
       setStates(json.data.states || []);
     } catch (error) {
-      console.warn("Erro ao buscar estados da API:", error);
       Alert.alert("Erro", "Não foi possível obter a lista de estados.");
     } finally {
       setLoadingStates(false);
@@ -292,7 +290,6 @@ export default function StepLocation({
       if (json.error) throw new Error(json.msg || "Erro na resposta da API");
       setCities(json.data || []);
     } catch (error) {
-      console.warn("Erro ao buscar cidades da API:", error);
       Alert.alert("Erro", "Não foi possível obter a lista de cidades.");
     } finally {
       setLoadingCities(false);
@@ -330,7 +327,6 @@ export default function StepLocation({
         }
       }
     } catch (error) {
-      console.warn("Erro ao geocodificar endereço:", error);
     } finally {
       setLoadingCoords(false);
     }

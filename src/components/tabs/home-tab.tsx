@@ -120,12 +120,10 @@ export default function HomeTab() {
       });
 
       if (error) {
-        console.error("Erro ao buscar samples:", error.message);
       } else {
         setSamples(data || []);
       }
     } catch (err) {
-      console.error("Erro inesperado:", err);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -163,12 +161,10 @@ export default function HomeTab() {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Erro ao limpar filtros:", error.message);
       } else {
         setSamples(data || []);
       }
     } catch (err) {
-      console.error(err);
     } finally {
       setLoading(false);
     }

@@ -54,10 +54,47 @@ export default function SampleDetailModal({
         getInsectsBySample(sample.id),
         getPhotosBySample(sample.id),
       ]);
-      setInsects(insectsData && insectsData.length > 0 ? insectsData[0] : null);
+
+      // Consolidar todos os níveis de insetos
+      let consolidatedInsects = null;
+      if (insectsData && insectsData.length > 0) {
+        consolidatedInsects = {
+          earthworm: 0,
+          ant: 0,
+          isoptera: 0,
+          blattaria: 0,
+          coleoptera: 0,
+          arachnida: 0,
+          diplopoda: 0,
+          chilopoda: 0,
+          hemiptera: 0,
+          lepidoptera: 0,
+          gasteropoda: 0,
+          dermaptera: 0,
+          others: 0,
+        };
+
+        // Somar todos os níveis
+        insectsData.forEach((insect: any) => {
+          consolidatedInsects.earthworm += insect.earthworm || 0;
+          consolidatedInsects.ant += insect.ant || 0;
+          consolidatedInsects.isoptera += insect.isoptera || 0;
+          consolidatedInsects.blattaria += insect.blattaria || 0;
+          consolidatedInsects.coleoptera += insect.coleoptera || 0;
+          consolidatedInsects.arachnida += insect.arachnida || 0;
+          consolidatedInsects.diplopoda += insect.diplopoda || 0;
+          consolidatedInsects.chilopoda += insect.chilopoda || 0;
+          consolidatedInsects.hemiptera += insect.hemiptera || 0;
+          consolidatedInsects.lepidoptera += insect.lepidoptera || 0;
+          consolidatedInsects.gasteropoda += insect.gasteropoda || 0;
+          consolidatedInsects.dermaptera += insect.dermaptera || 0;
+          consolidatedInsects.others += insect.others || 0;
+        });
+      }
+
+      setInsects(consolidatedInsects);
       setPhotos(photosData || []);
     } catch (error) {
-      console.warn("Erro ao buscar detalhes da amostra:", error);
     } finally {
       setLoading(false);
     }

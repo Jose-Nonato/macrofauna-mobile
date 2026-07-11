@@ -6,7 +6,6 @@ const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "";
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
     "Aviso: Supabase URL ou Anon Key não estão configurados no arquivo .env.",
   );
 }
@@ -19,7 +18,6 @@ const customStorage = {
     try {
       return await AsyncStorage.getItem(key);
     } catch (error) {
-      console.error("Erro ao ler do AsyncStorage:", error);
       return null;
     }
   },
@@ -30,7 +28,6 @@ const customStorage = {
     try {
       await AsyncStorage.setItem(key, value);
     } catch (error) {
-      console.error("Erro ao gravar no AsyncStorage:", error);
     }
   },
   removeItem: async (key: string) => {
@@ -40,7 +37,6 @@ const customStorage = {
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
-      console.error("Erro ao remover do AsyncStorage:", error);
     }
   },
 };

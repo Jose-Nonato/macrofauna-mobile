@@ -285,6 +285,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#e5e7eb",
+    height: 48,
   },
   passwordInput: {
     flex: 1,
@@ -296,6 +297,7 @@ const styles = StyleSheet.create({
   toggleButton: {
     paddingHorizontal: 16,
     justifyContent: "center",
+    alignItems: "center",
     height: "100%",
   },
   toggleButtonText: {
