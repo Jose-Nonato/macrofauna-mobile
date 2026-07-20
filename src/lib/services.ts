@@ -1,3 +1,4 @@
+import { ensureUserProfile } from "./profileService";
 import { supabase } from "./supabase";
 
 function generateSimpleUUID() {
@@ -40,6 +41,7 @@ export async function createSample(sample: any) {
   const { data: userData } = await supabase.auth.getUser();
   const user = userData.user;
   if (!user) throw new Error("Usuário não autenticado");
+  await ensureUserProfile();
   const { data, error } = await supabase
     .from("samples")
     .insert({ user_id: user.id, ...sample })
@@ -64,6 +66,7 @@ export async function insertPhotos(photos: any) {
 }
 
 export async function updateSample(id: any, sample: any) {
+  console.log(
     "🟢 [UPDATE SAMPLE] Atualizando amostra ID:",
     id,
     "com dados:",
@@ -98,6 +101,7 @@ export async function uploadPhoto(
   direction: string,
   sampleId: any,
 ) {
+  console.log(
     "🟣 [UPLOAD PHOTO] Iniciando upload de foto. Direction:",
     direction,
     "URI:",
@@ -132,6 +136,7 @@ export async function uploadPhoto(
       .select()
       .single();
     if (error) {
+      console.error(
         "🟣 [UPLOAD PHOTO] Erro ao inserir registro na tabela:",
         error,
       );

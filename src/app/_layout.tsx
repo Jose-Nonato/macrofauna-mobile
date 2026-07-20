@@ -1,3 +1,4 @@
+import { ensureUserProfile } from "@/lib/profileService";
 import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import { Stack, useRouter, useSegments } from "expo-router";
@@ -14,12 +15,26 @@ export default function RootLayout() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
+      if (session) {
+        ensureUserProfile().catch((error) =>
+          console.warn("Falha ao garantir perfil:", error.message),
+        );
+      }
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      if (event === "SIGNED_IN" && session) {
+        // setTimeout evita deadlock: o supabase-js segura um lock de auth
+        // enquanto este callback roda
+        setTimeout(() => {
+          ensureUserProfile().catch((error) =>
+            console.warn("Falha ao garantir perfil:", error.message),
+          );
+        }, 0);
+      }
     });
 
     return () => {

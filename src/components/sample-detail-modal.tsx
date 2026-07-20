@@ -1,19 +1,19 @@
+import { deleteSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Image,
+  Modal,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
-  View,
-  Modal,
   TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Image,
-  Dimensions,
-  Platform,
-  Alert,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { getInsectsBySample, getPhotosBySample, deleteSample } from "@/lib/services";
 import { TAXON_LIST } from "./register-sample-steps/step-taxonomy";
 
 interface SampleDetailModalProps {
@@ -56,7 +56,7 @@ export default function SampleDetailModal({
       ]);
 
       // Consolidar todos os níveis de insetos
-      let consolidatedInsects = null;
+      let consolidatedInsects: any = null;
       if (insectsData && insectsData.length > 0) {
         consolidatedInsects = {
           earthworm: 0,
