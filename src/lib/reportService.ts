@@ -37,6 +37,7 @@ export async function generateReport(
   startDate?: string,
   endDate?: string
 ): Promise<ReportData> {
+  console.log("📊 [REPORT] Gerando relatório com filtros:", {
     country,
     state,
     city,
@@ -298,12 +299,13 @@ export async function getSamplesWithInsects(
     }
 
     const result = Array.from(sampleMap.values());
-
+    console.log(
       "📊 [REPORT] Amostras com insetos consolidadas:",
       result.length
     );
     return result;
   } catch (error: any) {
+    console.error(
       "📊 [REPORT] Erro ao buscar amostras com insetos:",
       error.message
     );

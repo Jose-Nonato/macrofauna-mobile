@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 
 function generateSimpleUUID() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -14,6 +14,7 @@ export async function uploadPhotoToStorage(
   direction: string,
   sampleId: string
 ) {
+  console.log(
     "📤 [UPLOAD] Iniciando upload. Direction:",
     direction,
     "Sample:",
@@ -30,6 +31,7 @@ export async function uploadPhotoToStorage(
     const base64Data = await FileSystem.readAsStringAsync(fileUri, {
       encoding: FileSystem.EncodingType.Base64,
     });
+    console.log(
       "📤 [UPLOAD] Arquivo lido com sucesso. Tamanho (base64):",
       base64Data.length
     );
@@ -49,7 +51,7 @@ export async function uploadPhotoToStorage(
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("macrofauna")
       .upload(filePath, bytes, {
-        contentType: "image/jpeg",
+        contentType: "image/jpg",
         upsert: false,
       });
 
@@ -90,6 +92,7 @@ export async function uploadMultiplePhotos(
   photos: { uri: string; direction: string }[],
   sampleId: string
 ) {
+  console.log(
     "📤 [UPLOAD MULTIPLE] Iniciando upload de",
     photos.length,
     "fotos"
@@ -107,6 +110,7 @@ export async function uploadMultiplePhotos(
       );
       results.push(result);
     } catch (error: any) {
+      console.error(
         `❌ [UPLOAD MULTIPLE] Erro ao fazer upload da foto (${photo.direction}):`,
         error.message
       );

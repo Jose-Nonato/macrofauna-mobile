@@ -6,6 +6,7 @@ const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "";
 
 if (!supabaseUrl || !supabaseAnonKey) {
+  console.log(
     "Aviso: Supabase URL ou Anon Key não estão configurados no arquivo .env.",
   );
 }
@@ -41,6 +42,41 @@ const customStorage = {
   },
 };
 
+const loggedFetch: typeof fetch = async (input, init) => {
+  const url =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+  const method = init?.method ?? "GET";
+  const path = url.replace(supabaseUrl, "");
+  const start = Date.now();
+  console.log(`🌐 [SUPABASE] → ${method} ${path}`);
+  try {
+    const response = await fetch(input, init);
+    const ms = Date.now() - start;
+    if (response.ok) {
+      console.log(
+        `🌐 [SUPABASE] ← ${response.status} ${method} ${path} (${ms}ms)`,
+      );
+    } else {
+      const body = await response.clone().text();
+      console.warn(
+        `🌐 [SUPABASE] ← ${response.status} ${method} ${path} (${ms}ms):`,
+        body,
+      );
+    }
+    return response;
+  } catch (error) {
+    console.error(
+      `🌐 [SUPABASE] ✕ ${method} ${path} (${Date.now() - start}ms):`,
+      error,
+    );
+    throw error;
+  }
+};
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: customStorage,
@@ -48,4 +84,13 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: false,
   },
+  global: {
+    fetch: __DEV__ ? loggedFetch : undefined,
+  },
 });
+
+if (__DEV__) {
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log("🔐 [AUTH]", event, session?.user?.email ?? "(sem sessão)");
+  });
+}

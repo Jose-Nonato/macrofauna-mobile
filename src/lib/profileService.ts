@@ -39,6 +39,34 @@ export async function getUserProfile(): Promise<UserProfile | null> {
   }
 }
 
+// Garantir que o usuário logado tem linha em profiles.
+// Contas criadas antes do trigger on_auth_user_created não têm perfil,
+// e a FK samples_user_id_fkey bloqueia inserts de amostras sem ele.
+export async function ensureUserProfile() {
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+  if (!user) throw new Error("Usuário não autenticado");
+
+  const { data: existing, error: selectError } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (selectError) throw selectError;
+  if (existing) return;
+
+  // name é NOT NULL no banco; usa o prefixo do email como valor provisório
+  const { error } = await supabase.from("profiles").insert({
+    user_id: user.id,
+    name: user.email?.split("@")[0] ?? "",
+    email: user.email ?? "",
+  });
+
+  // 23505 = unique_violation: perfil criado em paralelo, ok
+  if (error && error.code !== "23505") throw error;
+}
+
 // Atualizar perfil do usuário
 export async function updateUserProfile(profileData: Partial<UserProfile>) {
 

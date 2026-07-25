@@ -9,8 +9,8 @@ import {
   Alert,
   Platform,
   FlatList,
-  SafeAreaView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import { Picker } from "@react-native-picker/picker";
