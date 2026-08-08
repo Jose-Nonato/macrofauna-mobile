@@ -1,13 +1,16 @@
 import React from "react";
 import { StyleSheet, Text, View, Platform } from "react-native";
 import { WebView } from "react-native-webview";
+import { useI18n } from "@/hooks/useI18n";
 
 export default function StepVideo() {
+  const { t } = useI18n();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.stepTitle}>Passo 1: Vídeo Informativo</Text>
+      <Text style={styles.stepTitle}>{t("samples.stepVideoTitle")}</Text>
       <Text style={styles.stepDesc}>
-        Assista a essa breve explicação antes de coletar e registrar sua amostra de macrofauna de solo:
+        {t("samples.stepVideoDesc")}
       </Text>
       <View style={styles.videoContainer}>
         {Platform.OS === "web" ? (

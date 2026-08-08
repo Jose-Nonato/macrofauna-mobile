@@ -4,12 +4,14 @@ import { Session } from "@supabase/supabase-js";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 
-export default function RootLayout() {
+function RootLayoutContent() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const segments = useSegments();
+  const { isLoading: languageLoading } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -54,7 +56,7 @@ export default function RootLayout() {
     }
   }, [session, loading, segments]);
 
-  if (loading) {
+  if (loading || languageLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -77,5 +79,13 @@ export default function RootLayout() {
         options={{ headerShown: false, title: "Início" }}
       />
     </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <LanguageProvider>
+      <RootLayoutContent />
+    </LanguageProvider>
   );
 }

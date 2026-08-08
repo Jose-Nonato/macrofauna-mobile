@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
+import { useI18n } from "@/hooks/useI18n";
 
 interface StepLocationProps {
   locationMode: "gps" | "manual";
@@ -72,9 +73,10 @@ function SelectionModal({
   title,
   data,
   onSelect,
-  searchPlaceholder = "Buscar...",
+  searchPlaceholder,
   loading = false,
 }: SelectionModalProps) {
+  const { t } = useI18n();
   const [search, setSearch] = React.useState("");
 
   React.useEffect(() => {
@@ -110,7 +112,7 @@ function SelectionModal({
           {loading ? (
             <View style={modalStyles.loadingContainer}>
               <ActivityIndicator size="large" color="#54A676" />
-              <Text style={modalStyles.loadingText}>Carregando opções...</Text>
+              <Text style={modalStyles.loadingText}>{t("common.loading")}</Text>
             </View>
           ) : (
             <>
@@ -154,7 +156,7 @@ function SelectionModal({
                 ListEmptyComponent={
                   <View style={modalStyles.emptyContainer}>
                     <Text style={modalStyles.emptyText}>
-                      Nenhuma opção encontrada
+                      {t("samples.noOptionsFound")}
                     </Text>
                   </View>
                 }
@@ -181,6 +183,7 @@ export default function StepLocation({
   longitude,
   setLongitude,
 }: StepLocationProps) {
+  const { t } = useI18n();
   const [loadingGPS, setLoadingGPS] = React.useState(false);
 
   // Listas obtidas via API
@@ -225,7 +228,7 @@ export default function StepLocation({
       }));
       setCountries(mapped);
     } catch (error) {
-      Alert.alert("Erro de Conexão", "Não foi possível carregar a lista de países.");
+      Alert.alert(t("samples.connectionError"), t("samples.couldNotLoadCountries"));
     } finally {
       setLoadingCountries(false);
     }
@@ -255,7 +258,7 @@ export default function StepLocation({
       if (json.error) throw new Error(json.msg || "Erro na resposta da API");
       setStates(json.data.states || []);
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível obter a lista de estados.");
+      Alert.alert(t("common.error"), t("samples.couldNotLoadStates"));
     } finally {
       setLoadingStates(false);
     }
@@ -290,7 +293,7 @@ export default function StepLocation({
       if (json.error) throw new Error(json.msg || "Erro na resposta da API");
       setCities(json.data || []);
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível obter a lista de cidades.");
+      Alert.alert(t("common.error"), t("samples.couldNotLoadCities"));
     } finally {
       setLoadingCities(false);
     }
@@ -338,8 +341,8 @@ export default function StepLocation({
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
-          "Permissão Negada",
-          "Por favor, autorize o acesso ao GPS nas configurações do dispositivo."
+          t("samples.gpsPermissionDenied"),
+          t("samples.gpsPermissionMsg")
         );
         setLoadingGPS(false);
         return;
@@ -361,10 +364,10 @@ export default function StepLocation({
         setCity(address.city || address.subregion || "");
         setState(address.region || "");
         setCountry(address.country || "Brasil");
-        Alert.alert("Sucesso", "Localização GPS obtida com sucesso!");
+        Alert.alert(t("common.success"), t("samples.gpsSuccessMsg"));
       }
     } catch (err) {
-      Alert.alert("Erro GPS", "Não foi possível ler as coordenadas de GPS.");
+      Alert.alert(t("samples.gpsError"), t("samples.couldNotReadGPS"));
     } finally {
       setLoadingGPS(false);
     }
@@ -406,9 +409,9 @@ export default function StepLocation({
 
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
-      <Text style={styles.stepTitle}>Passo 4: Localização</Text>
+      <Text style={styles.stepTitle}>{t("samples.stepLocationTitle")}</Text>
       <Text style={styles.stepDesc}>
-        Informe onde a amostra foi coletada em campo:
+        {t("samples.stepLocationDesc")}
       </Text>
 
       {/* Seleção do Modo de Localização */}
@@ -426,7 +429,7 @@ export default function StepLocation({
               locationMode === "gps" && styles.selectorBtnTextActive,
             ]}
           >
-            Via GPS Nativo
+            {t("samples.gpsMode")}
           </Text>
         </TouchableOpacity>
 
@@ -443,7 +446,7 @@ export default function StepLocation({
               locationMode === "manual" && styles.selectorBtnTextActive,
             ]}
           >
-            Preenchimento Selecionado
+            {t("samples.manualMode")}
           </Text>
         </TouchableOpacity>
       </View>
@@ -465,7 +468,7 @@ export default function StepLocation({
                   color="#ffffff"
                   style={{ marginRight: 8 }}
                 />
-                <Text style={styles.gpsButtonText}>Pegar Minhas Coordenadas</Text>
+                <Text style={styles.gpsButtonText}>{t("samples.getMyCoordinates")}</Text>
               </>
             )}
           </TouchableOpacity>
@@ -479,24 +482,24 @@ export default function StepLocation({
                 Lon: {parseFloat(longitude).toFixed(5)}
               </Text>
               <Text style={styles.gpsText}>
-                Cidade: {COUNTRY_TRANSLATIONS[city] || city || "Não localizada"}
+                {t("samples.cityLabel")}: {COUNTRY_TRANSLATIONS[city] || city || t("samples.cityNotFound")}
               </Text>
             </View>
           ) : (
             <Text style={styles.gpsHelpText}>
-              Clique no botão acima para preencher automaticamente via GPS.
+              {t("samples.clickToFillGPS")}
             </Text>
           )}
         </View>
       ) : (
         <View style={styles.manualPanel}>
-          {/* País Select */}
+          {/* Country Select */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>País</Text>
+            <Text style={styles.inputLabel}>{t("common.country")}</Text>
             {loadingCountries ? (
               <View style={styles.selectButtonDisabled}>
                 <ActivityIndicator size="small" color="#54A676" style={{ marginRight: 8 }} />
-                <Text style={styles.placeholderText}>Carregando países...</Text>
+                <Text style={styles.placeholderText}>{t("samples.loadingCountries")}</Text>
               </View>
             ) : (
               <TouchableOpacity
@@ -509,7 +512,7 @@ export default function StepLocation({
                     !country && styles.placeholderText,
                   ]}
                 >
-                  {COUNTRY_TRANSLATIONS[country] || country || "Selecione o País"}
+                  {COUNTRY_TRANSLATIONS[country] || country || t("samples.selectCountry")}
                 </Text>
                 <Ionicons
                   name="chevron-down-outline"
@@ -520,18 +523,18 @@ export default function StepLocation({
             )}
           </View>
 
-          {/* Estado Select */}
+          {/* State Select */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Estado</Text>
+            <Text style={styles.inputLabel}>{t("common.state")}</Text>
             {!country ? (
               <TouchableOpacity
                 style={[styles.selectButton, styles.selectButtonDisabled]}
                 onPress={() =>
-                  Alert.alert("Atenção", "Por favor, selecione o País primeiro.")
+                  Alert.alert(t("common.attention"), t("samples.selectCountryFirstAlert"))
                 }
               >
                 <Text style={[styles.selectButtonText, styles.placeholderText]}>
-                  Selecione o País primeiro
+                  {t("samples.selectCountryFirst")}
                 </Text>
                 <Ionicons
                   name="chevron-down-outline"
@@ -542,7 +545,7 @@ export default function StepLocation({
             ) : loadingStates ? (
               <View style={styles.selectButtonDisabled}>
                 <ActivityIndicator size="small" color="#54A676" style={{ marginRight: 8 }} />
-                <Text style={styles.placeholderText}>Carregando estados...</Text>
+                <Text style={styles.placeholderText}>{t("samples.loadingStates")}</Text>
               </View>
             ) : (
               <TouchableOpacity
@@ -563,7 +566,7 @@ export default function StepLocation({
                             s.name.toUpperCase() === state.toUpperCase()
                         )?.name || state
                       }`
-                    : "Selecione o Estado"}
+                    : t("samples.selectState")}
                 </Text>
                 <Ionicons
                   name="chevron-down-outline"
@@ -576,19 +579,19 @@ export default function StepLocation({
 
           {/* Cidade Select */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Cidade</Text>
+            <Text style={styles.inputLabel}>{t("common.city")}</Text>
             {!country || !state ? (
               <TouchableOpacity
                 style={[styles.selectButton, styles.selectButtonDisabled]}
                 onPress={() =>
                   Alert.alert(
-                    "Atenção",
-                    "Por favor, selecione o País e o Estado primeiro."
+                    t("common.attention"),
+                    t("samples.selectCountryStateFirstAlert")
                   )
                 }
               >
                 <Text style={[styles.selectButtonText, styles.placeholderText]}>
-                  Selecione o País e o Estado primeiro
+                  {t("samples.selectCountryStateFirst")}
                 </Text>
                 <Ionicons
                   name="chevron-down-outline"
@@ -599,7 +602,7 @@ export default function StepLocation({
             ) : loadingCities ? (
               <View style={styles.selectButtonDisabled}>
                 <ActivityIndicator size="small" color="#54A676" style={{ marginRight: 8 }} />
-                <Text style={styles.placeholderText}>Carregando cidades...</Text>
+                <Text style={styles.placeholderText}>{t("samples.loadingCities")}</Text>
               </View>
             ) : (
               <TouchableOpacity
@@ -612,7 +615,7 @@ export default function StepLocation({
                     !city && styles.placeholderText,
                   ]}
                 >
-                  {city || "Selecione a Cidade"}
+                  {city || t("samples.selectCity")}
                 </Text>
                 <Ionicons
                   name="chevron-down-outline"
@@ -632,7 +635,7 @@ export default function StepLocation({
                 style={{ marginRight: 8 }}
               />
               <Text style={styles.coordsHelpText}>
-                Buscando coordenadas geográficas...
+                {t("samples.fetchingCoordinates")}
               </Text>
             </View>
           ) : latitude && longitude ? (
@@ -644,7 +647,7 @@ export default function StepLocation({
                 style={{ marginRight: 6 }}
               />
               <Text style={styles.coordsText}>
-                Coordenadas obtidas: Lat {parseFloat(latitude).toFixed(5)}, Lon{" "}
+                {t("samples.coordinatesObtained")}: Lat {parseFloat(latitude).toFixed(5)}, Lon{" "}
                 {parseFloat(longitude).toFixed(5)}
               </Text>
             </View>
@@ -660,7 +663,7 @@ export default function StepLocation({
                   style={{ marginRight: 6 }}
                 />
                 <Text style={styles.coordsWarningText}>
-                  Não foi possível obter as coordenadas automaticamente.
+                  {t("samples.couldNotGetCoordinatesAuto")}
                 </Text>
               </View>
             )
@@ -672,30 +675,30 @@ export default function StepLocation({
       <SelectionModal
         visible={countriesModalVisible}
         onClose={() => setCountriesModalVisible(false)}
-        title="Selecione o País"
+        title={t("samples.selectCountry")}
         data={countries}
         onSelect={handleSelectCountry}
-        searchPlaceholder="Buscar país..."
+        searchPlaceholder={t("samples.searchCountry")}
         loading={loadingCountries}
       />
 
       <SelectionModal
         visible={statesModalVisible}
         onClose={() => setStatesModalVisible(false)}
-        title="Selecione o Estado"
+        title={t("samples.selectState")}
         data={stateOptions}
         onSelect={handleSelectState}
-        searchPlaceholder="Buscar estado..."
+        searchPlaceholder={t("samples.searchState")}
         loading={loadingStates}
       />
 
       <SelectionModal
         visible={citiesModalVisible}
         onClose={() => setCitiesModalVisible(false)}
-        title="Selecione a Cidade"
+        title={t("samples.selectCity")}
         data={cityOptions}
         onSelect={handleSelectCity}
-        searchPlaceholder="Buscar cidade..."
+        searchPlaceholder={t("samples.searchCity")}
         loading={loadingCities}
       />
     </ScrollView>

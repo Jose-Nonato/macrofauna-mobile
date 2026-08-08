@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabase";
 import { createSample, insertInsects, updateSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
 import { uploadPhotoToStorage } from "@/lib/uploadService";
 import { Ionicons } from "@expo/vector-icons";
+import { useI18n } from "@/hooks/useI18n";
 
 // Importação dos passos modularizados do Wizard
 import StepVideo from "./register-sample-steps/step-video";
@@ -36,6 +37,7 @@ export default function RegisterSampleModal({
   onSuccess,
   sampleToEdit,
 }: RegisterSampleModalProps) {
+  const { t } = useI18n();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [loading, setLoading] = useState(false);
 
@@ -202,8 +204,8 @@ export default function RegisterSampleModal({
   const handleSaveSample = async () => {
     if (!city.trim() || !state.trim()) {
       Alert.alert(
-        "Campos Obrigatórios",
-        "Por favor, preencha a Cidade e o Estado."
+        t("samples.requiredFields"),
+        t("samples.fillCityState")
       );
       return;
     }
@@ -217,7 +219,7 @@ export default function RegisterSampleModal({
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("Usuário não autenticado.");
+      if (!user) throw new Error(t("auth.notAuthenticated"));
 
       // 2. Mapeamento e Cálculos de Acordo com a Fórmula Oficial de IQMS e Densidade
       const numLevels = taxonLevels.length;
@@ -413,21 +415,21 @@ export default function RegisterSampleModal({
       }
 
       // 7. Finalização e Alerta de Sucesso
-      const alertTitle = sampleToEdit ? "Amostra Atualizada!" : "Amostra Cadastrada!";
+      const alertTitle = sampleToEdit ? t("samples.sampleUpdated") : t("samples.sampleCreated");
       const alertMessage = sampleToEdit
-        ? `Sua amostra foi editada e salva com sucesso no Supabase.\nScore IQMS: ${calculatedScore.toFixed(
+        ? `${t("samples.editedSuccess")}\nScore IQMS: ${calculatedScore.toFixed(
             2
-          )}/1.0\nDensidade: ${densityValue.toFixed(2)}`
-        : `Sua amostra foi gravada com sucesso no Supabase.\nScore IQMS: ${calculatedScore.toFixed(
+          )}/1.0\n${t("home.density")}: ${densityValue.toFixed(2)}`
+        : `${t("samples.savedSuccess")}\nScore IQMS: ${calculatedScore.toFixed(
             2
-          )}/1.0\nDensidade: ${densityValue.toFixed(2)}`;
+          )}/1.0\n${t("home.density")}: ${densityValue.toFixed(2)}`;
 
       Alert.alert(
         alertTitle,
         alertMessage,
         [
           {
-            text: "Finalizar",
+            text: t("common.finish"),
             onPress: () => {
               // Resetar estados
               setStep(1);
@@ -465,7 +467,7 @@ export default function RegisterSampleModal({
         ]
       );
     } catch (err: any) {
-      Alert.alert("Erro ao Salvar", err.message || "Erro inesperado.");
+      Alert.alert(t("samples.errorSaving"), err.message || t("samples.unexpectedError"));
     } finally {
       setLoading(false);
     }
@@ -521,7 +523,7 @@ export default function RegisterSampleModal({
           {/* Header do Wizard */}
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
-              {sampleToEdit ? "Editar Amostra" : "Nova Amostra"}
+              {sampleToEdit ? t("home.editSample") : t("home.newSample")}
             </Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Ionicons name="close" size={24} color="#4b5563" />
@@ -566,7 +568,7 @@ export default function RegisterSampleModal({
                 style={styles.backStepButton}
                 onPress={handleBack}
               >
-                <Text style={styles.backStepButtonText}>Voltar</Text>
+                <Text style={styles.backStepButtonText}>{t("common.back")}</Text>
               </TouchableOpacity>
             ) : (
               <View style={{ width: 80 }} />
@@ -577,7 +579,7 @@ export default function RegisterSampleModal({
                 style={styles.nextStepButton}
                 onPress={handleNext}
               >
-                <Text style={styles.nextStepButtonText}>Próximo</Text>
+                <Text style={styles.nextStepButtonText}>{t("common.next")}</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
@@ -588,7 +590,7 @@ export default function RegisterSampleModal({
                 {loading ? (
                   <ActivityIndicator color="#ffffff" />
                 ) : (
-                  <Text style={styles.saveStepButtonText}>Salvar Amostra</Text>
+                  <Text style={styles.saveStepButtonText}>{t("common.save")}</Text>
                 )}
               </TouchableOpacity>
             )}

@@ -12,6 +12,7 @@ import {
 import { WebView } from "react-native-webview";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
+import { useI18n } from "@/hooks/useI18n";
 
 interface Sample {
   id: string;
@@ -26,6 +27,7 @@ interface Sample {
 }
 
 export default function MapTab() {
+  const { t } = useI18n();
   const [samples, setSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
@@ -61,7 +63,7 @@ export default function MapTab() {
       setSamples(samplesData || []);
       generateMapHtml(samplesData || []);
     } catch (error: any) {
-      Alert.alert("Erro", "Não foi possível carregar o mapa");
+      Alert.alert(t("common.error"), t("map.couldNotLoadMap"));
     } finally {
       setLoading(false);
     }
@@ -183,7 +185,7 @@ export default function MapTab() {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#54A676" />
-        <Text style={styles.loadingText}>Carregando mapa...</Text>
+        <Text style={styles.loadingText}>{t("common.loading")}</Text>
       </View>
     );
   }
@@ -192,9 +194,9 @@ export default function MapTab() {
     return (
       <View style={styles.emptyStateContainer}>
         <Ionicons name="map-outline" size={48} color="#d1d5db" />
-        <Text style={styles.emptyStateText}>Nenhuma amostra com localização</Text>
+        <Text style={styles.emptyStateText}>{t("map.noLocationSamples")}</Text>
         <Text style={styles.emptyStateSubText}>
-          Registre uma amostra com GPS para vê-la no mapa
+          {t("map.registerGPSHint")}
         </Text>
       </View>
     );
@@ -216,7 +218,7 @@ export default function MapTab() {
       {/* Indicador de amostras */}
       <View style={styles.samplesCountBadge}>
         <Text style={styles.samplesCountText}>
-          {samples.length} Amostra{samples.length !== 1 ? "s" : ""}
+          {samples.length} {samples.length !== 1 ? t("map.samplePlural") : t("map.sample")}
         </Text>
       </View>
     </View>

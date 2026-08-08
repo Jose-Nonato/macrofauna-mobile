@@ -14,6 +14,8 @@ import {
 } from "react-native";
 import RegisterSampleModal from "../register-sample-modal";
 import SampleDetailModal from "../sample-detail-modal";
+import { useI18n } from "@/hooks/useI18n";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Sample {
   id: string;
@@ -31,6 +33,8 @@ interface Sample {
 }
 
 export default function HomeTab() {
+  const { t } = useI18n();
+  const { language } = useLanguage();
   const [samples, setSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -91,8 +95,8 @@ export default function HomeTab() {
           query = query.gte("created_at", `${parsedStart}T00:00:00.000Z`);
         } else {
           Alert.alert(
-            "Data Inválida",
-            "Por favor, digite a data inicial no formato DD/MM/AAAA.",
+            t("home.invalidDate"),
+            t("home.invalidStartDateMsg"),
           );
           setLoading(false);
           setRefreshing(false);
@@ -106,8 +110,8 @@ export default function HomeTab() {
           query = query.lte("created_at", `${parsedEnd}T23:59:59.999Z`);
         } else {
           Alert.alert(
-            "Data Inválida",
-            "Por favor, digite a data final no formato DD/MM/AAAA.",
+            t("home.invalidDate"),
+            t("home.invalidEndDateMsg"),
           );
           setLoading(false);
           setRefreshing(false);
@@ -173,7 +177,8 @@ export default function HomeTab() {
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString("pt-BR", {
+      const locale = language === "pt" ? "pt-BR" : language === "es" ? "es-ES" : "en-US";
+      return date.toLocaleDateString(locale, {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -187,7 +192,7 @@ export default function HomeTab() {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#54A676" />
-        <Text style={styles.loadingText}>Carregando amostras...</Text>
+        <Text style={styles.loadingText}>{t("common.loading")}</Text>
       </View>
     );
   }
@@ -196,9 +201,9 @@ export default function HomeTab() {
     <View style={styles.container}>
       {/* Cabeçalho de Ações e Título */}
       <View style={styles.headerSection}>
-        <Text style={styles.headerTitle}>Últimas amostras registradas</Text>
+        <Text style={styles.headerTitle}>{t("home.recentSamples")}</Text>
         <Text style={styles.headerSubtitle}>
-          Acompanhe e filtre os dados de macrofauna coletados em campo
+          {t("home.headerSubtitle")}
         </Text>
 
         <View style={styles.actionsRow}>
@@ -213,7 +218,7 @@ export default function HomeTab() {
               color="#ffffff"
               style={styles.buttonIcon}
             />
-            <Text style={styles.registerButtonText}>Registrar Amostra</Text>
+            <Text style={styles.registerButtonText}>{t("samples.registerSample")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -236,17 +241,17 @@ export default function HomeTab() {
                 showFilters && styles.filterButtonTextActive,
               ]}
             >
-              Filtrar
+              {t("reports.filter")}
             </Text>
           </TouchableOpacity>
         </View>
 
         {showFilters && (
           <View style={styles.filterPanel}>
-            <Text style={styles.filterPanelTitle}>Filtros Avançados</Text>
+            <Text style={styles.filterPanelTitle}>{t("home.advancedFilters")}</Text>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Cidade</Text>
+              <Text style={styles.inputLabel}>{t("common.city")}</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Ex: Santarém"
@@ -258,7 +263,7 @@ export default function HomeTab() {
 
             <View style={styles.rowInputs}>
               <View style={[styles.inputGroup, { flex: 1, marginRight: 12 }]}>
-                <Text style={styles.inputLabel}>Estado</Text>
+                <Text style={styles.inputLabel}>{t("common.state")}</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="Ex: PA"
@@ -270,10 +275,10 @@ export default function HomeTab() {
               </View>
 
               <View style={[styles.inputGroup, { flex: 1 }]}>
-                <Text style={styles.inputLabel}>País</Text>
+                <Text style={styles.inputLabel}>{t("common.country")}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Ex: Brasil"
+                  placeholder="Ex: Brazil"
                   placeholderTextColor="#9ca3af"
                   value={filterCountry}
                   onChangeText={setFilterCountry}
@@ -283,10 +288,10 @@ export default function HomeTab() {
 
             <View style={styles.rowInputs}>
               <View style={[styles.inputGroup, { flex: 1, marginRight: 12 }]}>
-                <Text style={styles.inputLabel}>Data Inicial</Text>
+                <Text style={styles.inputLabel}>{t("home.startDate")}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="DD/MM/AAAA"
+                  placeholder="DD/MM/YYYY"
                   placeholderTextColor="#9ca3af"
                   value={filterStartDate}
                   onChangeText={setFilterStartDate}
@@ -295,10 +300,10 @@ export default function HomeTab() {
               </View>
 
               <View style={[styles.inputGroup, { flex: 1 }]}>
-                <Text style={styles.inputLabel}>Data Final</Text>
+                <Text style={styles.inputLabel}>{t("home.endDate")}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="DD/MM/AAAA"
+                  placeholder="DD/MM/YYYY"
                   placeholderTextColor="#9ca3af"
                   value={filterEndDate}
                   onChangeText={setFilterEndDate}
@@ -313,7 +318,7 @@ export default function HomeTab() {
                 onPress={handleClearFilters}
                 activeOpacity={0.8}
               >
-                <Text style={styles.clearButtonText}>Limpar</Text>
+                <Text style={styles.clearButtonText}>{t("home.clearFilters")}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -324,7 +329,7 @@ export default function HomeTab() {
                 }}
                 activeOpacity={0.8}
               >
-                <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
+                <Text style={styles.applyButtonText}>{t("home.applyFilters")}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -345,15 +350,15 @@ export default function HomeTab() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="documents-outline" size={64} color="#9ca3af" />
-            <Text style={styles.emptyTitle}>Nenhuma amostra encontrada</Text>
+            <Text style={styles.emptyTitle}>{t("home.noSamplesFound")}</Text>
             <Text style={styles.emptyDesc}>
-              Não foram encontradas amostras com os filtros selecionados.
+              {t("home.noSamplesFiltered")}
             </Text>
             <TouchableOpacity
               style={styles.reloadButton}
               onPress={handleClearFilters}
             >
-              <Text style={styles.reloadButtonText}>Limpar Filtros</Text>
+              <Text style={styles.reloadButtonText}>{t("home.clearFilters")}</Text>
             </TouchableOpacity>
           </View>
         }
@@ -403,7 +408,7 @@ export default function HomeTab() {
                   ? `${item.city}, ${item.state} - ${item.country}`
                   : item.city && item.state
                     ? `${item.city}, ${item.state}`
-                    : "Local não informado"}
+                    : t("profile.notInformed")}
               </Text>
             </View>
 
@@ -413,7 +418,7 @@ export default function HomeTab() {
             <View style={styles.cardBody}>
               <View style={styles.bodyItem}>
                 <Ionicons name="analytics" size={16} color="#54A676" />
-                <Text style={styles.itemLabel}>Densidade:</Text>
+                <Text style={styles.itemLabel}>{t("home.density")}:</Text>
                 <Text style={styles.itemValue}>
                   {item.sample_density !== null
                     ? `${item.sample_density.toFixed(1)}/m²`

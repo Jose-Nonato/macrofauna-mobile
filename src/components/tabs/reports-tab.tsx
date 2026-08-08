@@ -24,24 +24,10 @@ import {
   LocationOptions,
 } from "@/lib/reportService";
 import { Ionicons } from "@expo/vector-icons";
-
-const taxonLabels: Record<string, string> = {
-  earthworm: "Minhoca",
-  ant: "Formiga",
-  isoptera: "Cupim",
-  blattaria: "Barata",
-  coleoptera: "Besouro",
-  arachnida: "Aranha",
-  diplopoda: "Milípede",
-  chilopoda: "Centípede",
-  hemiptera: "Hemíptera",
-  lepidoptera: "Borboleta",
-  gasteropoda: "Gastrópode",
-  dermaptera: "Tesourinha",
-  others: "Outros",
-};
+import { useI18n } from "@/hooks/useI18n";
 
 export default function ReportsTab() {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [reportData, setReportData] = useState<ReportData | null>(null);
@@ -74,7 +60,7 @@ export default function ReportsTab() {
       }
       generateInitialReport();
     } catch (error: any) {
-      Alert.alert("Erro", "Não foi possível carregar as opções de filtro");
+      Alert.alert(t("common.error"), t("reports.couldNotLoadFilters"));
     } finally {
       setLoading(false);
     }
@@ -110,7 +96,7 @@ export default function ReportsTab() {
       const data = await generateReport();
       setReportData(data);
     } catch (error: any) {
-      Alert.alert("Erro", "Não foi possível gerar o relatório");
+      Alert.alert(t("common.error"), t("reports.couldNotGenerateReport"));
     } finally {
       setLoading(false);
     }
@@ -128,7 +114,7 @@ export default function ReportsTab() {
       );
       setReportData(data);
     } catch (error: any) {
-      Alert.alert("Erro", "Não foi possível gerar o relatório");
+      Alert.alert(t("common.error"), t("reports.couldNotGenerateReport"));
     } finally {
       setGenerating(false);
     }
@@ -157,7 +143,7 @@ export default function ReportsTab() {
   async function handleExportCSV() {
     try {
       if (!reportData) {
-        Alert.alert("Erro", "Nenhum relatório para exportar");
+        Alert.alert(t("common.error"), t("reports.noReportToExport"));
         return;
       }
 
@@ -182,13 +168,13 @@ export default function ReportsTab() {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(filePath, {
           mimeType: "text/csv",
-          dialogTitle: "Exportar Relatório Macrofauna",
+          dialogTitle: t("reports.exportDialogTitle"),
         });
       } else {
-        Alert.alert("Info", "Compartilhamento não disponível neste dispositivo");
+        Alert.alert(t("common.info"), t("reports.sharingNotAvailable"));
       }
     } catch (error: any) {
-      Alert.alert("Erro", error.message || "Não foi possível exportar o relatório");
+      Alert.alert(t("common.error"), error.message || t("reports.couldNotExportReport"));
     } finally {
       setGenerating(false);
     }
@@ -214,25 +200,25 @@ export default function ReportsTab() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Relatórios</Text>
-          <Text style={styles.subtitle}>Análise de Dados de Macrofauna</Text>
+          <Text style={styles.title}>{t("reports.title")}</Text>
+          <Text style={styles.subtitle}>{t("reports.subtitle")}</Text>
         </View>
 
         {/* Filtros */}
         {locationOptions && (
           <View style={styles.filtersCard}>
             <View style={styles.filterHeaderRow}>
-              <Text style={styles.sectionTitle}>Filtros</Text>
+              <Text style={styles.sectionTitle}>{t("reports.filter")}</Text>
               <TouchableOpacity
                 onPress={handleClearFilters}
                 style={styles.clearButton}
               >
                 <Ionicons name="refresh" size={18} color="#54A676" />
-                <Text style={styles.clearButtonText}>Limpar</Text>
+                <Text style={styles.clearButtonText}>{t("reports.clear")}</Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.inputLabel}>País</Text>
+            <Text style={styles.inputLabel}>{t("common.country")}</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={country}
@@ -244,20 +230,20 @@ export default function ReportsTab() {
               </Picker>
             </View>
 
-            <Text style={styles.inputLabel}>Estado</Text>
+            <Text style={styles.inputLabel}>{t("common.state")}</Text>
             <View style={styles.pickerContainer}>
               <Picker selectedValue={state} onValueChange={handleStateChange}>
-                <Picker.Item label="Todos os estados" value="" />
+                <Picker.Item label={t("reports.allStates")} value="" />
                 {(locationOptions.states[country] || []).map((s) => (
                   <Picker.Item key={s} label={s} value={s} />
                 ))}
               </Picker>
             </View>
 
-            <Text style={styles.inputLabel}>Cidade</Text>
+            <Text style={styles.inputLabel}>{t("common.city")}</Text>
             <View style={styles.pickerContainer}>
               <Picker selectedValue={city} onValueChange={setCity}>
-                <Picker.Item label="Todas as cidades" value="" />
+                <Picker.Item label={t("reports.allCities")} value="" />
                 {(locationOptions.cities[`${country}-${state}`] || []).map(
                   (c) => (
                     <Picker.Item key={c} label={c} value={c} />
@@ -266,14 +252,14 @@ export default function ReportsTab() {
               </Picker>
             </View>
 
-          <Text style={styles.inputLabel}>Data Início</Text>
+          <Text style={styles.inputLabel}>{t("reports.startDate")}</Text>
           <TouchableOpacity
             style={styles.dateButton}
             onPress={() => setShowStartDatePicker(true)}
           >
             <Ionicons name="calendar" size={20} color="#54A676" />
             <Text style={styles.dateButtonText}>
-              {startDate || "Selecione uma data"}
+              {startDate || t("reports.selectDate")}
             </Text>
           </TouchableOpacity>
 
@@ -286,14 +272,14 @@ export default function ReportsTab() {
             />
           )}
 
-          <Text style={styles.inputLabel}>Data Fim</Text>
+          <Text style={styles.inputLabel}>{t("reports.endDate")}</Text>
           <TouchableOpacity
             style={styles.dateButton}
             onPress={() => setShowEndDatePicker(true)}
           >
             <Ionicons name="calendar" size={20} color="#54A676" />
             <Text style={styles.dateButtonText}>
-              {endDate || "Selecione uma data"}
+              {endDate || t("reports.selectDate")}
             </Text>
           </TouchableOpacity>
 
@@ -316,7 +302,7 @@ export default function ReportsTab() {
               ) : (
                 <>
                   <Ionicons name="funnel" size={20} color="#ffffff" />
-                  <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
+                  <Text style={styles.applyButtonText}>{t("reports.filter")}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -327,7 +313,7 @@ export default function ReportsTab() {
           <>
             {/* Indicador Geral */}
             <View style={styles.scoreCard}>
-              <Text style={styles.sectionTitle}>Indicador Geral (IQMS)</Text>
+              <Text style={styles.sectionTitle}>{t("reports.overallIndicator")}</Text>
               <View
                 style={[
                   styles.scoreCircle,
@@ -346,7 +332,7 @@ export default function ReportsTab() {
             {/* Cards de Categorias */}
             <View style={styles.categoriesContainer}>
               <View style={[styles.categoryCard, styles.goodCard]}>
-                <Text style={styles.categoryLabel}>Bom</Text>
+                <Text style={styles.categoryLabel}>{t("reports.good")}</Text>
                 <Text style={styles.categoryValue}>
                   {reportData.goodCount}
                 </Text>
@@ -354,7 +340,7 @@ export default function ReportsTab() {
               </View>
 
               <View style={[styles.categoryCard, styles.regularCard]}>
-                <Text style={styles.categoryLabel}>Regular</Text>
+                <Text style={styles.categoryLabel}>{t("reports.regular")}</Text>
                 <Text style={styles.categoryValue}>
                   {reportData.regularCount}
                 </Text>
@@ -362,7 +348,7 @@ export default function ReportsTab() {
               </View>
 
               <View style={[styles.categoryCard, styles.mediocreCard]}>
-                <Text style={styles.categoryLabel}>Mediocre</Text>
+                <Text style={styles.categoryLabel}>{t("reports.mediocre")}</Text>
                 <Text style={styles.categoryValue}>
                   {reportData.mediocreCount}
                 </Text>
@@ -370,7 +356,7 @@ export default function ReportsTab() {
               </View>
 
               <View style={[styles.categoryCard, styles.poorCard]}>
-                <Text style={styles.categoryLabel}>Ruim</Text>
+                <Text style={styles.categoryLabel}>{t("reports.poor")}</Text>
                 <Text style={styles.categoryValue}>
                   {reportData.poorCount}
                 </Text>
@@ -381,26 +367,26 @@ export default function ReportsTab() {
             {/* Tabela de Taxôns */}
             <View style={styles.tableCard}>
               <Text style={styles.sectionTitle}>
-                Quantidade por Classe Taxonômica
+                {t("reports.quantityByClass")}
               </Text>
               <Text style={styles.tableSubtitle}>
-                Total de {reportData.totalSamples} amostra
-                {reportData.totalSamples !== 1 ? "s" : ""}
+                {t("reports.totalOf")} {reportData.totalSamples}{" "}
+                {reportData.totalSamples !== 1 ? t("reports.samplePlural") : t("reports.sample")}
               </Text>
 
               <View style={styles.tableHeader}>
                 <Text style={[styles.tableHeaderCell, styles.nameCell]}>
-                  Classe
+                  {t("reports.class")}
                 </Text>
                 <Text style={[styles.tableHeaderCell, styles.quantityCell]}>
-                  Qtd.
+                  {t("reports.qty")}
                 </Text>
               </View>
 
               {Object.entries(reportData.taxonData).map(([taxon, quantity]) => (
                 <View key={taxon} style={styles.tableRow}>
                   <Text style={[styles.tableCell, styles.nameCell]}>
-                    {taxonLabels[taxon] || taxon}
+                    {t(`taxon.${taxon}`, taxon)}
                   </Text>
                   <Text style={[styles.tableCell, styles.quantityCell]}>
                     {quantity}
@@ -415,7 +401,7 @@ export default function ReportsTab() {
               onPress={handleExportCSV}
             >
               <Ionicons name="download" size={20} color="#ffffff" />
-              <Text style={styles.exportButtonText}>Exportar CSV</Text>
+              <Text style={styles.exportButtonText}>{t("reports.export")}</Text>
             </TouchableOpacity>
           </>
         )}

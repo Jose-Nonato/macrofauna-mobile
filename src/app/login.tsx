@@ -16,6 +16,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Image as ExpoImage } from "expo-image";
+import { useI18n } from "@/hooks/useI18n";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -23,10 +25,11 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { t } = useI18n();
 
   async function handleLogin() {
     if (!email || !password) {
-      Alert.alert("Erro", "Por favor, preencha todos os campos.");
+      Alert.alert(t("common.error"), t("auth.fillAllFields"));
       return;
     }
 
@@ -37,13 +40,13 @@ export default function Login() {
     });
 
     if (error) {
-      Alert.alert("Erro de Autenticação", error.message);
+      Alert.alert(t("common.error"), error.message);
       setLoading(false);
     } else {
       Alert.alert(
-        "Sucesso",
-        `Login efetuado com sucesso! Bem-vindo(a), ${data.user?.email}`,
-        [{ text: "Continuar", onPress: () => setLoading(false) }]
+        t("common.success"),
+        `${t("auth.loginSuccessMsg")}, ${data.user?.email}`,
+        [{ text: t("auth.continue"), onPress: () => setLoading(false) }]
       );
     }
   }
@@ -71,7 +74,7 @@ export default function Login() {
           <View style={styles.headerContainer}>
             <Text style={styles.title}>Macrofauna</Text>
             <Text style={styles.subtitle}>
-              Monitoramento & Agricultura Sustentável na Amazônia
+              {t("auth.monitoringSubtitle")}
             </Text>
           </View>
           <View style={styles.formContainer}>
@@ -81,13 +84,13 @@ export default function Login() {
               resizeMode="contain"
             />
 
-            <Text style={styles.cardTitle}>Entrar</Text>
-            <Text style={styles.cardSubtitle}>Faça login para continuar</Text>
+            <Text style={styles.cardTitle}>{t("auth.signIn")}</Text>
+            <Text style={styles.cardSubtitle}>{t("auth.loginSubtitle")}</Text>
 
-            <Text style={styles.label}>E-mail</Text>
+            <Text style={styles.label}>{t("auth.email")}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Digite seu e-mail"
+              placeholder={t("auth.email")}
               placeholderTextColor="#9ca3af"
               value={email}
               onChangeText={setEmail}
@@ -95,11 +98,11 @@ export default function Login() {
               keyboardType="email-address"
             />
 
-            <Text style={styles.label}>Senha</Text>
+            <Text style={styles.label}>{t("auth.password")}</Text>
             <View style={styles.passwordInputContainer}>
               <TextInput
                 style={styles.passwordInput}
-                placeholder="Digite sua senha"
+                placeholder={t("auth.password")}
                 placeholderTextColor="#9ca3af"
                 value={password}
                 onChangeText={setPassword}
@@ -112,7 +115,7 @@ export default function Login() {
                 activeOpacity={0.7}
               >
                 <Text style={styles.toggleButtonText}>
-                  {showPassword ? "Ocultar" : "Mostrar"}
+                  {showPassword ? t("auth.hide") : t("auth.show")}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -125,15 +128,38 @@ export default function Login() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Entrar</Text>
+                <Text style={styles.buttonText}>{t("auth.signIn")}</Text>
               )}
             </TouchableOpacity>
 
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Não tem uma conta? </Text>
+              <Text style={styles.footerText}>{t("auth.dontHaveAccount")} </Text>
               <TouchableOpacity onPress={() => router.push("/register")}>
-                <Text style={styles.linkText}>Cadastre-se</Text>
+                <Text style={styles.linkText}>{t("auth.signUp")}</Text>
               </TouchableOpacity>
+            </View>
+
+            <View style={styles.collaboratorsContainer}>
+              <ExpoImage
+                source={require("../../assets/colaboradores/goeldi.png")}
+                style={styles.collaboratorLogo}
+                contentFit="contain"
+              />
+              <ExpoImage
+                source={require("../../assets/colaboradores/cesupa.svg")}
+                style={styles.collaboratorLogo}
+                contentFit="contain"
+              />
+              <ExpoImage
+                source={require("../../assets/colaboradores/cirad.png")}
+                style={styles.collaboratorLogo}
+                contentFit="contain"
+              />
+              <ExpoImage
+                source={require("../../assets/colaboradores/soborne.png")}
+                style={styles.collaboratorLogo}
+                contentFit="contain"
+              />
             </View>
           </View>
         </ScrollView>
@@ -288,5 +314,20 @@ const styles = StyleSheet.create({
     color: "#54A676",
     fontSize: 14,
     fontWeight: "bold",
+  },
+  collaboratorsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 32,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#f3f4f6",
+    gap: 16,
+  },
+  collaboratorLogo: {
+    width: 64,
+    height: 40,
   },
 });

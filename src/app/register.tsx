@@ -16,6 +16,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Image as ExpoImage } from "expo-image";
+import { useI18n } from "@/hooks/useI18n";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -25,20 +27,21 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { t } = useI18n();
 
   async function handleRegister() {
     if (!email || !password || !confirmPassword) {
-      Alert.alert("Erro", "Por favor, preencha todos os campos.");
+      Alert.alert(t("common.error"), t("auth.fillAllFields"));
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("Erro", "As senhas não coincidem.");
+      Alert.alert(t("common.error"), t("auth.passwordsDontMatch"));
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert("Erro", "A senha deve ter no mínimo 6 caracteres.");
+      Alert.alert(t("common.error"), t("auth.passwordMinLength"));
       return;
     }
 
@@ -49,21 +52,21 @@ export default function Register() {
     });
 
     if (error) {
-      Alert.alert("Erro no Cadastro", error.message);
+      Alert.alert(t("common.error"), error.message);
       setLoading(false);
     } else {
       const isConfirmed = data.session !== null;
       if (isConfirmed) {
         Alert.alert(
-          "Sucesso",
-          "Sua conta foi criada e autenticada com sucesso! Bem-vindo(a) ao Macrofauna.",
-          [{ text: "Entrar", onPress: () => setLoading(false) }]
+          t("common.success"),
+          t("auth.accountCreatedSuccess"),
+          [{ text: t("auth.signIn"), onPress: () => setLoading(false) }]
         );
       } else {
         Alert.alert(
-          "Cadastro Realizado",
-          "Sua conta foi criada com sucesso! Por favor, verifique seu e-mail para confirmar o cadastro antes de fazer login.",
-          [{ text: "Ir para o Login", onPress: () => router.push("/login") }]
+          t("auth.registerCompleted"),
+          t("auth.verifyEmail"),
+          [{ text: t("auth.goToLogin"), onPress: () => router.push("/login") }]
         );
         setLoading(false);
       }
@@ -93,7 +96,7 @@ export default function Register() {
           <View style={styles.headerContainer}>
             <Text style={styles.title}>Macrofauna</Text>
             <Text style={styles.subtitle}>
-              Junte-se à nossa rede de monitoramento sustentável
+              {t("auth.joinNetwork")}
             </Text>
           </View>
 
@@ -104,13 +107,13 @@ export default function Register() {
               resizeMode="contain"
             />
 
-            <Text style={styles.cardTitle}>Criar Conta</Text>
-            <Text style={styles.cardSubtitle}>Registre-se para começar</Text>
+            <Text style={styles.cardTitle}>{t("auth.register")}</Text>
+            <Text style={styles.cardSubtitle}>{t("auth.createAccount")}</Text>
 
-            <Text style={styles.label}>E-mail</Text>
+            <Text style={styles.label}>{t("auth.email")}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Digite seu e-mail"
+              placeholder={t("auth.email")}
               placeholderTextColor="#9ca3af"
               value={email}
               onChangeText={setEmail}
@@ -118,11 +121,11 @@ export default function Register() {
               keyboardType="email-address"
             />
 
-            <Text style={styles.label}>Senha</Text>
+            <Text style={styles.label}>{t("auth.password")}</Text>
             <View style={styles.passwordInputContainer}>
               <TextInput
                 style={styles.passwordInput}
-                placeholder="Mínimo de 6 caracteres"
+                placeholder={t("auth.minCharacters")}
                 placeholderTextColor="#9ca3af"
                 value={password}
                 onChangeText={setPassword}
@@ -135,16 +138,16 @@ export default function Register() {
                 activeOpacity={0.7}
               >
                 <Text style={styles.toggleButtonText}>
-                  {showPassword ? "Ocultar" : "Mostrar"}
+                  {showPassword ? t("auth.hide") : t("auth.show")}
                 </Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.label}>Confirmar Senha</Text>
+            <Text style={styles.label}>{t("auth.confirmPassword")}</Text>
             <View style={styles.passwordInputContainer}>
               <TextInput
                 style={styles.passwordInput}
-                placeholder="Confirme sua senha"
+                placeholder={t("auth.confirmPassword")}
                 placeholderTextColor="#9ca3af"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -157,7 +160,7 @@ export default function Register() {
                 activeOpacity={0.7}
               >
                 <Text style={styles.toggleButtonText}>
-                  {showConfirmPassword ? "Ocultar" : "Mostrar"}
+                  {showConfirmPassword ? t("auth.hide") : t("auth.show")}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -170,15 +173,38 @@ export default function Register() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Cadastrar</Text>
+                <Text style={styles.buttonText}>{t("auth.signUp")}</Text>
               )}
             </TouchableOpacity>
 
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Já tem uma conta? </Text>
+              <Text style={styles.footerText}>{t("auth.haveAccount")} </Text>
               <TouchableOpacity onPress={() => router.push("/login")}>
-                <Text style={styles.linkText}>Entrar</Text>
+                <Text style={styles.linkText}>{t("auth.signIn")}</Text>
               </TouchableOpacity>
+            </View>
+
+            <View style={styles.collaboratorsContainer}>
+              <ExpoImage
+                source={require("../../assets/colaboradores/goeldi.png")}
+                style={styles.collaboratorLogo}
+                contentFit="contain"
+              />
+              <ExpoImage
+                source={require("../../assets/colaboradores/cesupa.svg")}
+                style={styles.collaboratorLogo}
+                contentFit="contain"
+              />
+              <ExpoImage
+                source={require("../../assets/colaboradores/cirad.png")}
+                style={styles.collaboratorLogo}
+                contentFit="contain"
+              />
+              <ExpoImage
+                source={require("../../assets/colaboradores/soborne.png")}
+                style={styles.collaboratorLogo}
+                contentFit="contain"
+              />
             </View>
           </View>
         </ScrollView>
@@ -334,5 +360,20 @@ const styles = StyleSheet.create({
     color: "#54A676",
     fontSize: 14,
     fontWeight: "bold",
+  },
+  collaboratorsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 32,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#f3f4f6",
+    gap: 16,
+  },
+  collaboratorLogo: {
+    width: 64,
+    height: 40,
   },
 });

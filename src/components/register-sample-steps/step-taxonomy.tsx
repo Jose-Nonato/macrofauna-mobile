@@ -8,21 +8,22 @@ import {
   TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useI18n } from "@/hooks/useI18n";
 
 export const TAXON_LIST = [
-  { key: "earthworm", label: "Earthworm (EW)", subtitle: "Minhoca" },
-  { key: "ant", label: "Ant (AN)", subtitle: "Formiga" },
-  { key: "isoptera", label: "Isoptera (TER)", subtitle: "Cupins" },
-  { key: "blattaria", label: "Blattaria (BLA)", subtitle: "Barata" },
-  { key: "coleoptera", label: "Coleoptera (COL)", subtitle: "Besouro" },
-  { key: "arachnida", label: "Arachnida (ARA)", subtitle: "Aranha" },
-  { key: "diplopoda", label: "Diplopoda (DIPLO)", subtitle: "Diplópode" },
-  { key: "chilopoda", label: "Chilopoda (CHI)", subtitle: "Quilópode" },
-  { key: "hemiptera", label: "Hemiptera (HEMI)", subtitle: "Percevejo" },
-  { key: "dermaptera", label: "Dermaptera (DER)", subtitle: "Tesourinha" },
-  { key: "lepidoptera", label: "Lepidoptera (LEP)", subtitle: "Lagarta" },
-  { key: "gasteropoda", label: "Gasteropoda (GAS)", subtitle: "Caracóis e Lesmas" },
-  { key: "others", label: "Outros (OT)", subtitle: "Outros" },
+  { key: "earthworm", code: "EW" },
+  { key: "ant", code: "AN" },
+  { key: "isoptera", code: "TER" },
+  { key: "blattaria", code: "BLA" },
+  { key: "coleoptera", code: "COL" },
+  { key: "arachnida", code: "ARA" },
+  { key: "diplopoda", code: "DIPLO" },
+  { key: "chilopoda", code: "CHI" },
+  { key: "hemiptera", code: "HEMI" },
+  { key: "dermaptera", code: "DER" },
+  { key: "lepidoptera", code: "LEP" },
+  { key: "gasteropoda", code: "GAS" },
+  { key: "others", code: "OT" },
 ] as const;
 
 export type TaxonKey = typeof TAXON_LIST[number]["key"];
@@ -36,6 +37,7 @@ export default function StepTaxonomy({
   levels,
   setLevels,
 }: StepTaxonomyProps) {
+  const { t } = useI18n();
   const [activeLevelIdx, setActiveLevelIdx] = React.useState(0);
 
   const handleAddLevel = () => {
@@ -90,14 +92,14 @@ export default function StepTaxonomy({
 
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
-      <Text style={styles.stepTitle}>Passo 3: Taxonomia</Text>
+      <Text style={styles.stepTitle}>{t("samples.stepTaxonomyTitle")}</Text>
       <Text style={styles.stepDesc}>
-        Adicione múltiplos níveis de amostra e indique a quantidade de invertebrados para cada nível:
+        {t("samples.stepTaxonomyDesc")}
       </Text>
 
       {/* Cabeçalho dos Níveis */}
       <View style={styles.levelsHeader}>
-        <Text style={styles.levelsTitle}>Níveis de Amostragem</Text>
+        <Text style={styles.levelsTitle}>{t("samples.samplingLevels")}</Text>
         <View style={styles.levelsActions}>
           {levels.length > 1 && (
             <TouchableOpacity
@@ -106,7 +108,7 @@ export default function StepTaxonomy({
               activeOpacity={0.7}
             >
               <Ionicons name="trash-outline" size={14} color="#ef4444" />
-              <Text style={styles.levelRemoveText}>Excluir</Text>
+              <Text style={styles.levelRemoveText}>{t("samples.deleteLevel")}</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity
@@ -115,7 +117,7 @@ export default function StepTaxonomy({
             activeOpacity={0.7}
           >
             <Ionicons name="add-circle" size={14} color="#54A676" />
-            <Text style={styles.levelAddText}>Novo Nível</Text>
+            <Text style={styles.levelAddText}>{t("samples.newLevel")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -142,7 +144,7 @@ export default function StepTaxonomy({
                 activeLevelIdx === idx && styles.levelTabTextActive,
               ]}
             >
-              Nível {idx + 1}
+              {t("samples.level")} {idx + 1}
             </Text>
           </TouchableOpacity>
         ))}
@@ -154,8 +156,8 @@ export default function StepTaxonomy({
           return (
             <View key={item.key} style={styles.taxonItem}>
               <View style={styles.taxonInfo}>
-                <Text style={styles.taxonLabel}>{item.label}</Text>
-                <Text style={styles.taxonSubtitle}>{item.subtitle}</Text>
+                <Text style={styles.taxonLabel}>{t(`taxon.${item.key}`)}</Text>
+                <Text style={styles.taxonSubtitle}>{item.code}</Text>
               </View>
 
               <View style={styles.taxonCounter}>

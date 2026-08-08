@@ -5,16 +5,20 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  FlatList,
   Image,
   Modal,
   Platform,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { TAXON_LIST } from "./register-sample-steps/step-taxonomy";
+import { useI18n } from "@/hooks/useI18n";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SampleDetailModalProps {
   visible: boolean;
@@ -33,10 +37,21 @@ export default function SampleDetailModal({
   onEdit,
   onSuccess,
 }: SampleDetailModalProps) {
+  const { t } = useI18n();
+  const { language } = useLanguage();
   const [loading, setLoading] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
   const [insects, setInsects] = React.useState<any>(null);
   const [photos, setPhotos] = React.useState<any[]>([]);
+  const [viewerVisible, setViewerVisible] = React.useState(false);
+  const [viewerPhotos, setViewerPhotos] = React.useState<any[]>([]);
+  const [viewerIndex, setViewerIndex] = React.useState(0);
+
+  const handleOpenPhoto = (dirPhotos: any[], index: number) => {
+    setViewerPhotos(dirPhotos);
+    setViewerIndex(index);
+    setViewerVisible(true);
+  };
 
   React.useEffect(() => {
     if (visible && sample?.id) {
@@ -102,22 +117,22 @@ export default function SampleDetailModal({
 
   const handleDelete = () => {
     Alert.alert(
-      "Excluir Amostra",
-      "Tem certeza que deseja excluir esta amostra de macrofauna? Esta ação não pode ser desfeita.",
+      t("samples.deleteSampleTitle"),
+      t("samples.deleteSampleConfirm"),
       [
-        { text: "Cancelar", style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: "Excluir",
+          text: t("common.delete"),
           style: "destructive",
           onPress: async () => {
             setDeleting(true);
             try {
               await deleteSample(sample.id);
-              Alert.alert("Sucesso", "Amostra excluída com sucesso.");
+              Alert.alert(t("common.success"), t("samples.deleteSampleSuccess"));
               onSuccess(); // atualiza a listagem de amostras
               onClose(); // fecha o modal de detalhes
             } catch (error: any) {
-              Alert.alert("Erro ao excluir", error.message || "Erro inesperado.");
+              Alert.alert(t("samples.errorDeleting"), error.message || t("samples.unexpectedError"));
             } finally {
               setDeleting(false);
             }
@@ -132,7 +147,8 @@ export default function SampleDetailModal({
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "N/A";
     const date = new Date(dateStr);
-    return date.toLocaleDateString("pt-BR", {
+    const locale = language === "pt" ? "pt-BR" : language === "es" ? "es-ES" : "en-US";
+    return date.toLocaleDateString(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -161,8 +177,8 @@ export default function SampleDetailModal({
           {/* Header */}
           <View style={styles.header}>
             <View>
-              <Text style={styles.headerSubtitle}>Detalhes da Amostra</Text>
-              <Text style={styles.headerTitle}>Cód: #{sample.id.toString().slice(-6)}</Text>
+              <Text style={styles.headerSubtitle}>{t("samples.sampleDetails")}</Text>
+              <Text style={styles.headerTitle}>{t("samples.code")}: #{sample.id.toString().slice(-6)}</Text>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeButton} disabled={deleting}>
               <Ionicons name="close" size={24} color="#64748b" />
@@ -172,7 +188,7 @@ export default function SampleDetailModal({
           {loading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#54A676" />
-              <Text style={styles.loadingText}>Carregando dados da amostra...</Text>
+              <Text style={styles.loadingText}>{t("samples.loadingSampleData")}</Text>
             </View>
           ) : (
             <>
@@ -181,7 +197,7 @@ export default function SampleDetailModal({
                 <View style={styles.scoreCard}>
                   <View style={styles.scoreInfo}>
                     <Text style={styles.scoreTitle}>Score IQMS</Text>
-                    <Text style={styles.scoreDesc}>Índice de Qualidade de Solo</Text>
+                    <Text style={styles.scoreDesc}>{t("samples.soilQualityIndex")}</Text>
                   </View>
                   <View style={styles.scoreValueContainer}>
                     <Text style={styles.scoreValue}>
@@ -193,11 +209,11 @@ export default function SampleDetailModal({
 
                 {/* Seção 2: Informações de Campo */}
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Localização e Data</Text>
+                  <Text style={styles.sectionTitle}>{t("samples.locationAndDate")}</Text>
                   <View style={styles.infoRow}>
                     <Ionicons name="location-outline" size={18} color="#54A676" />
                     <View style={styles.infoTextContainer}>
-                      <Text style={styles.infoLabel}>Endereço</Text>
+                      <Text style={styles.infoLabel}>{t("samples.address")}</Text>
                       <Text style={styles.infoValue}>
                         {sample.city}, {sample.state} - {sample.country}
                       </Text>
@@ -208,7 +224,7 @@ export default function SampleDetailModal({
                     <View style={styles.infoRow}>
                       <Ionicons name="locate-outline" size={18} color="#54A676" />
                       <View style={styles.infoTextContainer}>
-                        <Text style={styles.infoLabel}>Coordenadas GPS</Text>
+                        <Text style={styles.infoLabel}>{t("samples.gpsCoordinates")}</Text>
                         <Text style={styles.infoValue}>
                           Lat: {parseFloat(sample.latitude).toFixed(5)}, Lon: {parseFloat(sample.longitude).toFixed(5)}
                         </Text>
@@ -219,7 +235,7 @@ export default function SampleDetailModal({
                   <View style={styles.infoRow}>
                     <Ionicons name="calendar-outline" size={18} color="#54A676" />
                     <View style={styles.infoTextContainer}>
-                      <Text style={styles.infoLabel}>Data da Coleta</Text>
+                      <Text style={styles.infoLabel}>{t("samples.collectionDate")}</Text>
                       <Text style={styles.infoValue}>{formatDate(sample.created_at)}</Text>
                     </View>
                   </View>
@@ -227,67 +243,74 @@ export default function SampleDetailModal({
 
                 {/* Seção 3: Métricas Ecológicas */}
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Métricas Ecológicas</Text>
+                  <Text style={styles.sectionTitle}>{t("samples.ecologicalMetrics")}</Text>
                   <View style={styles.metricsGrid}>
                     <View style={styles.metricItem}>
-                      <Text style={styles.metricLabel}>Densidade</Text>
+                      <Text style={styles.metricLabel}>{t("home.density")}</Text>
                       <Text style={styles.metricValue}>
                         {sample.sample_density !== null ? `${sample.sample_density.toFixed(2)}` : "N/A"}
                       </Text>
-                      <Text style={styles.metricUnit}>indivíduos / m²</Text>
+                      <Text style={styles.metricUnit}>{t("samples.individualsPerM2")}</Text>
                     </View>
                     <View style={styles.metricItem}>
-                      <Text style={styles.metricLabel}>Total Animais</Text>
+                      <Text style={styles.metricLabel}>{t("samples.totalAnimals")}</Text>
                       <Text style={styles.metricValue}>
                         {sample.animal_quantity !== null ? sample.animal_quantity : "0"}
                       </Text>
-                      <Text style={styles.metricUnit}>unidades</Text>
+                      <Text style={styles.metricUnit}>{t("samples.units")}</Text>
                     </View>
                   </View>
                 </View>
 
                 {/* Seção 4: Insetos / Taxonomia (Total) */}
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Composição Taxonômica (Total)</Text>
+                  <Text style={styles.sectionTitle}>{t("samples.taxonomicComposition")}</Text>
                   {insects ? (
                     <View style={styles.taxonomyList}>
-                      {TAXON_LIST.map((t) => {
-                        const value = insects[t.key] || 0;
+                      {TAXON_LIST.map((taxon) => {
+                        const value = insects[taxon.key] || 0;
                         if (value === 0) return null; // Oculta taxons que não foram encontrados na amostra
                         return (
-                          <View key={t.key} style={styles.taxonRow}>
+                          <View key={taxon.key} style={styles.taxonRow}>
                             <View>
-                              <Text style={styles.taxonName}>{t.label}</Text>
-                              <Text style={styles.taxonSub}>{t.subtitle}</Text>
+                              <Text style={styles.taxonName}>{t(`taxon.${taxon.key}`)}</Text>
+                              <Text style={styles.taxonSub}>{taxon.code}</Text>
                             </View>
                             <Text style={styles.taxonValue}>{value}</Text>
                           </View>
                         );
                       })}
                       {/* Se nenhum taxon for exibido */}
-                      {TAXON_LIST.every((t) => (insects[t.key] || 0) === 0) && (
-                        <Text style={styles.emptyText}>Nenhum invertebrado encontrado nesta amostra.</Text>
+                      {TAXON_LIST.every((taxon) => (insects[taxon.key] || 0) === 0) && (
+                        <Text style={styles.emptyText}>{t("samples.noInvertebratesFound")}</Text>
                       )}
                     </View>
                   ) : (
-                    <Text style={styles.emptyText}>Ficha taxonômica indisponível.</Text>
+                    <Text style={styles.emptyText}>{t("samples.taxonomicDataUnavailable")}</Text>
                   )}
                 </View>
 
                 {/* Seção 5: Fotos do Monólito */}
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Fotos do Monólito</Text>
+                  <Text style={styles.sectionTitle}>{t("samples.monolithPhotos")}</Text>
                   {photos.length > 0 ? (
                     <View style={styles.photosContainer}>
                       {(Object.keys(photosByDirection) as Array<keyof typeof photosByDirection>).map((dir) => {
                         const dirPhotos = photosByDirection[dir];
                         if (dirPhotos.length === 0) return null;
+                        const directionLabel = dir === "norte" ? t("samples.north") : dir === "sul" ? t("samples.south") : dir === "leste" ? t("samples.east") : t("samples.west");
                         return (
                           <View key={dir} style={styles.directionSection}>
-                            <Text style={styles.directionTitle}>Direção {dir.toUpperCase()}</Text>
+                            <Text style={styles.directionTitle}>{t("samples.direction")} {directionLabel}</Text>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.directionPhotosScroll}>
-                              {dirPhotos.map((p) => (
-                                <Image key={p.id} source={{ uri: p.photo }} style={styles.photoThumbnail} />
+                              {dirPhotos.map((p, index) => (
+                                <TouchableOpacity
+                                  key={p.id}
+                                  activeOpacity={0.8}
+                                  onPress={() => handleOpenPhoto(dirPhotos, index)}
+                                >
+                                  <Image source={{ uri: p.photo }} style={styles.photoThumbnail} />
+                                </TouchableOpacity>
                               ))}
                             </ScrollView>
                           </View>
@@ -295,7 +318,7 @@ export default function SampleDetailModal({
                       })}
                     </View>
                   ) : (
-                    <Text style={styles.emptyText}>Nenhuma imagem anexada para esta amostra.</Text>
+                    <Text style={styles.emptyText}>{t("samples.noImagesAttached")}</Text>
                   )}
                 </View>
               </ScrollView>
@@ -312,7 +335,7 @@ export default function SampleDetailModal({
                   ) : (
                     <>
                       <Ionicons name="trash-outline" size={18} color="#ef4444" />
-                      <Text style={styles.deleteActionText}>Excluir Amostra</Text>
+                      <Text style={styles.deleteActionText}>{t("samples.deleteSample")}</Text>
                     </>
                   )}
                 </TouchableOpacity>
@@ -326,13 +349,67 @@ export default function SampleDetailModal({
                   disabled={deleting}
                 >
                   <Ionicons name="create-outline" size={18} color="#ffffff" />
-                  <Text style={styles.editActionText}>Editar Amostra</Text>
+                  <Text style={styles.editActionText}>{t("home.editSample")}</Text>
                 </TouchableOpacity>
               </View>
             </>
           )}
         </View>
       </View>
+
+      {/* Visualizador de imagem em tela cheia */}
+      <Modal
+        visible={viewerVisible}
+        animationType="fade"
+        transparent={false}
+        onRequestClose={() => setViewerVisible(false)}
+      >
+        <View style={styles.viewerContainer}>
+          <StatusBar barStyle="light-content" backgroundColor="#000000" />
+          <TouchableOpacity
+            style={styles.viewerCloseButton}
+            onPress={() => setViewerVisible(false)}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Ionicons name="close" size={28} color="#ffffff" />
+          </TouchableOpacity>
+
+          {viewerPhotos.length > 1 && (
+            <View style={styles.viewerCounter}>
+              <Text style={styles.viewerCounterText}>
+                {viewerIndex + 1} / {viewerPhotos.length}
+              </Text>
+            </View>
+          )}
+
+          <FlatList
+            data={viewerPhotos}
+            keyExtractor={(item) => item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            initialScrollIndex={viewerIndex}
+            getItemLayout={(_, index) => ({
+              length: width,
+              offset: width * index,
+              index,
+            })}
+            onMomentumScrollEnd={(e) => {
+              const newIndex = Math.round(e.nativeEvent.contentOffset.x / width);
+              setViewerIndex(newIndex);
+            }}
+            renderItem={({ item }) => (
+              <View style={styles.viewerImageWrapper}>
+                <Image
+                  source={{ uri: item.photo }}
+                  style={styles.viewerImage}
+                  resizeMode="contain"
+                />
+              </View>
+            )}
+          />
+        </View>
+      </Modal>
     </Modal>
   );
 }
@@ -610,5 +687,43 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
     marginLeft: 6,
+  },
+  viewerContainer: {
+    flex: 1,
+    backgroundColor: "#000000",
+  },
+  viewerCloseButton: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? 56 : 24,
+    right: 16,
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    borderRadius: 20,
+    padding: 8,
+  },
+  viewerCounter: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? 60 : 28,
+    alignSelf: "center",
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  viewerCounterText: {
+    color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "bold",
+  },
+  viewerImageWrapper: {
+    width,
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  viewerImage: {
+    width: width,
+    height: "100%",
   },
 });

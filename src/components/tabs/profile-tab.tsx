@@ -25,9 +25,13 @@ import {
 import { countries, getStates, getCities } from "@/lib/locationData";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useI18n } from "@/hooks/useI18n";
 
 export default function ProfileTab() {
   const router = useRouter();
+  const { language, setLanguage } = useLanguage();
+  const { t } = useI18n();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
@@ -109,7 +113,7 @@ export default function ProfileTab() {
         }
       }
     } catch (error: any) {
-      Alert.alert("Erro", "Não foi possível carregar o perfil");
+      Alert.alert(t("common.error"), t("profile.errorLoadingProfile"));
     } finally {
       setLoading(false);
     }
@@ -135,7 +139,7 @@ export default function ProfileTab() {
       setSaving(true);
 
       if (!profile) {
-        throw new Error("Perfil não encontrado");
+        throw new Error(t("profile.errorLoadingProfile"));
       }
 
       await updateUserProfile({
@@ -147,10 +151,10 @@ export default function ProfileTab() {
         prev ? { ...prev, ...editData } : null
       );
 
-      Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
+      Alert.alert(t("common.success"), t("profile.profileUpdated"));
       setEditModalVisible(false);
     } catch (error: any) {
-      Alert.alert("Erro", error.message || "Erro ao salvar perfil");
+      Alert.alert(t("common.error"), error.message || t("profile.errorSavingProfile"));
     } finally {
       setSaving(false);
     }
@@ -158,12 +162,12 @@ export default function ProfileTab() {
 
   async function handleDeleteAccount() {
     Alert.alert(
-      "Deletar Conta",
-      "Tem certeza que deseja deletar sua conta? Esta ação é irreversível.",
+      t("profile.deleteAccount"),
+      t("profile.deleteAccountConfirm"),
       [
-        { text: "Cancelar", style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: "Deletar",
+          text: t("common.delete"),
           style: "destructive",
           onPress: async () => {
             try {
@@ -172,7 +176,7 @@ export default function ProfileTab() {
               await supabase.auth.signOut();
               router.replace("/login");
             } catch (error: any) {
-              Alert.alert("Erro", error.message || "Erro ao deletar conta");
+              Alert.alert(t("common.error"), error.message || t("profile.errorDeletingAccount"));
             } finally {
               setLoading(false);
             }
@@ -183,10 +187,10 @@ export default function ProfileTab() {
   }
 
   async function handleLogout() {
-    Alert.alert("Sair da Conta", "Deseja realmente sair?", [
-      { text: "Cancelar", style: "cancel" },
+    Alert.alert(t("profile.logoutAccount"), t("profile.logoutConfirm"), [
+      { text: t("common.cancel"), style: "cancel" },
       {
-        text: "Sair",
+        text: t("common.logout"),
         style: "destructive",
         onPress: async () => {
           try {
@@ -194,7 +198,7 @@ export default function ProfileTab() {
             await supabase.auth.signOut();
             router.replace("/login");
           } catch (error: any) {
-            Alert.alert("Erro", error.message || "Erro ao fazer logout");
+            Alert.alert(t("common.error"), error.message || t("profile.errorLoggingOut"));
           } finally {
             setLoading(false);
           }
@@ -219,14 +223,14 @@ export default function ProfileTab() {
           <View style={styles.avatarContainer}>
             <Ionicons name="person-circle" size={80} color="#54A676" />
           </View>
-          <Text style={styles.nameText}>{profile?.name || "Usuário"}</Text>
+          <Text style={styles.nameText}>{profile?.name || t("profile.defaultUser")}</Text>
           <Text style={styles.emailText}>{email}</Text>
         </View>
 
         {/* Personal Info Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Informações Pessoais</Text>
+            <Text style={styles.cardTitle}>{t("profile.personalInfo")}</Text>
             <TouchableOpacity
               onPress={handleOpenEditModal}
               style={styles.editButton}
@@ -240,9 +244,9 @@ export default function ProfileTab() {
               <Ionicons name="person" size={20} color="#54A676" />
             </View>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Nome</Text>
+              <Text style={styles.infoLabel}>{t("profile.name")}</Text>
               <Text style={styles.infoValue}>
-                {profile?.name || "Não informado"}
+                {profile?.name || t("profile.notInformed")}
               </Text>
             </View>
           </View>
@@ -252,11 +256,13 @@ export default function ProfileTab() {
               <Ionicons name="calendar" size={20} color="#54A676" />
             </View>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Data de Nascimento</Text>
+              <Text style={styles.infoLabel}>{t("profile.birthDate")}</Text>
               <Text style={styles.infoValue}>
                 {profile?.birth_date
-                  ? new Date(profile.birth_date).toLocaleDateString("pt-BR")
-                  : "Não informado"}
+                  ? new Date(profile.birth_date).toLocaleDateString(
+                      language === "pt" ? "pt-BR" : language === "es" ? "es-ES" : "en-US"
+                    )
+                  : t("profile.notInformed")}
               </Text>
             </View>
           </View>
@@ -266,9 +272,9 @@ export default function ProfileTab() {
               <Ionicons name="briefcase" size={20} color="#54A676" />
             </View>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Profissão</Text>
+              <Text style={styles.infoLabel}>{t("profile.profession")}</Text>
               <Text style={styles.infoValue}>
-                {profile?.profession || "Não informado"}
+                {profile?.profession || t("profile.notInformed")}
               </Text>
             </View>
           </View>
@@ -276,16 +282,16 @@ export default function ProfileTab() {
 
         {/* Education Info Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Formação Acadêmica</Text>
+          <Text style={styles.cardTitle}>{t("profile.academicInfo")}</Text>
 
           <View style={styles.infoItem}>
             <View style={styles.infoIconContainer}>
               <Ionicons name="book" size={20} color="#54A676" />
             </View>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Graduação</Text>
+              <Text style={styles.infoLabel}>{t("profile.bachelor")}</Text>
               <Text style={styles.infoValue}>
-                {profile?.bachelor || "Não informado"}
+                {profile?.bachelor || t("profile.notInformed")}
               </Text>
             </View>
           </View>
@@ -295,9 +301,9 @@ export default function ProfileTab() {
               <Ionicons name="school" size={20} color="#54A676" />
             </View>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Universidade</Text>
+              <Text style={styles.infoLabel}>{t("profile.university")}</Text>
               <Text style={styles.infoValue}>
-                {profile?.university || "Não informado"}
+                {profile?.university || t("profile.notInformed")}
               </Text>
             </View>
           </View>
@@ -305,16 +311,16 @@ export default function ProfileTab() {
 
         {/* Location Info Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Localização</Text>
+          <Text style={styles.cardTitle}>{t("profile.location")}</Text>
 
           <View style={styles.infoItem}>
             <View style={styles.infoIconContainer}>
               <Ionicons name="globe" size={20} color="#54A676" />
             </View>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>País</Text>
+              <Text style={styles.infoLabel}>{t("common.country")}</Text>
               <Text style={styles.infoValue}>
-                {profile?.country || "Não informado"}
+                {profile?.country || t("profile.notInformed")}
               </Text>
             </View>
           </View>
@@ -324,9 +330,9 @@ export default function ProfileTab() {
               <Ionicons name="map" size={20} color="#54A676" />
             </View>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Estado</Text>
+              <Text style={styles.infoLabel}>{t("common.state")}</Text>
               <Text style={styles.infoValue}>
-                {profile?.state || "Não informado"}
+                {profile?.state || t("profile.notInformed")}
               </Text>
             </View>
           </View>
@@ -336,11 +342,48 @@ export default function ProfileTab() {
               <Ionicons name="location" size={20} color="#54A676" />
             </View>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Cidade</Text>
+              <Text style={styles.infoLabel}>{t("common.city")}</Text>
               <Text style={styles.infoValue}>
-                {profile?.city || "Não informado"}
+                {profile?.city || t("profile.notInformed")}
               </Text>
             </View>
+          </View>
+        </View>
+
+        {/* Language Settings Card */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>{t("profile.selectLanguage")}</Text>
+          </View>
+
+          <View style={styles.languageOptionsContainer}>
+            {(["pt", "en", "es"] as const).map((lang) => (
+              <TouchableOpacity
+                key={lang}
+                style={[
+                  styles.languageOption,
+                  language === lang && styles.languageOptionActive,
+                ]}
+                onPress={() => setLanguage(lang)}
+              >
+                <View style={styles.languageIconContainer}>
+                  <Ionicons
+                    name={language === lang ? "checkmark-circle" : "radio-button-off"}
+                    size={24}
+                    color={language === lang ? "#54A676" : "#d1d5db"}
+                  />
+                </View>
+                <View style={styles.languageContent}>
+                  <Text style={styles.languageLabel}>
+                    {lang === "pt"
+                      ? "Português"
+                      : lang === "en"
+                        ? "English"
+                        : "Español"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
@@ -351,7 +394,7 @@ export default function ProfileTab() {
             onPress={handleLogout}
           >
             <Ionicons name="log-out" size={20} color="#ffffff" />
-            <Text style={styles.logoutButtonText}>Sair da Conta</Text>
+            <Text style={styles.logoutButtonText}>{t("profile.logoutAccount")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -359,7 +402,7 @@ export default function ProfileTab() {
             onPress={handleDeleteAccount}
           >
             <Ionicons name="trash" size={20} color="#ffffff" />
-            <Text style={styles.deleteButtonText}>Deletar Conta</Text>
+            <Text style={styles.deleteButtonText}>{t("profile.deleteAccount")}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -373,17 +416,17 @@ export default function ProfileTab() {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Editar Perfil</Text>
+              <Text style={styles.modalTitle}>{t("profile.editProfile")}</Text>
               <TouchableOpacity onPress={() => setEditModalVisible(false)}>
                 <Ionicons name="close" size={24} color="#1f2937" />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.modalBody}>
-              <Text style={styles.inputLabel}>Nome</Text>
+              <Text style={styles.inputLabel}>{t("profile.name")}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Digite seu nome"
+                placeholder={t("profile.namePlaceholder")}
                 value={editData.name}
                 onChangeText={(text) =>
                   setEditData({ ...editData, name: text })
@@ -391,7 +434,7 @@ export default function ProfileTab() {
                 editable={!saving}
               />
 
-              <Text style={styles.inputLabel}>Data de Nascimento</Text>
+              <Text style={styles.inputLabel}>{t("profile.birthDate")}</Text>
               <TouchableOpacity
                 style={styles.dateButton}
                 onPress={() => setShowDatePicker(true)}
@@ -400,8 +443,10 @@ export default function ProfileTab() {
                 <Ionicons name="calendar" size={20} color="#54A676" />
                 <Text style={styles.dateButtonText}>
                   {editData.birth_date
-                    ? new Date(editData.birth_date).toLocaleDateString("pt-BR")
-                    : "Selecione uma data"}
+                    ? new Date(editData.birth_date).toLocaleDateString(
+                        language === "pt" ? "pt-BR" : language === "es" ? "es-ES" : "en-US"
+                      )
+                    : t("profile.selectDate")}
                 </Text>
               </TouchableOpacity>
 
@@ -418,10 +463,10 @@ export default function ProfileTab() {
                 />
               )}
 
-              <Text style={styles.inputLabel}>Profissão</Text>
+              <Text style={styles.inputLabel}>{t("profile.profession")}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Digite sua profissão"
+                placeholder={t("profile.professionPlaceholder")}
                 value={editData.profession}
                 onChangeText={(text) =>
                   setEditData({ ...editData, profession: text })
@@ -429,10 +474,10 @@ export default function ProfileTab() {
                 editable={!saving}
               />
 
-              <Text style={styles.inputLabel}>Graduação</Text>
+              <Text style={styles.inputLabel}>{t("profile.bachelor")}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Ex: Engenharia Ambiental"
+                placeholder={t("profile.bachelorPlaceholder")}
                 value={editData.bachelor}
                 onChangeText={(text) =>
                   setEditData({ ...editData, bachelor: text })
@@ -440,10 +485,10 @@ export default function ProfileTab() {
                 editable={!saving}
               />
 
-              <Text style={styles.inputLabel}>Universidade</Text>
+              <Text style={styles.inputLabel}>{t("profile.university")}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Digite sua universidade"
+                placeholder={t("profile.universityPlaceholder")}
                 value={editData.university}
                 onChangeText={(text) =>
                   setEditData({ ...editData, university: text })
@@ -451,7 +496,7 @@ export default function ProfileTab() {
                 editable={!saving}
               />
 
-              <Text style={styles.inputLabel}>País</Text>
+              <Text style={styles.inputLabel}>{t("common.country")}</Text>
               <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={editData.country}
@@ -466,7 +511,7 @@ export default function ProfileTab() {
                 </Picker>
               </View>
 
-              <Text style={styles.inputLabel}>Estado</Text>
+              <Text style={styles.inputLabel}>{t("common.state")}</Text>
               <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={editData.state}
@@ -481,7 +526,7 @@ export default function ProfileTab() {
                 </Picker>
               </View>
 
-              <Text style={styles.inputLabel}>Cidade</Text>
+              <Text style={styles.inputLabel}>{t("common.city")}</Text>
               <View style={styles.pickerContainer}>
                 <Picker
                   selectedValue={editData.city}
@@ -503,7 +548,7 @@ export default function ProfileTab() {
                 onPress={() => setEditModalVisible(false)}
                 disabled={saving}
               >
-                <Text style={styles.cancelButtonText}>Cancelar</Text>
+                <Text style={styles.cancelButtonText}>{t("common.cancel")}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -514,7 +559,7 @@ export default function ProfileTab() {
                 {saving ? (
                   <ActivityIndicator color="#ffffff" />
                 ) : (
-                  <Text style={styles.saveButtonText}>Salvar</Text>
+                  <Text style={styles.saveButtonText}>{t("common.save")}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -759,6 +804,34 @@ const styles = StyleSheet.create({
   dateButtonText: {
     marginLeft: 12,
     fontSize: 16,
+    color: "#1f2937",
+  },
+  languageOptionsContainer: {
+    gap: 12,
+  },
+  languageOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    backgroundColor: "#ffffff",
+  },
+  languageOptionActive: {
+    backgroundColor: "#f0fdf4",
+    borderColor: "#54A676",
+  },
+  languageIconContainer: {
+    marginRight: 12,
+  },
+  languageContent: {
+    flex: 1,
+  },
+  languageLabel: {
+    fontSize: 16,
+    fontWeight: "500",
     color: "#1f2937",
   },
 });

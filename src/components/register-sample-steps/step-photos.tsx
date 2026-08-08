@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { useI18n } from "@/hooks/useI18n";
 
 interface StepPhotosProps {
   photoNorte: string[];
@@ -34,24 +35,26 @@ export default function StepPhotos({
   onPhotoAdded,
   onPhotoRemoved,
 }: StepPhotosProps) {
+  const { t } = useI18n();
+
   // Apresentar as opções de Câmera ou Galeria de forma amigável
   const handleAddImage = async (
     direction: "norte" | "sul" | "leste" | "oeste"
   ) => {
     Alert.alert(
-      "Anexar Foto",
-      "Escolha como deseja adicionar a imagem do monólito:",
+      t("samples.attachPhoto"),
+      t("samples.choosePhotoMethod"),
       [
         {
-          text: "Cancelar",
+          text: t("common.cancel"),
           style: "cancel",
         },
         {
-          text: "Tirar Foto (Câmera)",
+          text: t("samples.takePhoto"),
           onPress: () => openPicker(direction, "camera"),
         },
         {
-          text: "Escolher da Galeria",
+          text: t("samples.chooseFromGallery"),
           onPress: () => openPicker(direction, "gallery"),
         },
       ]
@@ -64,12 +67,11 @@ export default function StepPhotos({
   ) => {
     try {
       if (source === "camera") {
-        // Solicitar permissão de câmera
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== "granted") {
           Alert.alert(
-            "Permissão de Câmera Negada",
-            "Precisamos de acesso à câmera do seu celular para tirar fotos em campo."
+            t("samples.cameraPermissionDenied"),
+            t("samples.cameraPermissionMsg")
           );
           return;
         }
@@ -83,12 +85,11 @@ export default function StepPhotos({
           onPhotoAdded(direction, result.assets[0].uri);
         }
       } else {
-        // Solicitar permissão de galeria
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== "granted") {
           Alert.alert(
-            "Permissão de Galeria Negada",
-            "Precisamos de acesso às fotos para selecionar imagens salvas."
+            t("samples.galleryPermissionDenied"),
+            t("samples.galleryPermissionMsg")
           );
           return;
         }
@@ -104,7 +105,7 @@ export default function StepPhotos({
         }
       }
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível carregar a imagem.");
+      Alert.alert(t("common.error"), t("samples.couldNotLoadImage"));
     }
   };
 
@@ -118,7 +119,7 @@ export default function StepPhotos({
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{title}</Text>
           <Text style={styles.sectionCount}>
-            {photos.length} {photos.length === 1 ? "foto" : "fotos"}
+            {photos.length} {photos.length === 1 ? t("samples.photo") : t("samples.photoPlural")}
           </Text>
         </View>
 
@@ -147,7 +148,7 @@ export default function StepPhotos({
             activeOpacity={0.8}
           >
             <Ionicons name="camera" size={24} color="#54A676" />
-            <Text style={styles.addPhotoText}>Anexar</Text>
+            <Text style={styles.addPhotoText}>{t("samples.attach")}</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -156,15 +157,15 @@ export default function StepPhotos({
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.stepTitle}>Passo 2: Anexar Fotos</Text>
+      <Text style={styles.stepTitle}>{t("samples.stepPhotosTitle")}</Text>
       <Text style={styles.stepDesc}>
-        Adicione uma ou mais fotos do monólito de solo em cada uma das quatro direções cardeais:
+        {t("samples.stepPhotosDesc")}
       </Text>
 
-      {renderDirectionSection("norte", "Norte (N)", photoNorte)}
-      {renderDirectionSection("sul", "Sul (S)", photoSul)}
-      {renderDirectionSection("leste", "Leste (L)", photoLeste)}
-      {renderDirectionSection("oeste", "Oeste (O)", photoOeste)}
+      {renderDirectionSection("norte", t("samples.north"), photoNorte)}
+      {renderDirectionSection("sul", t("samples.south"), photoSul)}
+      {renderDirectionSection("leste", t("samples.east"), photoLeste)}
+      {renderDirectionSection("oeste", t("samples.west"), photoOeste)}
     </ScrollView>
   );
 }
