@@ -275,6 +275,7 @@
     "lepidoptera": "Mariposa",
     "gasteropoda": "Gasterópodo",
     "dermaptera": "Tijereta",
+    "diptera_larvae": "Larva de Díptero",
     "others": "Otros"
   }
 }

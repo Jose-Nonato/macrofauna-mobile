@@ -26,6 +26,7 @@ export interface ReportData {
     lepidoptera: number;
     gasteropoda: number;
     dermaptera: number;
+    diptera_larvae: number;
     others: number;
   };
 }
@@ -105,7 +106,7 @@ export async function generateReport(
     const { data: insectsData, error: insectsError } = await supabase
       .from("insect")
       .select(
-        "sample_id, earthworm, ant, isoptera, blattaria, coleoptera, arachnida, diplopoda, chilopoda, hemiptera, lepidoptera, gasteropoda, dermaptera, others"
+        "sample_id, earthworm, ant, isoptera, blattaria, coleoptera, arachnida, diplopoda, chilopoda, hemiptera, lepidoptera, gasteropoda, dermaptera, diptera_larvae, others"
       )
       .in("sample_id", sampleIds);
 
@@ -126,6 +127,7 @@ export async function generateReport(
       lepidoptera: 0,
       gasteropoda: 0,
       dermaptera: 0,
+      diptera_larvae: 0,
       others: 0,
     };
 
@@ -143,6 +145,7 @@ export async function generateReport(
         taxonData.lepidoptera += insect.lepidoptera || 0;
         taxonData.gasteropoda += insect.gasteropoda || 0;
         taxonData.dermaptera += insect.dermaptera || 0;
+        taxonData.diptera_larvae += insect.diptera_larvae || 0;
         taxonData.others += insect.others || 0;
       });
 
@@ -185,6 +188,7 @@ export async function getSamplesWithInsects(
     lepidoptera: number;
     gasteropoda: number;
     dermaptera: number;
+    diptera_larvae: number;
     others: number;
   }>
 > {
@@ -229,7 +233,7 @@ export async function getSamplesWithInsects(
     const { data: insectsData, error: insectsError } = await supabase
       .from("insect")
       .select(
-        "sample_id, iqms, earthworm, ant, isoptera, blattaria, coleoptera, arachnida, diplopoda, chilopoda, hemiptera, lepidoptera, gasteropoda, dermaptera, others"
+        "sample_id, iqms, earthworm, ant, isoptera, blattaria, coleoptera, arachnida, diplopoda, chilopoda, hemiptera, lepidoptera, gasteropoda, dermaptera, diptera_larvae, others"
       )
       .in("sample_id", sampleIds);
 
@@ -253,6 +257,7 @@ export async function getSamplesWithInsects(
         lepidoptera: number;
         gasteropoda: number;
         dermaptera: number;
+        diptera_larvae: number;
         others: number;
       }
     >();
@@ -277,6 +282,7 @@ export async function getSamplesWithInsects(
             lepidoptera: 0,
             gasteropoda: 0,
             dermaptera: 0,
+            diptera_larvae: 0,
             others: 0,
           });
         }
@@ -294,6 +300,7 @@ export async function getSamplesWithInsects(
         sample.lepidoptera += insect.lepidoptera || 0;
         sample.gasteropoda += insect.gasteropoda || 0;
         sample.dermaptera += insect.dermaptera || 0;
+        sample.diptera_larvae += insect.diptera_larvae || 0;
         sample.others += insect.others || 0;
       });
     }
@@ -329,6 +336,7 @@ export function generateCSV(
     lepidoptera: number;
     gasteropoda: number;
     dermaptera: number;
+    diptera_larvae: number;
     others: number;
   }>
 ): string {
@@ -343,7 +351,7 @@ export function generateCSV(
   // Cabeçalho da tabela
   lines.push("ID DA AMOSTRA,IQMS");
   lines.push(
-    "Minhoca,Formiga,Cupim,Barata,Besouro,Aranha,Milípede,Centípede,Hemíptera,Borboleta,Gastrópode,Tesourinha,Outros"
+    "Minhoca,Formiga,Cupim,Barata,Besouro,Aranha,Milípede,Centípede,Hemíptera,Borboleta,Gastrópode,Tesourinha,Larva de Díptero,Outros"
   );
 
   const header = [
@@ -361,6 +369,7 @@ export function generateCSV(
     "BORBOLETA",
     "GASTRÓPODE",
     "TESOURINHA",
+    "LARVA_DIPTERO",
     "OUTROS",
   ];
   lines.push(header.join(","));
@@ -382,6 +391,7 @@ export function generateCSV(
       sample.lepidoptera,
       sample.gasteropoda,
       sample.dermaptera,
+      sample.diptera_larvae,
       sample.others,
     ];
     lines.push(row.join(","));

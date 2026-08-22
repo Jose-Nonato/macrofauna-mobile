@@ -62,6 +62,7 @@ export default function RegisterSampleModal({
       lepidoptera: 0,
       gasteropoda: 0,
       dermaptera: 0,
+      diptera_larvae: 0,
       others: 0,
     },
   ]);
@@ -110,6 +111,7 @@ export default function RegisterSampleModal({
             lepidoptera: 0,
             gasteropoda: 0,
             dermaptera: 0,
+            diptera_larvae: 0,
             others: 0,
           },
         ]);
@@ -146,6 +148,7 @@ export default function RegisterSampleModal({
           gasteropoda: insect.gasteropoda || 0,
           others: insect.others || 0,
           dermaptera: insect.dermaptera || 0,
+          diptera_larvae: insect.diptera_larvae || 0,
         }));
         setTaxonLevels(levels);
       }
@@ -221,31 +224,14 @@ export default function RegisterSampleModal({
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("auth.notAuthenticated"));
 
-      // 2. Mapeamento e Cálculos de Acordo com a Fórmula Oficial de IQMS e Densidade
-      const numLevels = taxonLevels.length;
-      const getAverageTaxon = (key: TaxonKey) => {
-        const sum = taxonLevels.reduce((acc, lvl) => acc + (lvl[key] || 0), 0);
-        return Number((sum / numLevels).toFixed(2));
-      };
-
+      // 2. Cálculos de acordo com a fórmula do indicador global de macrofauna
+      // (Hurtado Lugo, Velasquez & Lavelle, 2023 — Applied Soil Ecology 193, Eq. 1-4;
+      // pesos DN/TR e a normalização final vêm dessa mesma referência).
+      // "Níveis" representam as camadas de profundidade da amostragem ISO/TSBF
+      // (serrapilheira, 0-10, 10-20, 20-30 cm) e por isso são SOMADAS, não
+      // promediadas, para reconstituir a contagem total do ponto amostral.
       const getTotalTaxon = (key: TaxonKey) => {
         return taxonLevels.reduce((acc, lvl) => acc + (lvl[key] || 0), 0);
-      };
-
-      const taxValues = {
-        EW: getAverageTaxon("earthworm"),
-        AN: getAverageTaxon("ant"),
-        TER: getAverageTaxon("isoptera"),
-        BLA: getAverageTaxon("blattaria"),
-        COL: getAverageTaxon("coleoptera"),
-        ARA: getAverageTaxon("arachnida"),
-        DIPLO: getAverageTaxon("diplopoda"),
-        CHI: getAverageTaxon("chilopoda"),
-        HEMI: getAverageTaxon("hemiptera"),
-        DER: getAverageTaxon("dermaptera"),
-        LEP: getAverageTaxon("lepidoptera"),
-        GAS: getAverageTaxon("gasteropoda"),
-        OT: getAverageTaxon("others"),
       };
 
       const taxTotals = {
@@ -261,6 +247,7 @@ export default function RegisterSampleModal({
         DER: getTotalTaxon("dermaptera"),
         LEP: getTotalTaxon("lepidoptera"),
         GAS: getTotalTaxon("gasteropoda"),
+        DL: getTotalTaxon("diptera_larvae"),
         OT: getTotalTaxon("others"),
       };
 
@@ -277,51 +264,55 @@ export default function RegisterSampleModal({
         "DER",
         "LEP",
         "GAS",
+        "DL",
         "OT",
       ] as const;
 
+      // Pesos (Vi) da Eq. 3 do artigo (fórmula global, 3.694 sites)
       const WEIGHTS = {
-        EW: 19.2,
-        AN: 17.5,
-        TER: 20.9,
-        BLA: 9.8,
-        COL: 20.4,
-        ARA: 17.5,
-        DIPLO: 20.1,
-        CHI: 21.8,
-        HEMI: 13.5,
-        DER: 8.9,
-        LEP: 15.5,
-        GAS: 16.7,
-        OT: 21.9,
+        EW: 18.3,
+        AN: 16.83,
+        TER: 9.2,
+        BLA: 7.69,
+        COL: 19.62,
+        ARA: 15.09,
+        DIPLO: 18.78,
+        CHI: 20.12,
+        HEMI: 11.29,
+        DER: 7.58,
+        LEP: 9.15,
+        GAS: 15.08,
+        DL: 16.31,
+        OT: 19.82,
       };
+      const WEIGHT_DN = 24.74; // peso da densidade total (DN)
+      const WEIGHT_TR = 27.88; // peso da riqueza taxonômica (TR)
 
-      // 2.1 Quantidade total de animais coletados (animal_quantity) como o somatório
+      // 2.1 Quantidade total de animais coletados (animal_quantity)
       const totalAnimals = keys.reduce((sum, k) => sum + (taxTotals[k] || 0), 0);
 
-      // 2.2 Log-Densidade (sample_density): log10(Média_Total * 16 + 1)
-      const totalAnimalsAverage = keys.reduce((sum, k) => sum + (taxValues[k] || 0), 0);
-      const logDensity = Math.log10(totalAnimalsAverage * 16 + 1);
-      const densityValue = Number(logDensity.toFixed(2));
+      // 2.2 Densidade (sample_density): amostra ISO/TSBF de 25x25 cm = 0,0625 m²,
+      // logo 1/0,0625 = 16 converte a contagem do monólito para indivíduos/m².
+      // DN = log10(densidade_m2 + 1), como no artigo.
+      const densityPerM2 = totalAnimals * 16;
+      const densityValue = Number(Math.log10(densityPerM2 + 1).toFixed(2));
 
-      // 2.3 Riqueza de Grupos (rt): Número de classes taxonômicas com quantidade média > 0
-      const rt = keys.filter((k) => (taxValues[k] || 0) > 0).length;
+      // 2.3 Riqueza de Grupos (rt): número de táxons com contagem total > 0
+      const rt = keys.filter((k) => (taxTotals[k] || 0) > 0).length;
 
-      // 2.4 Cálculo do IQMS (sample_score)
-      let iqmsSum = 0;
+      // 2.4 RawI (Eq. 3): soma ponderada de log10(contagem + 1) por táxon,
+      // mais os termos de densidade (DN) e riqueza (TR)
+      let rawI = 0;
       keys.forEach((k) => {
-        const val = taxValues[k] || 0;
-        if (val > 0) {
-          iqmsSum += Math.log10(WEIGHTS[k] * val);
-        }
+        rawI += WEIGHTS[k] * Math.log10((taxTotals[k] || 0) + 1);
       });
-      if (densityValue > 0) {
-        iqmsSum += Math.log10(31.8 * densityValue);
-      }
-      if (rt > 0) {
-        iqmsSum += Math.log10(31.8 * rt);
-      }
-      const calculatedScore = Number((iqmsSum * 0.0014 + 0.1).toFixed(2));
+      rawI += WEIGHT_DN * densityValue;
+      rawI += WEIGHT_TR * Math.log10(rt + 1);
+
+      // 2.5 Normalização final (Eq. 4): I = 0,9*RawI/Max + 0,1 = 0,0014*RawI + 0,1
+      // limitado a [0.1, 1.0] pois o Max=643 do artigo é específico do dataset global
+      const rawScore = rawI * 0.0014 + 0.1;
+      const calculatedScore = Number(Math.min(1, Math.max(0.1, rawScore)).toFixed(2));
 
       // 3. Preparar dados dos insetos antes de qualquer operação no banco
       const insectsToInsert = taxonLevels.map((level) => ({
@@ -339,6 +330,8 @@ export default function RegisterSampleModal({
         hemiptera: level.hemiptera || 0,
         lepidoptera: level.lepidoptera || 0,
         gasteropoda: level.gasteropoda || 0,
+        dermaptera: level.dermaptera || 0,
+        diptera_larvae: level.diptera_larvae || 0,
         others: level.others || 0,
       }));
 
@@ -451,6 +444,7 @@ export default function RegisterSampleModal({
                   lepidoptera: 0,
                   gasteropoda: 0,
                   dermaptera: 0,
+                  diptera_larvae: 0,
                   others: 0,
                 },
               ]);

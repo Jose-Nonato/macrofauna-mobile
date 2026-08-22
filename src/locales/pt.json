@@ -275,6 +275,7 @@
     "lepidoptera": "Borboleta",
     "gasteropoda": "Gastrópode",
     "dermaptera": "Tesourinha",
+    "diptera_larvae": "Larva de Díptero",
     "others": "Outros"
   }
 }

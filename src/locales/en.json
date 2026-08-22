@@ -275,6 +275,7 @@
     "lepidoptera": "Butterfly/Moth",
     "gasteropoda": "Gastropod",
     "dermaptera": "Earwig",
+    "diptera_larvae": "Fly Larvae",
     "others": "Others"
   }
 }
