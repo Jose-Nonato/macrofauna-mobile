@@ -15,12 +15,7 @@ I18n.translations = {
 export const initI18n = (locale: string) => {
   I18n.locale = locale;
   I18n.defaultLocale = "pt";
-  I18n.fallbacks = {
-    "pt-BR": "pt",
-    "en-US": "en",
-    "es-ES": "es",
-    "es-MX": "es",
-  };
+  I18n.enableFallback = true;
 };
 
 export const getDeviceLanguage = () => {

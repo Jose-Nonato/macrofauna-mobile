@@ -35,7 +35,9 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -44,7 +46,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "46f82e51-62da-4b5b-95d3-f4fbbbec2f62"
+        "projectId": "fc931d4b-3f05-4414-95b1-f765d1b643b8"
       }
     },
     "owner": "jose_nonato"
