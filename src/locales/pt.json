@@ -276,6 +276,8 @@
     "gasteropoda": "Gastrópode",
     "dermaptera": "Tesourinha",
     "diptera_larvae": "Larva de Díptero",
+    "isopoda": "Isópode",
+    "orthoptera": "Ortóptera",
     "others": "Outros"
   }
 }

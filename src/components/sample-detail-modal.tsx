@@ -87,6 +87,8 @@ export default function SampleDetailModal({
           gasteropoda: 0,
           dermaptera: 0,
           diptera_larvae: 0,
+          isopoda: 0,
+          orthoptera: 0,
           others: 0,
         };
 
@@ -105,6 +107,8 @@ export default function SampleDetailModal({
           consolidatedInsects.gasteropoda += insect.gasteropoda || 0;
           consolidatedInsects.dermaptera += insect.dermaptera || 0;
           consolidatedInsects.diptera_larvae += insect.diptera_larvae || 0;
+          consolidatedInsects.isopoda += insect.isopoda || 0;
+          consolidatedInsects.orthoptera += insect.orthoptera || 0;
           consolidatedInsects.others += insect.others || 0;
         });
       }

@@ -276,6 +276,8 @@
     "gasteropoda": "Gastropod",
     "dermaptera": "Earwig",
     "diptera_larvae": "Fly Larvae",
+    "isopoda": "Isopod",
+    "orthoptera": "Grasshopper",
     "others": "Others"
   }
 }

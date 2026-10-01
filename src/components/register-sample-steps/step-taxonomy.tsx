@@ -24,6 +24,8 @@ export const TAXON_LIST = [
   { key: "lepidoptera", code: "LEP" },
   { key: "gasteropoda", code: "GAS" },
   { key: "diptera_larvae", code: "DL" },
+  { key: "isopoda", code: "ISO" },
+  { key: "orthoptera", code: "ORTH" },
   { key: "others", code: "OT" },
 ] as const;
 
@@ -56,6 +58,8 @@ export default function StepTaxonomy({
       gasteropoda: 0,
       dermaptera: 0,
       diptera_larvae: 0,
+      isopoda: 0,
+      orthoptera: 0,
       others: 0,
     };
     setLevels((prev) => [...prev, emptyLevel]);

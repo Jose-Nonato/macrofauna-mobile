@@ -63,6 +63,8 @@ export default function RegisterSampleModal({
       gasteropoda: 0,
       dermaptera: 0,
       diptera_larvae: 0,
+      isopoda: 0,
+      orthoptera: 0,
       others: 0,
     },
   ]);
@@ -112,6 +114,8 @@ export default function RegisterSampleModal({
             gasteropoda: 0,
             dermaptera: 0,
             diptera_larvae: 0,
+            isopoda: 0,
+            orthoptera: 0,
             others: 0,
           },
         ]);
@@ -149,6 +153,8 @@ export default function RegisterSampleModal({
           others: insect.others || 0,
           dermaptera: insect.dermaptera || 0,
           diptera_larvae: insect.diptera_larvae || 0,
+          isopoda: insect.isopoda || 0,
+          orthoptera: insect.orthoptera || 0,
         }));
         setTaxonLevels(levels);
       }
@@ -248,6 +254,13 @@ export default function RegisterSampleModal({
         LEP: getTotalTaxon("lepidoptera"),
         GAS: getTotalTaxon("gasteropoda"),
         DL: getTotalTaxon("diptera_larvae"),
+        // Isopoda e Orthoptera não têm peso definido no artigo publicado
+        // (que agrupa Isopoda em "Others" e nem cita Orthoptera), mas a
+        // planilha de referência do professor (Patrick) os trata como
+        // categorias próprias com peso 18.3 — replicado aqui para bater
+        // com os valores de IQMS já calculados por ele.
+        ISO: getTotalTaxon("isopoda"),
+        ORTH: getTotalTaxon("orthoptera"),
         OT: getTotalTaxon("others"),
       };
 
@@ -265,6 +278,8 @@ export default function RegisterSampleModal({
         "LEP",
         "GAS",
         "DL",
+        "ISO",
+        "ORTH",
         "OT",
       ] as const;
 
@@ -283,6 +298,8 @@ export default function RegisterSampleModal({
         LEP: 9.15,
         GAS: 15.08,
         DL: 16.31,
+        ISO: 18.3,
+        ORTH: 18.3,
         OT: 19.82,
       };
       const WEIGHT_DN = 24.74; // peso da densidade total (DN)
@@ -300,14 +317,17 @@ export default function RegisterSampleModal({
       // 2.3 Riqueza de Grupos (rt): número de táxons com contagem total > 0
       const rt = keys.filter((k) => (taxTotals[k] || 0) > 0).length;
 
-      // 2.4 RawI (Eq. 3): soma ponderada de log10(contagem + 1) por táxon,
-      // mais os termos de densidade (DN) e riqueza (TR)
+      // 2.4 RawI (Eq. 3): soma ponderada de log10(densidade_m2 + 1) por táxon
+      // (cada contagem também é convertida para indivíduos/m², ×16, igual à
+      // densidade total — confirmado pela planilha e pelo texto do artigo
+      // sobre riqueza "convertida a um range similar ao da densidade"),
+      // mais os termos de densidade (DN) e riqueza (TR), também ×16.
       let rawI = 0;
       keys.forEach((k) => {
-        rawI += WEIGHTS[k] * Math.log10((taxTotals[k] || 0) + 1);
+        rawI += WEIGHTS[k] * Math.log10((taxTotals[k] || 0) * 16 + 1);
       });
       rawI += WEIGHT_DN * densityValue;
-      rawI += WEIGHT_TR * Math.log10(rt + 1);
+      rawI += WEIGHT_TR * Math.log10(rt * 16 + 1);
 
       // 2.5 Normalização final (Eq. 4): I = 0,9*RawI/Max + 0,1 = 0,0014*RawI + 0,1
       // limitado a [0.1, 1.0] pois o Max=643 do artigo é específico do dataset global
@@ -332,6 +352,8 @@ export default function RegisterSampleModal({
         gasteropoda: level.gasteropoda || 0,
         dermaptera: level.dermaptera || 0,
         diptera_larvae: level.diptera_larvae || 0,
+        isopoda: level.isopoda || 0,
+        orthoptera: level.orthoptera || 0,
         others: level.others || 0,
       }));
 
@@ -445,6 +467,8 @@ export default function RegisterSampleModal({
                   gasteropoda: 0,
                   dermaptera: 0,
                   diptera_larvae: 0,
+                  isopoda: 0,
+                  orthoptera: 0,
                   others: 0,
                 },
               ]);
