@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Alert,
   Modal,
   FlatList,
   TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
+import { geocode, reverseGeocode } from "@/lib/geocoding";
+import { showAlert } from "@/lib/alert";
 import { useI18n } from "@/hooks/useI18n";
 
 interface StepLocationProps {
@@ -228,7 +229,7 @@ export default function StepLocation({
       }));
       setCountries(mapped);
     } catch (error) {
-      Alert.alert(t("samples.connectionError"), t("samples.couldNotLoadCountries"));
+      showAlert(t("samples.connectionError"), t("samples.couldNotLoadCountries"));
     } finally {
       setLoadingCountries(false);
     }
@@ -258,7 +259,7 @@ export default function StepLocation({
       if (json.error) throw new Error(json.msg || "Erro na resposta da API");
       setStates(json.data.states || []);
     } catch (error) {
-      Alert.alert(t("common.error"), t("samples.couldNotLoadStates"));
+      showAlert(t("common.error"), t("samples.couldNotLoadStates"));
     } finally {
       setLoadingStates(false);
     }
@@ -293,7 +294,7 @@ export default function StepLocation({
       if (json.error) throw new Error(json.msg || "Erro na resposta da API");
       setCities(json.data || []);
     } catch (error) {
-      Alert.alert(t("common.error"), t("samples.couldNotLoadCities"));
+      showAlert(t("common.error"), t("samples.couldNotLoadCities"));
     } finally {
       setLoadingCities(false);
     }
@@ -315,18 +316,16 @@ export default function StepLocation({
     try {
       const cleanCountry = getApiCountryName(countryName);
       const address = `${cityName}, ${stateName}, ${cleanCountry}`;
-      const result = await Location.geocodeAsync(address);
-      if (result && result.length > 0) {
-        const { latitude: lat, longitude: lon } = result[0];
-        setLatitude(lat.toString());
-        setLongitude(lon.toString());
+      const result = await geocode(address);
+      if (result) {
+        setLatitude(result.latitude.toString());
+        setLongitude(result.longitude.toString());
       } else {
         const fallbackAddress = `${cityName}, ${cleanCountry}`;
-        const resultFallback = await Location.geocodeAsync(fallbackAddress);
-        if (resultFallback && resultFallback.length > 0) {
-          const { latitude: lat, longitude: lon } = resultFallback[0];
-          setLatitude(lat.toString());
-          setLongitude(lon.toString());
+        const resultFallback = await geocode(fallbackAddress);
+        if (resultFallback) {
+          setLatitude(resultFallback.latitude.toString());
+          setLongitude(resultFallback.longitude.toString());
         }
       }
     } catch (error) {
@@ -340,7 +339,7 @@ export default function StepLocation({
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(
+        showAlert(
           t("samples.gpsPermissionDenied"),
           t("samples.gpsPermissionMsg")
         );
@@ -355,19 +354,21 @@ export default function StepLocation({
       setLatitude(coords.coords.latitude.toString());
       setLongitude(coords.coords.longitude.toString());
 
-      const [address] = await Location.reverseGeocodeAsync({
-        latitude: coords.coords.latitude,
-        longitude: coords.coords.longitude,
-      });
+      const address = await reverseGeocode(
+        coords.coords.latitude,
+        coords.coords.longitude
+      );
 
       if (address) {
-        setCity(address.city || address.subregion || "");
-        setState(address.region || "");
+        setCity(address.city || "");
+        setState(address.state || "");
         setCountry(address.country || "Brasil");
-        Alert.alert(t("common.success"), t("samples.gpsSuccessMsg"));
+        showAlert(t("common.success"), t("samples.gpsSuccessMsg"));
+      } else {
+        showAlert(t("common.success"), t("samples.gpsSuccessMsg"));
       }
     } catch (err) {
-      Alert.alert(t("samples.gpsError"), t("samples.couldNotReadGPS"));
+      showAlert(t("samples.gpsError"), t("samples.couldNotReadGPS"));
     } finally {
       setLoadingGPS(false);
     }
@@ -530,7 +531,7 @@ export default function StepLocation({
               <TouchableOpacity
                 style={[styles.selectButton, styles.selectButtonDisabled]}
                 onPress={() =>
-                  Alert.alert(t("common.attention"), t("samples.selectCountryFirstAlert"))
+                  showAlert(t("common.attention"), t("samples.selectCountryFirstAlert"))
                 }
               >
                 <Text style={[styles.selectButtonText, styles.placeholderText]}>
@@ -584,7 +585,7 @@ export default function StepLocation({
               <TouchableOpacity
                 style={[styles.selectButton, styles.selectButtonDisabled]}
                 onPress={() =>
-                  Alert.alert(
+                  showAlert(
                     t("common.attention"),
                     t("samples.selectCountryStateFirstAlert")
                   )

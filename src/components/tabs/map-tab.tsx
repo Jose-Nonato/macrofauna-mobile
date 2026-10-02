@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   Modal,
   ScrollView,
-  Alert,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
+import { showAlert } from "@/lib/alert";
 import { useI18n } from "@/hooks/useI18n";
 
 interface Sample {
@@ -63,7 +63,7 @@ export default function MapTab() {
       setSamples(samplesData || []);
       generateMapHtml(samplesData || []);
     } catch (error: any) {
-      Alert.alert(t("common.error"), t("map.couldNotLoadMap"));
+      showAlert(t("common.error"), t("map.couldNotLoadMap"));
     } finally {
       setLoading(false);
     }

@@ -6,12 +6,13 @@ import {
   Modal,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   Platform,
 } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { createSample, insertInsects, updateSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
 import { uploadPhotoToStorage } from "@/lib/uploadService";
+import { calculateIqms } from "@/lib/iqms";
+import { showAlert } from "@/lib/alert";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "@/hooks/useI18n";
 
@@ -212,7 +213,7 @@ export default function RegisterSampleModal({
   // Submissão Geral para o Supabase
   const handleSaveSample = async () => {
     if (!city.trim() || !state.trim()) {
-      Alert.alert(
+      showAlert(
         t("samples.requiredFields"),
         t("samples.fillCityState")
       );
@@ -235,127 +236,65 @@ export default function RegisterSampleModal({
       // pesos DN/TR e a normalização final vêm dessa mesma referência).
       // "Níveis" representam as camadas de profundidade da amostragem ISO/TSBF
       // (serrapilheira, 0-10, 10-20, 20-30 cm) e por isso são SOMADAS, não
-      // promediadas, para reconstituir a contagem total do ponto amostral.
-      const getTotalTaxon = (key: TaxonKey) => {
-        return taxonLevels.reduce((acc, lvl) => acc + (lvl[key] || 0), 0);
+      // promediadas, para reconstituir a contagem total do ponto amostral —
+      // essa soma é o que alimenta o score/densidade AGREGADOS da amostra.
+      const emptyTaxonCounts: Record<TaxonKey, number> = {
+        earthworm: 0,
+        ant: 0,
+        isoptera: 0,
+        blattaria: 0,
+        coleoptera: 0,
+        arachnida: 0,
+        diplopoda: 0,
+        chilopoda: 0,
+        hemiptera: 0,
+        lepidoptera: 0,
+        gasteropoda: 0,
+        dermaptera: 0,
+        diptera_larvae: 0,
+        isopoda: 0,
+        orthoptera: 0,
+        others: 0,
       };
+      const combinedCounts = taxonLevels.reduce((acc, level) => {
+        (Object.keys(emptyTaxonCounts) as TaxonKey[]).forEach((key) => {
+          acc[key] += level[key] || 0;
+        });
+        return acc;
+      }, { ...emptyTaxonCounts });
 
-      const taxTotals = {
-        EW: getTotalTaxon("earthworm"),
-        AN: getTotalTaxon("ant"),
-        TER: getTotalTaxon("isoptera"),
-        BLA: getTotalTaxon("blattaria"),
-        COL: getTotalTaxon("coleoptera"),
-        ARA: getTotalTaxon("arachnida"),
-        DIPLO: getTotalTaxon("diplopoda"),
-        CHI: getTotalTaxon("chilopoda"),
-        HEMI: getTotalTaxon("hemiptera"),
-        DER: getTotalTaxon("dermaptera"),
-        LEP: getTotalTaxon("lepidoptera"),
-        GAS: getTotalTaxon("gasteropoda"),
-        DL: getTotalTaxon("diptera_larvae"),
-        // Isopoda e Orthoptera não têm peso definido no artigo publicado
-        // (que agrupa Isopoda em "Others" e nem cita Orthoptera), mas a
-        // planilha de referência do professor (Patrick) os trata como
-        // categorias próprias com peso 18.3 — replicado aqui para bater
-        // com os valores de IQMS já calculados por ele.
-        ISO: getTotalTaxon("isopoda"),
-        ORTH: getTotalTaxon("orthoptera"),
-        OT: getTotalTaxon("others"),
-      };
+      const aggregate = calculateIqms(combinedCounts);
+      const totalAnimals = aggregate.totalAnimals;
+      const densityValue = aggregate.densityValue;
+      const calculatedScore = aggregate.score;
 
-      const keys = [
-        "EW",
-        "AN",
-        "TER",
-        "BLA",
-        "COL",
-        "ARA",
-        "DIPLO",
-        "CHI",
-        "HEMI",
-        "DER",
-        "LEP",
-        "GAS",
-        "DL",
-        "ISO",
-        "ORTH",
-        "OT",
-      ] as const;
-
-      // Pesos (Vi) da Eq. 3 do artigo (fórmula global, 3.694 sites)
-      const WEIGHTS = {
-        EW: 18.3,
-        AN: 16.83,
-        TER: 9.2,
-        BLA: 7.69,
-        COL: 19.62,
-        ARA: 15.09,
-        DIPLO: 18.78,
-        CHI: 20.12,
-        HEMI: 11.29,
-        DER: 7.58,
-        LEP: 9.15,
-        GAS: 15.08,
-        DL: 16.31,
-        ISO: 18.3,
-        ORTH: 18.3,
-        OT: 19.82,
-      };
-      const WEIGHT_DN = 24.74; // peso da densidade total (DN)
-      const WEIGHT_TR = 27.88; // peso da riqueza taxonômica (TR)
-
-      // 2.1 Quantidade total de animais coletados (animal_quantity)
-      const totalAnimals = keys.reduce((sum, k) => sum + (taxTotals[k] || 0), 0);
-
-      // 2.2 Densidade (sample_density): amostra ISO/TSBF de 25x25 cm = 0,0625 m²,
-      // logo 1/0,0625 = 16 converte a contagem do monólito para indivíduos/m².
-      // DN = log10(densidade_m2 + 1), como no artigo.
-      const densityPerM2 = totalAnimals * 16;
-      const densityValue = Number(Math.log10(densityPerM2 + 1).toFixed(2));
-
-      // 2.3 Riqueza de Grupos (rt): número de táxons com contagem total > 0
-      const rt = keys.filter((k) => (taxTotals[k] || 0) > 0).length;
-
-      // 2.4 RawI (Eq. 3): soma ponderada de log10(densidade_m2 + 1) por táxon
-      // (cada contagem também é convertida para indivíduos/m², ×16, igual à
-      // densidade total — confirmado pela planilha e pelo texto do artigo
-      // sobre riqueza "convertida a um range similar ao da densidade"),
-      // mais os termos de densidade (DN) e riqueza (TR), também ×16.
-      let rawI = 0;
-      keys.forEach((k) => {
-        rawI += WEIGHTS[k] * Math.log10((taxTotals[k] || 0) * 16 + 1);
+      // 3. Preparar dados dos insetos antes de qualquer operação no banco.
+      // Cada nível grava sua PRÓPRIA densidade/IQMS (calculados só com os
+      // dados daquele nível), não o valor agregado da amostra inteira.
+      const insectsToInsert = taxonLevels.map((level) => {
+        const levelResult = calculateIqms(level);
+        return {
+          sample_id: sampleToEdit ? sampleToEdit.id : "", // será preenchido após criar amostra
+          sample_density: levelResult.densityValue,
+          iqms: levelResult.score,
+          earthworm: level.earthworm || 0,
+          ant: level.ant || 0,
+          isoptera: level.isoptera || 0,
+          blattaria: level.blattaria || 0,
+          coleoptera: level.coleoptera || 0,
+          arachnida: level.arachnida || 0,
+          diplopoda: level.diplopoda || 0,
+          chilopoda: level.chilopoda || 0,
+          hemiptera: level.hemiptera || 0,
+          lepidoptera: level.lepidoptera || 0,
+          gasteropoda: level.gasteropoda || 0,
+          dermaptera: level.dermaptera || 0,
+          diptera_larvae: level.diptera_larvae || 0,
+          isopoda: level.isopoda || 0,
+          orthoptera: level.orthoptera || 0,
+          others: level.others || 0,
+        };
       });
-      rawI += WEIGHT_DN * densityValue;
-      rawI += WEIGHT_TR * Math.log10(rt * 16 + 1);
-
-      // 2.5 Normalização final (Eq. 4): I = 0,9*RawI/Max + 0,1 = 0,0014*RawI + 0,1
-      // limitado a [0.1, 1.0] pois o Max=643 do artigo é específico do dataset global
-      const rawScore = rawI * 0.0014 + 0.1;
-      const calculatedScore = Number(Math.min(1, Math.max(0.1, rawScore)).toFixed(2));
-
-      // 3. Preparar dados dos insetos antes de qualquer operação no banco
-      const insectsToInsert = taxonLevels.map((level) => ({
-        sample_id: sampleToEdit ? sampleToEdit.id : "", // será preenchido após criar amostra
-        sample_density: densityValue,
-        iqms: calculatedScore,
-        earthworm: level.earthworm || 0,
-        ant: level.ant || 0,
-        isoptera: level.isoptera || 0,
-        blattaria: level.blattaria || 0,
-        coleoptera: level.coleoptera || 0,
-        arachnida: level.arachnida || 0,
-        diplopoda: level.diplopoda || 0,
-        chilopoda: level.chilopoda || 0,
-        hemiptera: level.hemiptera || 0,
-        lepidoptera: level.lepidoptera || 0,
-        gasteropoda: level.gasteropoda || 0,
-        dermaptera: level.dermaptera || 0,
-        diptera_larvae: level.diptera_larvae || 0,
-        isopoda: level.isopoda || 0,
-        orthoptera: level.orthoptera || 0,
-        others: level.others || 0,
-      }));
 
       const sampleData = {
         sample_score: calculatedScore,
@@ -439,7 +378,7 @@ export default function RegisterSampleModal({
             2
           )}/1.0\n${t("home.density")}: ${densityValue.toFixed(2)}`;
 
-      Alert.alert(
+      showAlert(
         alertTitle,
         alertMessage,
         [
@@ -485,7 +424,7 @@ export default function RegisterSampleModal({
         ]
       );
     } catch (err: any) {
-      Alert.alert(t("samples.errorSaving"), err.message || t("samples.unexpectedError"));
+      showAlert(t("samples.errorSaving"), err.message || t("samples.unexpectedError"));
     } finally {
       setLoading(false);
     }

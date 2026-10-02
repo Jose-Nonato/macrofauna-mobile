@@ -3,7 +3,6 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -17,6 +16,7 @@ import {
   View,
 } from "react-native";
 import { TAXON_LIST } from "./register-sample-steps/step-taxonomy";
+import { showAlert } from "@/lib/alert";
 import { useI18n } from "@/hooks/useI18n";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -42,6 +42,7 @@ export default function SampleDetailModal({
   const [loading, setLoading] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
   const [insects, setInsects] = React.useState<any>(null);
+  const [levelInsects, setLevelInsects] = React.useState<any[]>([]);
   const [photos, setPhotos] = React.useState<any[]>([]);
   const [viewerVisible, setViewerVisible] = React.useState(false);
   const [viewerPhotos, setViewerPhotos] = React.useState<any[]>([]);
@@ -58,6 +59,7 @@ export default function SampleDetailModal({
       fetchDetails();
     } else {
       setInsects(null);
+      setLevelInsects([]);
       setPhotos([]);
     }
   }, [visible, sample]);
@@ -113,7 +115,13 @@ export default function SampleDetailModal({
         });
       }
 
+      // Ordena por id para preservar a ordem de criação dos níveis
+      const orderedLevels = insectsData
+        ? [...insectsData].sort((a: any, b: any) => (a.id || 0) - (b.id || 0))
+        : [];
+
       setInsects(consolidatedInsects);
+      setLevelInsects(orderedLevels);
       setPhotos(photosData || []);
     } catch (error) {
     } finally {
@@ -122,7 +130,7 @@ export default function SampleDetailModal({
   };
 
   const handleDelete = () => {
-    Alert.alert(
+    showAlert(
       t("samples.deleteSampleTitle"),
       t("samples.deleteSampleConfirm"),
       [
@@ -134,11 +142,11 @@ export default function SampleDetailModal({
             setDeleting(true);
             try {
               await deleteSample(sample.id);
-              Alert.alert(t("common.success"), t("samples.deleteSampleSuccess"));
+              showAlert(t("common.success"), t("samples.deleteSampleSuccess"));
               onSuccess(); // atualiza a listagem de amostras
               onClose(); // fecha o modal de detalhes
             } catch (error: any) {
-              Alert.alert(t("samples.errorDeleting"), error.message || t("samples.unexpectedError"));
+              showAlert(t("samples.errorDeleting"), error.message || t("samples.unexpectedError"));
             } finally {
               setDeleting(false);
             }
@@ -267,6 +275,30 @@ export default function SampleDetailModal({
                     </View>
                   </View>
                 </View>
+
+                {/* Seção 3.5: Densidade e Score IQMS por Nível */}
+                {levelInsects.length > 0 && (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>{t("samples.metricsByLevel")}</Text>
+                    <View style={styles.levelMetricsList}>
+                      {levelInsects.map((level, index) => (
+                        <View key={level.id || index} style={styles.levelMetricRow}>
+                          <Text style={styles.levelMetricRowLabel}>
+                            {t("samples.level")} {index + 1}
+                          </Text>
+                          <View style={styles.levelMetricRowValues}>
+                            <Text style={styles.levelMetricRowValue}>
+                              {t("home.density")}: {level.sample_density !== null && level.sample_density !== undefined ? level.sample_density.toFixed(2) : "N/A"}
+                            </Text>
+                            <Text style={styles.levelMetricRowValue}>
+                              IQMS: {level.iqms !== null && level.iqms !== undefined ? level.iqms.toFixed(2) : "N/A"}
+                            </Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                )}
 
                 {/* Seção 4: Insetos / Taxonomia (Total) */}
                 <View style={styles.section}>
@@ -591,6 +623,35 @@ const styles = StyleSheet.create({
     color: "#94a3b8",
     fontWeight: "bold",
     marginTop: 2,
+  },
+  levelMetricsList: {
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    padding: 8,
+  },
+  levelMetricRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f1f5f9",
+  },
+  levelMetricRowLabel: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#1e293b",
+  },
+  levelMetricRowValues: {
+    alignItems: "flex-end",
+  },
+  levelMetricRowValue: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#15803d",
   },
   taxonomyList: {
     backgroundColor: "#ffffff",

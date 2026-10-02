@@ -3,7 +3,6 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ImageBackground,
   KeyboardAvoidingView,
@@ -18,6 +17,7 @@ import {
 } from "react-native";
 import { Image as ExpoImage } from "expo-image";
 import { useI18n } from "@/hooks/useI18n";
+import { showAlert } from "@/lib/alert";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -31,17 +31,17 @@ export default function Register() {
 
   async function handleRegister() {
     if (!email || !password || !confirmPassword) {
-      Alert.alert(t("common.error"), t("auth.fillAllFields"));
+      showAlert(t("common.error"), t("auth.fillAllFields"));
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert(t("common.error"), t("auth.passwordsDontMatch"));
+      showAlert(t("common.error"), t("auth.passwordsDontMatch"));
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert(t("common.error"), t("auth.passwordMinLength"));
+      showAlert(t("common.error"), t("auth.passwordMinLength"));
       return;
     }
 
@@ -52,18 +52,18 @@ export default function Register() {
     });
 
     if (error) {
-      Alert.alert(t("common.error"), error.message);
+      showAlert(t("common.error"), error.message);
       setLoading(false);
     } else {
       const isConfirmed = data.session !== null;
       if (isConfirmed) {
-        Alert.alert(
+        showAlert(
           t("common.success"),
           t("auth.accountCreatedSuccess"),
           [{ text: t("auth.signIn"), onPress: () => setLoading(false) }]
         );
       } else {
-        Alert.alert(
+        showAlert(
           t("auth.registerCompleted"),
           t("auth.verifyEmail"),
           [{ text: t("auth.goToLogin"), onPress: () => router.push("/login") }]

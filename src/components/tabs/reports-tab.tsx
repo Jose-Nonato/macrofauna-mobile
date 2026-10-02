@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   Platform,
   FlatList,
 } from "react-native";
@@ -24,6 +23,7 @@ import {
   LocationOptions,
 } from "@/lib/reportService";
 import { Ionicons } from "@expo/vector-icons";
+import { showAlert } from "@/lib/alert";
 import { useI18n } from "@/hooks/useI18n";
 
 export default function ReportsTab() {
@@ -60,7 +60,7 @@ export default function ReportsTab() {
       }
       generateInitialReport();
     } catch (error: any) {
-      Alert.alert(t("common.error"), t("reports.couldNotLoadFilters"));
+      showAlert(t("common.error"), t("reports.couldNotLoadFilters"));
     } finally {
       setLoading(false);
     }
@@ -96,7 +96,7 @@ export default function ReportsTab() {
       const data = await generateReport();
       setReportData(data);
     } catch (error: any) {
-      Alert.alert(t("common.error"), t("reports.couldNotGenerateReport"));
+      showAlert(t("common.error"), t("reports.couldNotGenerateReport"));
     } finally {
       setLoading(false);
     }
@@ -114,7 +114,7 @@ export default function ReportsTab() {
       );
       setReportData(data);
     } catch (error: any) {
-      Alert.alert(t("common.error"), t("reports.couldNotGenerateReport"));
+      showAlert(t("common.error"), t("reports.couldNotGenerateReport"));
     } finally {
       setGenerating(false);
     }
@@ -143,7 +143,7 @@ export default function ReportsTab() {
   async function handleExportCSV() {
     try {
       if (!reportData) {
-        Alert.alert(t("common.error"), t("reports.noReportToExport"));
+        showAlert(t("common.error"), t("reports.noReportToExport"));
         return;
       }
 
@@ -171,10 +171,10 @@ export default function ReportsTab() {
           dialogTitle: t("reports.exportDialogTitle"),
         });
       } else {
-        Alert.alert(t("common.info"), t("reports.sharingNotAvailable"));
+        showAlert(t("common.info"), t("reports.sharingNotAvailable"));
       }
     } catch (error: any) {
-      Alert.alert(t("common.error"), error.message || t("reports.couldNotExportReport"));
+      showAlert(t("common.error"), error.message || t("reports.couldNotExportReport"));
     } finally {
       setGenerating(false);
     }

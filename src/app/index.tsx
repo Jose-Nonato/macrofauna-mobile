@@ -2,10 +2,11 @@ import { supabase } from "@/lib/supabase";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
+import { reverseGeocode } from "@/lib/geocoding";
+import { showAlert } from "@/lib/alert";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   SafeAreaView,
   StatusBar,
@@ -62,15 +63,14 @@ export default function Home() {
           accuracy: Location.Accuracy.Balanced,
         });
 
-        const [address] = await Location.reverseGeocodeAsync({
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
-        });
+        const address = await reverseGeocode(
+          currentLocation.coords.latitude,
+          currentLocation.coords.longitude
+        );
 
         if (address) {
-          const city =
-            address.city || address.subregion || "Cidade Desconhecida";
-          const state = address.region || "Estado";
+          const city = address.city || "Cidade Desconhecida";
+          const state = address.state || "Estado";
           const country = address.country || "Brasil";
           setLocationTitle(`${city}, ${state} - ${country}`);
           setLocationSubtitle("Localização Atual");
@@ -91,7 +91,7 @@ export default function Home() {
   }, []);
 
   async function handleLogout() {
-    Alert.alert("Sair da Conta", "Deseja realmente sair da sua conta?", [
+    showAlert("Sair da Conta", "Deseja realmente sair da sua conta?", [
       { text: "Cancelar", style: "cancel" },
       {
         text: "Sair",
@@ -101,14 +101,14 @@ export default function Home() {
           try {
             const { error } = await supabase.auth.signOut();
             if (error) {
-              Alert.alert("Erro ao sair", error.message);
+              showAlert("Erro ao sair", error.message);
               setLoading(false);
             } else {
               setLoading(false);
               router.replace("/login");
             }
           } catch (err: any) {
-            Alert.alert("Erro ao sair", err.message || "Erro inesperado.");
+            showAlert("Erro ao sair", err.message || "Erro inesperado.");
             setLoading(false);
           }
         },

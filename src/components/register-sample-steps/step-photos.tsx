@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { showAlert } from "@/lib/alert";
 import { useI18n } from "@/hooks/useI18n";
 
 interface StepPhotosProps {
@@ -41,7 +41,7 @@ export default function StepPhotos({
   const handleAddImage = async (
     direction: "norte" | "sul" | "leste" | "oeste"
   ) => {
-    Alert.alert(
+    showAlert(
       t("samples.attachPhoto"),
       t("samples.choosePhotoMethod"),
       [
@@ -69,7 +69,7 @@ export default function StepPhotos({
       if (source === "camera") {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== "granted") {
-          Alert.alert(
+          showAlert(
             t("samples.cameraPermissionDenied"),
             t("samples.cameraPermissionMsg")
           );
@@ -87,7 +87,7 @@ export default function StepPhotos({
       } else {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== "granted") {
-          Alert.alert(
+          showAlert(
             t("samples.galleryPermissionDenied"),
             t("samples.galleryPermissionMsg")
           );
@@ -105,7 +105,7 @@ export default function StepPhotos({
         }
       }
     } catch (error) {
-      Alert.alert(t("common.error"), t("samples.couldNotLoadImage"));
+      showAlert(t("common.error"), t("samples.couldNotLoadImage"));
     }
   };
 

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   Modal,
-  Alert,
   ActivityIndicator,
   Platform,
 } from "react-native";
@@ -25,6 +24,7 @@ import {
 import { countries, getStates, getCities } from "@/lib/locationData";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { showAlert } from "@/lib/alert";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useI18n } from "@/hooks/useI18n";
 
@@ -113,7 +113,7 @@ export default function ProfileTab() {
         }
       }
     } catch (error: any) {
-      Alert.alert(t("common.error"), t("profile.errorLoadingProfile"));
+      showAlert(t("common.error"), t("profile.errorLoadingProfile"));
     } finally {
       setLoading(false);
     }
@@ -151,17 +151,17 @@ export default function ProfileTab() {
         prev ? { ...prev, ...editData } : null
       );
 
-      Alert.alert(t("common.success"), t("profile.profileUpdated"));
+      showAlert(t("common.success"), t("profile.profileUpdated"));
       setEditModalVisible(false);
     } catch (error: any) {
-      Alert.alert(t("common.error"), error.message || t("profile.errorSavingProfile"));
+      showAlert(t("common.error"), error.message || t("profile.errorSavingProfile"));
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDeleteAccount() {
-    Alert.alert(
+    showAlert(
       t("profile.deleteAccount"),
       t("profile.deleteAccountConfirm"),
       [
@@ -176,7 +176,7 @@ export default function ProfileTab() {
               await supabase.auth.signOut();
               router.replace("/login");
             } catch (error: any) {
-              Alert.alert(t("common.error"), error.message || t("profile.errorDeletingAccount"));
+              showAlert(t("common.error"), error.message || t("profile.errorDeletingAccount"));
             } finally {
               setLoading(false);
             }
@@ -187,7 +187,7 @@ export default function ProfileTab() {
   }
 
   async function handleLogout() {
-    Alert.alert(t("profile.logoutAccount"), t("profile.logoutConfirm"), [
+    showAlert(t("profile.logoutAccount"), t("profile.logoutConfirm"), [
       { text: t("common.cancel"), style: "cancel" },
       {
         text: t("common.logout"),
@@ -198,7 +198,7 @@ export default function ProfileTab() {
             await supabase.auth.signOut();
             router.replace("/login");
           } catch (error: any) {
-            Alert.alert(t("common.error"), error.message || t("profile.errorLoggingOut"));
+            showAlert(t("common.error"), error.message || t("profile.errorLoggingOut"));
           } finally {
             setLoading(false);
           }

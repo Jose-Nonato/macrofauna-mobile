@@ -210,6 +210,7 @@
     "individualsPerM2": "individuals / m²",
     "totalAnimals": "Total Animals",
     "units": "units",
+    "metricsByLevel": "Density and IQMS Score by Level",
     "taxonomicComposition": "Taxonomic Composition (Total)",
     "noInvertebratesFound": "No invertebrates found in this sample.",
     "taxonomicDataUnavailable": "Taxonomic data unavailable.",

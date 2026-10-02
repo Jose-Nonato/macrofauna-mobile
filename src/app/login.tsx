@@ -3,7 +3,6 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ImageBackground,
   KeyboardAvoidingView,
@@ -18,6 +17,7 @@ import {
 } from "react-native";
 import { Image as ExpoImage } from "expo-image";
 import { useI18n } from "@/hooks/useI18n";
+import { showAlert } from "@/lib/alert";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -29,7 +29,7 @@ export default function Login() {
 
   async function handleLogin() {
     if (!email || !password) {
-      Alert.alert(t("common.error"), t("auth.fillAllFields"));
+      showAlert(t("common.error"), t("auth.fillAllFields"));
       return;
     }
 
@@ -40,10 +40,10 @@ export default function Login() {
     });
 
     if (error) {
-      Alert.alert(t("common.error"), error.message);
+      showAlert(t("common.error"), error.message);
       setLoading(false);
     } else {
-      Alert.alert(
+      showAlert(
         t("common.success"),
         `${t("auth.loginSuccessMsg")}, ${data.user?.email}`,
         [{ text: t("auth.continue"), onPress: () => setLoading(false) }]

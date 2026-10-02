@@ -3,7 +3,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -14,6 +13,7 @@ import {
 } from "react-native";
 import RegisterSampleModal from "../register-sample-modal";
 import SampleDetailModal from "../sample-detail-modal";
+import { showAlert } from "@/lib/alert";
 import { useI18n } from "@/hooks/useI18n";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -94,7 +94,7 @@ export default function HomeTab() {
         if (parsedStart) {
           query = query.gte("created_at", `${parsedStart}T00:00:00.000Z`);
         } else {
-          Alert.alert(
+          showAlert(
             t("home.invalidDate"),
             t("home.invalidStartDateMsg"),
           );
@@ -109,7 +109,7 @@ export default function HomeTab() {
         if (parsedEnd) {
           query = query.lte("created_at", `${parsedEnd}T23:59:59.999Z`);
         } else {
-          Alert.alert(
+          showAlert(
             t("home.invalidDate"),
             t("home.invalidEndDateMsg"),
           );
