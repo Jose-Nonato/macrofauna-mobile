@@ -7,7 +7,7 @@ import {
   getDeviceLanguage,
 } from "@/lib/i18n";
 
-type Language = "en" | "pt" | "es";
+type Language = "en" | "pt" | "es" | "fr";
 
 interface LanguageContextType {
   language: Language;

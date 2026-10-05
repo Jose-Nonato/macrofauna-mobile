@@ -260,7 +260,7 @@ export default function ProfileTab() {
               <Text style={styles.infoValue}>
                 {profile?.birth_date
                   ? new Date(profile.birth_date).toLocaleDateString(
-                      language === "pt" ? "pt-BR" : language === "es" ? "es-ES" : "en-US"
+                      language === "pt" ? "pt-BR" : language === "es" ? "es-ES" : language === "fr" ? "fr-FR" : "en-US"
                     )
                   : t("profile.notInformed")}
               </Text>
@@ -357,7 +357,7 @@ export default function ProfileTab() {
           </View>
 
           <View style={styles.languageOptionsContainer}>
-            {(["pt", "en", "es"] as const).map((lang) => (
+            {(["pt", "en", "es", "fr"] as const).map((lang) => (
               <TouchableOpacity
                 key={lang}
                 style={[
@@ -379,7 +379,9 @@ export default function ProfileTab() {
                       ? "Português"
                       : lang === "en"
                         ? "English"
-                        : "Español"}
+                        : lang === "es"
+                          ? "Español"
+                          : "Français"}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -444,7 +446,7 @@ export default function ProfileTab() {
                 <Text style={styles.dateButtonText}>
                   {editData.birth_date
                     ? new Date(editData.birth_date).toLocaleDateString(
-                        language === "pt" ? "pt-BR" : language === "es" ? "es-ES" : "en-US"
+                        language === "pt" ? "pt-BR" : language === "es" ? "es-ES" : language === "fr" ? "fr-FR" : "en-US"
                       )
                     : t("profile.selectDate")}
                 </Text>

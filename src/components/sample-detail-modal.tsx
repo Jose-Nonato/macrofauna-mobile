@@ -161,7 +161,7 @@ export default function SampleDetailModal({
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "N/A";
     const date = new Date(dateStr);
-    const locale = language === "pt" ? "pt-BR" : language === "es" ? "es-ES" : "en-US";
+    const locale = language === "pt" ? "pt-BR" : language === "es" ? "es-ES" : language === "fr" ? "fr-FR" : "en-US";
     return date.toLocaleDateString(locale, {
       day: "2-digit",
       month: "2-digit",
