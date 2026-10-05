@@ -17,6 +17,7 @@ export async function getSamples() {
     .from("samples")
     .select("*")
     .eq("user_id", user.id)
+    .eq("deleted", false)
     .order("id", { ascending: false });
   if (error) throw error;
   return data;

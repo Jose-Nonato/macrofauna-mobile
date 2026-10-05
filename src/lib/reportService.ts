@@ -56,7 +56,8 @@ export async function generateReport(
     let samplesQuery = supabase
       .from("samples")
       .select("id, sample_score, created_at")
-      .eq("user_id", userData.user.id);
+      .eq("user_id", userData.user.id)
+      .eq("deleted", false);
 
     if (country) samplesQuery = samplesQuery.eq("country", country);
     if (state) samplesQuery = samplesQuery.eq("state", state);
@@ -209,7 +210,8 @@ export async function getSamplesWithInsects(
     let samplesQuery = supabase
       .from("samples")
       .select("id, sample_score, created_at")
-      .eq("user_id", userData.user.id);
+      .eq("user_id", userData.user.id)
+      .eq("deleted", false);
 
     if (country) samplesQuery = samplesQuery.eq("country", country);
     if (state) samplesQuery = samplesQuery.eq("state", state);
@@ -430,7 +432,8 @@ export async function getLocationOptions(): Promise<LocationOptions> {
     const { data: samples, error } = await supabase
       .from("samples")
       .select("country, state, city")
-      .eq("user_id", userData.user.id);
+      .eq("user_id", userData.user.id)
+      .eq("deleted", false);
 
     if (error) throw error;
 

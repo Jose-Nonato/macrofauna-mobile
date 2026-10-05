@@ -52,6 +52,7 @@ export default function MapTab() {
         .from("samples")
         .select("*")
         .eq("user_id", userData.user.id)
+        .eq("deleted", false)
         .not("latitude", "is", null)
         .not("longitude", "is", null)
         .order("id", { ascending: false });
