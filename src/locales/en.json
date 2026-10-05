@@ -211,6 +211,7 @@
     "errorDeleting": "Error Deleting",
     "code": "Code",
     "loadingSampleData": "Loading sample data...",
+    "overallScore": "Overall Score",
     "soilQualityIndex": "Soil Quality Index",
     "locationAndDate": "Location and Date",
     "address": "Address",

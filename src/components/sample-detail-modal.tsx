@@ -207,10 +207,10 @@ export default function SampleDetailModal({
           ) : (
             <>
               <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-                {/* Seção 1: Score IQMS */}
+                {/* Seção 1: Score Geral */}
                 <View style={styles.scoreCard}>
                   <View style={styles.scoreInfo}>
-                    <Text style={styles.scoreTitle}>Score IQMS</Text>
+                    <Text style={styles.scoreTitle}>{t("samples.overallScore")}</Text>
                     <Text style={styles.scoreDesc}>{t("samples.soilQualityIndex")}</Text>
                   </View>
                   <View style={styles.scoreValueContainer}>

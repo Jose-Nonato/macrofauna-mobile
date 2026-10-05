@@ -211,6 +211,7 @@
     "errorDeleting": "Erreur lors de la suppression",
     "code": "Code",
     "loadingSampleData": "Chargement des données de l'échantillon...",
+    "overallScore": "Score global",
     "soilQualityIndex": "Indice de qualité du sol",
     "locationAndDate": "Localisation et date",
     "address": "Adresse",

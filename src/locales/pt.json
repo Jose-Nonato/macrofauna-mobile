@@ -211,6 +211,7 @@
     "errorDeleting": "Erro ao excluir",
     "code": "Cód",
     "loadingSampleData": "Carregando dados da amostra...",
+    "overallScore": "Score Geral",
     "soilQualityIndex": "Índice de Qualidade de Solo",
     "locationAndDate": "Localização e Data",
     "address": "Endereço",
