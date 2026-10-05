@@ -49,6 +49,16 @@
     "show": "Afficher",
     "notAuthenticated": "Utilisateur non authentifié."
   },
+  "header": {
+    "welcome": "Bienvenue sur Macrofauna !",
+    "tagline": "Votre suivi agroforestier",
+    "searchingGPS": "Recherche du GPS...",
+    "currentLocation": "Position actuelle",
+    "indicator": "Indicateur de macrofaune",
+    "unknownCity": "Ville inconnue",
+    "unknownState": "État",
+    "defaultCountry": "Brésil"
+  },
   "tabs": {
     "home": "Accueil",
     "map": "Carte",

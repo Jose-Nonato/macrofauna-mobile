@@ -22,10 +22,12 @@ const NOMINATIM_BASE = "https://nominatim.openstreetmap.org";
 
 export async function reverseGeocode(
   latitude: number,
-  longitude: number
+  longitude: number,
+  // Idioma dos nomes retornados (só na web; no nativo vale o idioma do aparelho)
+  acceptLanguage = "pt-BR"
 ): Promise<ReverseGeocodeResult | null> {
   if (Platform.OS === "web") {
-    const url = `${NOMINATIM_BASE}/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1&accept-language=pt-BR`;
+    const url = `${NOMINATIM_BASE}/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1&accept-language=${acceptLanguage}`;
     const response = await fetch(url);
     const json = await response.json();
     const addr = json?.address;

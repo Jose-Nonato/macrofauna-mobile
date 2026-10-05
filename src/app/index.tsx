@@ -2,8 +2,9 @@ import { supabase } from "@/lib/supabase";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
-import { reverseGeocode } from "@/lib/geocoding";
+import { reverseGeocode, ReverseGeocodeResult } from "@/lib/geocoding";
 import { showAlert } from "@/lib/alert";
+import { useI18n } from "@/hooks/useI18n";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -25,15 +26,16 @@ import ReportsTab from "@/components/tabs/reports-tab";
 type TabType = "home" | "map" | "reports" | "profile";
 
 export default function Home() {
+  const { t, language } = useI18n();
   const [loading, setLoading] = useState(true);
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>("home");
-  const [hasLocation, setHasLocation] = useState(false);
-  const [locationTitle, setLocationTitle] = useState(
-    "Bem-vindo ao Macrofauna!",
-  );
-  const [locationSubtitle, setLocationSubtitle] = useState(
-    "Seu monitoramento agroflorestal",
-  );
+  // Os textos do cabeçalho são montados na renderização para seguir o idioma do app
+  const [locationStatus, setLocationStatus] = useState<
+    "idle" | "searching" | "found" | "unavailable"
+  >("idle");
+  const [address, setAddress] = useState<ReverseGeocodeResult | null>(null);
+  const hasLocation = locationStatus === "found" && address !== null;
 
   useEffect(() => {
     async function initializeHome() {
@@ -57,58 +59,66 @@ export default function Home() {
           return;
         }
 
-        setLocationSubtitle("Buscando GPS...");
+        setLocationStatus("searching");
 
         const currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Balanced,
         });
 
-        const address = await reverseGeocode(
-          currentLocation.coords.latitude,
-          currentLocation.coords.longitude
-        );
-
-        if (address) {
-          const city = address.city || "Cidade Desconhecida";
-          const state = address.state || "Estado";
-          const country = address.country || "Brasil";
-          setLocationTitle(`${city}, ${state} - ${country}`);
-          setLocationSubtitle("Localização Atual");
-          setHasLocation(true);
-        } else {
-          setLocationTitle("Bem-vindo ao Macrofauna!");
-          setLocationSubtitle("Indicador macrofauna");
-          setHasLocation(false);
-        }
+        setCoords({
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+        });
       } catch (error) {
-        setLocationTitle("Bem-vindo ao Macrofauna!");
-        setLocationSubtitle("Indicador macrofauna");
-        setHasLocation(false);
+        setLocationStatus("unavailable");
       }
     }
 
     initializeHome();
   }, []);
 
+  // 3. Converter coordenadas em endereço no idioma do app (refaz ao trocar o idioma)
+  useEffect(() => {
+    if (!coords) return;
+
+    async function loadAddress(latitude: number, longitude: number) {
+      try {
+        const address = await reverseGeocode(
+          latitude,
+          longitude,
+          language === "pt" ? "pt-BR" : language
+        );
+
+        setAddress(address);
+        setLocationStatus(address ? "found" : "unavailable");
+      } catch (error) {
+        setAddress(null);
+        setLocationStatus("unavailable");
+      }
+    }
+
+    loadAddress(coords.latitude, coords.longitude);
+  }, [coords, language]);
+
   async function handleLogout() {
-    showAlert("Sair da Conta", "Deseja realmente sair da sua conta?", [
-      { text: "Cancelar", style: "cancel" },
+    showAlert(t("profile.logoutAccount"), t("profile.logoutConfirm"), [
+      { text: t("common.cancel"), style: "cancel" },
       {
-        text: "Sair",
+        text: t("common.logout"),
         style: "destructive",
         onPress: async () => {
           setLoading(true);
           try {
             const { error } = await supabase.auth.signOut();
             if (error) {
-              showAlert("Erro ao sair", error.message);
+              showAlert(t("profile.errorLoggingOut"), error.message);
               setLoading(false);
             } else {
               setLoading(false);
               router.replace("/login");
             }
           } catch (err: any) {
-            showAlert("Erro ao sair", err.message || "Erro inesperado.");
+            showAlert(t("profile.errorLoggingOut"), err.message || t("samples.unexpectedError"));
             setLoading(false);
           }
         },
@@ -123,6 +133,16 @@ export default function Home() {
       </View>
     );
   }
+
+  const locationTitle = locationStatus === "found" && address
+    ? `${address.city || t("header.unknownCity")}, ${address.state || t("header.unknownState")} - ${address.country || t("header.defaultCountry")}`
+    : t("header.welcome");
+  const locationSubtitle = {
+    idle: t("header.tagline"),
+    searching: t("header.searchingGPS"),
+    found: t("header.currentLocation"),
+    unavailable: t("header.indicator"),
+  }[locationStatus];
 
   // Renderiza o componente modular correspondente à aba selecionada
   const renderTabContent = () => {

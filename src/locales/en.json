@@ -49,6 +49,16 @@
     "show": "Show",
     "notAuthenticated": "User not authenticated."
   },
+  "header": {
+    "welcome": "Welcome to Macrofauna!",
+    "tagline": "Your agroforestry monitoring",
+    "searchingGPS": "Getting GPS...",
+    "currentLocation": "Current Location",
+    "indicator": "Macrofauna indicator",
+    "unknownCity": "Unknown City",
+    "unknownState": "State",
+    "defaultCountry": "Brazil"
+  },
   "tabs": {
     "home": "Home",
     "map": "Map",
