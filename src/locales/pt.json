@@ -63,7 +63,8 @@
     "home": "Início",
     "map": "Mapa",
     "reports": "Relatórios",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "method": "Método"
   },
   "profile": {
     "title": "Meu Perfil",
@@ -291,5 +292,54 @@
     "isopoda": "Isópode",
     "orthoptera": "Ortóptera",
     "others": "Outros"
+  },
+  "method": {
+    "badge": "Método TSBF",
+    "title": "Amostragem da Macrofauna do Solo",
+    "description": "O método TSBF (Tropical Soil Biology and Fertility) é um protocolo internacionalmente reconhecido para avaliação da macrofauna edáfica e da qualidade biológica do solo.",
+    "objective": {
+      "title": "Objetivo",
+      "description": "O método busca identificar organismos presentes no solo capazes de indicar alterações ambientais, fertilidade e equilíbrio ecológico.",
+      "soilQuality": "Qualidade do Solo",
+      "soilQualityDesc": "Avalia o equilíbrio ecológico através da biodiversidade presente.",
+      "biologicalIndicators": "Indicadores Biológicos",
+      "biologicalIndicatorsDesc": "Utiliza organismos como minhocas, formigas e besouros como bioindicadores.",
+      "environmentalMonitoring": "Monitoramento Ambiental",
+      "environmentalMonitoringDesc": "Permite comparar áreas preservadas, degradadas e agrícolas."
+    },
+    "howTo": {
+      "title": "Como realizar a coleta",
+      "step1": "Escolha da Área",
+      "step1Desc": "Selecione um ponto representativo da área de estudo evitando locais com interferência recente.",
+      "step2": "Demarcação",
+      "step2Desc": "Delimite um monólito de 25cm x 25cm com profundidade de até 20cm.",
+      "step3": "Coleta Manual",
+      "step3Desc": "Remova cuidadosamente os organismos encontrados na serapilheira e no solo.",
+      "step4": "Identificação",
+      "step4Desc": "Classifique os organismos conforme os grupos taxonômicos disponíveis na aplicação.",
+      "step5": "Registro Fotográfico",
+      "step5Desc": "Tire fotos nas quatro direções (Norte, Sul, Leste e Oeste) para documentar a área.",
+      "step6": "Cálculo do Score Geral",
+      "step6Desc": "O sistema calculará automaticamente densidade e índice de qualidade da macrofauna do solo."
+    },
+    "mainGroups": {
+      "title": "Principais grupos encontrados",
+      "earthworms": "Minhocas",
+      "earthwormsDesc": "Melhoram a estrutura do solo e aumentam a infiltração de água.",
+      "ants": "Formigas",
+      "antsDesc": "Auxiliam na ciclagem de nutrientes e movimentação do solo.",
+      "termites": "Cupins",
+      "termitesDesc": "Atuam na decomposição de matéria orgânica lignificada.",
+      "beetles": "Besouros",
+      "beetlesDesc": "Importantes predadores e decompositores da fauna edáfica."
+    },
+    "interpretation": {
+      "title": "Interpretação do Score Geral",
+      "excellent": "Excelente qualidade biológica do solo.",
+      "good": "Boa qualidade biológica.",
+      "intermediate": "Qualidade intermediária com sinais de degradação.",
+      "low": "Baixa qualidade biológica e possível degradação severa."
+    },
+    "video": "Vídeo Demonstrativo"
   }
 }

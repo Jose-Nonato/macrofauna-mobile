@@ -63,7 +63,8 @@
     "home": "Accueil",
     "map": "Carte",
     "reports": "Rapports",
-    "profile": "Profil"
+    "profile": "Profil",
+    "method": "Méthode"
   },
   "profile": {
     "title": "Mon profil",
@@ -291,5 +292,54 @@
     "isopoda": "Isopode",
     "orthoptera": "Criquet",
     "others": "Autres"
+  },
+  "method": {
+    "badge": "Méthode TSBF",
+    "title": "Échantillonnage de la macrofaune du sol",
+    "description": "La méthode TSBF (Tropical Soil Biology and Fertility) est un protocole reconnu internationalement pour l'évaluation de la macrofaune édaphique et de la qualité biologique du sol.",
+    "objective": {
+      "title": "Objectif",
+      "description": "La méthode vise à identifier les organismes présents dans le sol capables d'indiquer des changements environnementaux, la fertilité et l'équilibre écologique.",
+      "soilQuality": "Qualité du sol",
+      "soilQualityDesc": "Évalue l'équilibre écologique à travers la biodiversité présente.",
+      "biologicalIndicators": "Indicateurs biologiques",
+      "biologicalIndicatorsDesc": "Utilise des organismes comme les vers de terre, les fourmis et les coléoptères comme bioindicateurs.",
+      "environmentalMonitoring": "Suivi environnemental",
+      "environmentalMonitoringDesc": "Permet de comparer des zones préservées, dégradées et agricoles."
+    },
+    "howTo": {
+      "title": "Comment réaliser la collecte",
+      "step1": "Choix de la zone",
+      "step1Desc": "Sélectionnez un point représentatif de la zone d'étude en évitant les endroits ayant subi une perturbation récente.",
+      "step2": "Délimitation",
+      "step2Desc": "Délimitez un monolithe de 25cm x 25cm d'une profondeur maximale de 20cm.",
+      "step3": "Collecte manuelle",
+      "step3Desc": "Retirez soigneusement les organismes trouvés dans la litière et dans le sol.",
+      "step4": "Identification",
+      "step4Desc": "Classez les organismes selon les groupes taxonomiques disponibles dans l'application.",
+      "step5": "Relevé photographique",
+      "step5Desc": "Prenez des photos dans les quatre directions (Nord, Sud, Est et Ouest) pour documenter la zone.",
+      "step6": "Calcul du score global",
+      "step6Desc": "Le système calculera automatiquement la densité et l'indice de qualité de la macrofaune du sol."
+    },
+    "mainGroups": {
+      "title": "Principaux groupes rencontrés",
+      "earthworms": "Vers de terre",
+      "earthwormsDesc": "Améliorent la structure du sol et augmentent l'infiltration de l'eau.",
+      "ants": "Fourmis",
+      "antsDesc": "Contribuent au cycle des nutriments et au brassage du sol.",
+      "termites": "Termites",
+      "termitesDesc": "Participent à la décomposition de la matière organique lignifiée.",
+      "beetles": "Coléoptères",
+      "beetlesDesc": "Prédateurs et décomposeurs importants de la faune du sol."
+    },
+    "interpretation": {
+      "title": "Interprétation du score global",
+      "excellent": "Excellente qualité biologique du sol.",
+      "good": "Bonne qualité biologique.",
+      "intermediate": "Qualité intermédiaire avec des signes de dégradation.",
+      "low": "Faible qualité biologique et dégradation sévère possible."
+    },
+    "video": "Vidéo de démonstration"
   }
 }

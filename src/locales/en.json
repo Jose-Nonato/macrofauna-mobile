@@ -63,7 +63,8 @@
     "home": "Home",
     "map": "Map",
     "reports": "Reports",
-    "profile": "Profile"
+    "profile": "Profile",
+    "method": "Method"
   },
   "profile": {
     "title": "My Profile",
@@ -291,5 +292,54 @@
     "isopoda": "Isopod",
     "orthoptera": "Grasshopper",
     "others": "Others"
+  },
+  "method": {
+    "badge": "TSBF Method",
+    "title": "Soil Macrofauna Sampling",
+    "description": "The TSBF (Tropical Soil Biology and Fertility) method is an internationally recognized protocol for assessing soil macrofauna and the biological quality of the soil.",
+    "objective": {
+      "title": "Objective",
+      "description": "The method seeks to identify organisms in the soil that can indicate environmental changes, fertility and ecological balance.",
+      "soilQuality": "Soil Quality",
+      "soilQualityDesc": "Assesses ecological balance through the biodiversity present.",
+      "biologicalIndicators": "Biological Indicators",
+      "biologicalIndicatorsDesc": "Uses organisms such as earthworms, ants and beetles as bioindicators.",
+      "environmentalMonitoring": "Environmental Monitoring",
+      "environmentalMonitoringDesc": "Allows comparison between preserved, degraded and agricultural areas."
+    },
+    "howTo": {
+      "title": "How to collect",
+      "step1": "Choosing the Area",
+      "step1Desc": "Select a representative point of the study area, avoiding places with recent disturbance.",
+      "step2": "Demarcation",
+      "step2Desc": "Mark out a 25cm x 25cm monolith up to 20cm deep.",
+      "step3": "Manual Collection",
+      "step3Desc": "Carefully remove the organisms found in the litter and in the soil.",
+      "step4": "Identification",
+      "step4Desc": "Classify the organisms according to the taxonomic groups available in the app.",
+      "step5": "Photographic Record",
+      "step5Desc": "Take photos in the four directions (North, South, East and West) to document the area.",
+      "step6": "Overall Score Calculation",
+      "step6Desc": "The system will automatically calculate the density and the soil macrofauna quality index."
+    },
+    "mainGroups": {
+      "title": "Main groups found",
+      "earthworms": "Earthworms",
+      "earthwormsDesc": "Improve soil structure and increase water infiltration.",
+      "ants": "Ants",
+      "antsDesc": "Help with nutrient cycling and soil movement.",
+      "termites": "Termites",
+      "termitesDesc": "Decompose lignified organic matter.",
+      "beetles": "Beetles",
+      "beetlesDesc": "Important predators and decomposers of the soil fauna."
+    },
+    "interpretation": {
+      "title": "Interpreting the Overall Score",
+      "excellent": "Excellent soil biological quality.",
+      "good": "Good biological quality.",
+      "intermediate": "Intermediate quality with signs of degradation.",
+      "low": "Low biological quality and possible severe degradation."
+    },
+    "video": "Demonstration Video"
   }
 }

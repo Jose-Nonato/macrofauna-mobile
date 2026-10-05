@@ -63,7 +63,8 @@
     "home": "Inicio",
     "map": "Mapa",
     "reports": "Informes",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "method": "Método"
   },
   "profile": {
     "title": "Mi Perfil",
@@ -291,5 +292,54 @@
     "isopoda": "Isópodo",
     "orthoptera": "Ortóptero",
     "others": "Otros"
+  },
+  "method": {
+    "badge": "Método TSBF",
+    "title": "Muestreo de la Macrofauna del Suelo",
+    "description": "El método TSBF (Tropical Soil Biology and Fertility) es un protocolo reconocido internacionalmente para evaluar la macrofauna edáfica y la calidad biológica del suelo.",
+    "objective": {
+      "title": "Objetivo",
+      "description": "El método busca identificar organismos presentes en el suelo capaces de indicar alteraciones ambientales, fertilidad y equilibrio ecológico.",
+      "soilQuality": "Calidad del Suelo",
+      "soilQualityDesc": "Evalúa el equilibrio ecológico a través de la biodiversidad presente.",
+      "biologicalIndicators": "Indicadores Biológicos",
+      "biologicalIndicatorsDesc": "Utiliza organismos como lombrices, hormigas y escarabajos como bioindicadores.",
+      "environmentalMonitoring": "Monitoreo Ambiental",
+      "environmentalMonitoringDesc": "Permite comparar áreas preservadas, degradadas y agrícolas."
+    },
+    "howTo": {
+      "title": "Cómo realizar la colecta",
+      "step1": "Elección del Área",
+      "step1Desc": "Seleccione un punto representativo del área de estudio, evitando lugares con intervención reciente.",
+      "step2": "Demarcación",
+      "step2Desc": "Delimite un monolito de 25cm x 25cm con una profundidad de hasta 20cm.",
+      "step3": "Colecta Manual",
+      "step3Desc": "Retire con cuidado los organismos encontrados en la hojarasca y en el suelo.",
+      "step4": "Identificación",
+      "step4Desc": "Clasifique los organismos según los grupos taxonómicos disponibles en la aplicación.",
+      "step5": "Registro Fotográfico",
+      "step5Desc": "Tome fotos en las cuatro direcciones (Norte, Sur, Este y Oeste) para documentar el área.",
+      "step6": "Cálculo del Score General",
+      "step6Desc": "El sistema calculará automáticamente la densidad y el índice de calidad de la macrofauna del suelo."
+    },
+    "mainGroups": {
+      "title": "Principales grupos encontrados",
+      "earthworms": "Lombrices",
+      "earthwormsDesc": "Mejoran la estructura del suelo y aumentan la infiltración de agua.",
+      "ants": "Hormigas",
+      "antsDesc": "Ayudan en el ciclo de nutrientes y en el movimiento del suelo.",
+      "termites": "Termitas",
+      "termitesDesc": "Actúan en la descomposición de materia orgánica lignificada.",
+      "beetles": "Escarabajos",
+      "beetlesDesc": "Importantes depredadores y descomponedores de la fauna edáfica."
+    },
+    "interpretation": {
+      "title": "Interpretación del Score General",
+      "excellent": "Excelente calidad biológica del suelo.",
+      "good": "Buena calidad biológica.",
+      "intermediate": "Calidad intermedia con señales de degradación.",
+      "low": "Baja calidad biológica y posible degradación severa."
+    },
+    "video": "Video Demostrativo"
   }
 }

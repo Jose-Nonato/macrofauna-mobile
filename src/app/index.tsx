@@ -22,8 +22,9 @@ import HomeTab from "@/components/tabs/home-tab";
 import MapTab from "@/components/tabs/map-tab";
 import ProfileTab from "@/components/tabs/profile-tab";
 import ReportsTab from "@/components/tabs/reports-tab";
+import MethodTab from "@/components/tabs/method-tab";
 
-type TabType = "home" | "map" | "reports" | "profile";
+type TabType = "home" | "map" | "reports" | "method" | "profile";
 
 export default function Home() {
   const { t, language } = useI18n();
@@ -153,6 +154,8 @@ export default function Home() {
         return <MapTab />;
       case "reports":
         return <ReportsTab />;
+      case "method":
+        return <MethodTab />;
       case "profile":
         return <ProfileTab />;
     }
@@ -234,6 +237,20 @@ export default function Home() {
             color={activeTab === "reports" ? "#54A676" : "#9ca3af"}
           />
           {activeTab === "reports" && <View style={styles.activeDot} />}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => setActiveTab("method")}
+          activeOpacity={0.8}
+          accessibilityLabel={t("tabs.method")}
+        >
+          <Ionicons
+            name={activeTab === "method" ? "book" : "book-outline"}
+            size={24}
+            color={activeTab === "method" ? "#54A676" : "#9ca3af"}
+          />
+          {activeTab === "method" && <View style={styles.activeDot} />}
         </TouchableOpacity>
 
         <TouchableOpacity
