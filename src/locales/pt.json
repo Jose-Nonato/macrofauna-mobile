@@ -165,11 +165,11 @@
     "photoPlural": "fotos",
     "attach": "Anexar",
     "stepTaxonomyTitle": "Passo 3: Taxonomia",
-    "stepTaxonomyDesc": "Adicione múltiplos níveis de amostra e indique a quantidade de invertebrados para cada nível:",
-    "samplingLevels": "Níveis de Amostragem",
-    "newLevel": "Novo Nível",
+    "stepTaxonomyDesc": "Adicione múltiplas profundidades de amostra e indique a quantidade de invertebrados para cada profundidade:",
+    "samplingLevels": "Profundidades",
+    "newLevel": "Nova Profundidade",
     "deleteLevel": "Excluir",
-    "level": "Nível",
+    "level": "Profundidade",
     "stepLocationTitle": "Passo 4: Localização",
     "stepLocationDesc": "Informe onde a amostra foi coletada em campo:",
     "gpsMode": "Via GPS Nativo",
@@ -222,7 +222,7 @@
     "individualsPerM2": "indivíduos / m²",
     "totalAnimals": "Total Animais",
     "units": "unidades",
-    "metricsByLevel": "Densidade e Score IQMS por Nível",
+    "metricsByLevel": "Densidade e Score IQMS por Profundidade",
     "taxonomicComposition": "Composição Taxonômica (Total)",
     "noInvertebratesFound": "Nenhum invertebrado encontrado nesta amostra.",
     "taxonomicDataUnavailable": "Ficha taxonômica indisponível.",
@@ -231,7 +231,11 @@
     "noImagesAttached": "Nenhuma imagem anexada para esta amostra.",
     "deleteSample": "Excluir Amostra",
     "lat": "Lat",
-    "lon": "Lon"
+    "lon": "Lon",
+    "vegetationType": "Tipo de Vegetação",
+    "selectVegetationType": "Selecione o tipo de vegetação",
+    "searchVegetationType": "Buscar tipo de vegetação...",
+    "selectVegetationTypeAlert": "Selecione o tipo de vegetação do local da coleta."
   },
   "map": {
     "title": "Mapa",
@@ -341,5 +345,16 @@
       "low": "Baixa qualidade biológica e possível degradação severa."
     },
     "video": "Vídeo Demonstrativo"
+  },
+  "vegetation": {
+    "primary_forest": "Floresta primária",
+    "secondary_forest": "Floresta secundária (capoeira)",
+    "agroforestry": "Sistema agroflorestal",
+    "pasture": "Pastagem",
+    "annual_crop": "Cultivo anual",
+    "perennial_crop": "Cultivo perene",
+    "forest_plantation": "Plantio florestal (silvicultura)",
+    "cerrado": "Cerrado",
+    "other": "Outro"
   }
 }

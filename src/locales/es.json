@@ -165,11 +165,11 @@
     "photoPlural": "fotos",
     "attach": "Adjuntar",
     "stepTaxonomyTitle": "Paso 3: Taxonomía",
-    "stepTaxonomyDesc": "Agregue múltiples niveles de muestra e indique la cantidad de invertebrados para cada nivel:",
-    "samplingLevels": "Niveles de Muestreo",
-    "newLevel": "Nuevo Nivel",
+    "stepTaxonomyDesc": "Agregue múltiples profundidades de muestra e indique la cantidad de invertebrados para cada profundidad:",
+    "samplingLevels": "Profundidades",
+    "newLevel": "Nueva Profundidad",
     "deleteLevel": "Eliminar",
-    "level": "Nivel",
+    "level": "Profundidad",
     "stepLocationTitle": "Paso 4: Ubicación",
     "stepLocationDesc": "Indique dónde se recolectó la muestra en el campo:",
     "gpsMode": "Vía GPS Nativo",
@@ -222,7 +222,7 @@
     "individualsPerM2": "individuos / m²",
     "totalAnimals": "Total de Animales",
     "units": "unidades",
-    "metricsByLevel": "Densidad y Score IQMS por Nivel",
+    "metricsByLevel": "Densidad y Score IQMS por Profundidad",
     "taxonomicComposition": "Composición Taxonómica (Total)",
     "noInvertebratesFound": "No se encontraron invertebrados en esta muestra.",
     "taxonomicDataUnavailable": "Ficha taxonómica no disponible.",
@@ -231,7 +231,11 @@
     "noImagesAttached": "Ninguna imagen adjunta a esta muestra.",
     "deleteSample": "Eliminar Muestra",
     "lat": "Lat",
-    "lon": "Lon"
+    "lon": "Lon",
+    "vegetationType": "Tipo de Vegetación",
+    "selectVegetationType": "Seleccione el tipo de vegetación",
+    "searchVegetationType": "Buscar tipo de vegetación...",
+    "selectVegetationTypeAlert": "Seleccione el tipo de vegetación del lugar de colecta."
   },
   "map": {
     "title": "Mapa",
@@ -341,5 +345,16 @@
       "low": "Baja calidad biológica y posible degradación severa."
     },
     "video": "Video Demostrativo"
+  },
+  "vegetation": {
+    "primary_forest": "Bosque primario",
+    "secondary_forest": "Bosque secundario (barbecho)",
+    "agroforestry": "Sistema agroforestal",
+    "pasture": "Pastizal",
+    "annual_crop": "Cultivo anual",
+    "perennial_crop": "Cultivo perenne",
+    "forest_plantation": "Plantación forestal (silvicultura)",
+    "cerrado": "Cerrado (sabana)",
+    "other": "Otro"
   }
 }

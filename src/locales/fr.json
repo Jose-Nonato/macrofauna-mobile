@@ -165,11 +165,11 @@
     "photoPlural": "photos",
     "attach": "Joindre",
     "stepTaxonomyTitle": "Étape 3 : Taxonomie",
-    "stepTaxonomyDesc": "Ajoutez plusieurs niveaux d'échantillonnage et indiquez la quantité d'invertébrés pour chaque niveau :",
-    "samplingLevels": "Niveaux d'échantillonnage",
-    "newLevel": "Nouveau niveau",
+    "stepTaxonomyDesc": "Ajoutez plusieurs profondeurs d'échantillonnage et indiquez la quantité d'invertébrés pour chaque profondeur :",
+    "samplingLevels": "Profondeurs",
+    "newLevel": "Nouvelle profondeur",
     "deleteLevel": "Supprimer",
-    "level": "Niveau",
+    "level": "Profondeur",
     "stepLocationTitle": "Étape 4 : Localisation",
     "stepLocationDesc": "Indiquez où l'échantillon a été collecté sur le terrain :",
     "gpsMode": "Via GPS natif",
@@ -222,7 +222,7 @@
     "individualsPerM2": "individus / m²",
     "totalAnimals": "Total d'animaux",
     "units": "unités",
-    "metricsByLevel": "Densité et score IQMS par niveau",
+    "metricsByLevel": "Densité et score IQMS par profondeur",
     "taxonomicComposition": "Composition taxonomique (total)",
     "noInvertebratesFound": "Aucun invertébré trouvé dans cet échantillon.",
     "taxonomicDataUnavailable": "Données taxonomiques indisponibles.",
@@ -231,7 +231,11 @@
     "noImagesAttached": "Aucune image jointe à cet échantillon.",
     "deleteSample": "Supprimer l'échantillon",
     "lat": "Lat",
-    "lon": "Lon"
+    "lon": "Lon",
+    "vegetationType": "Type de végétation",
+    "selectVegetationType": "Sélectionnez le type de végétation",
+    "searchVegetationType": "Rechercher un type de végétation...",
+    "selectVegetationTypeAlert": "Veuillez sélectionner le type de végétation du site de collecte."
   },
   "map": {
     "title": "Carte",
@@ -341,5 +345,16 @@
       "low": "Faible qualité biologique et dégradation sévère possible."
     },
     "video": "Vidéo de démonstration"
+  },
+  "vegetation": {
+    "primary_forest": "Forêt primaire",
+    "secondary_forest": "Forêt secondaire (jachère)",
+    "agroforestry": "Système agroforestier",
+    "pasture": "Pâturage",
+    "annual_crop": "Culture annuelle",
+    "perennial_crop": "Culture pérenne",
+    "forest_plantation": "Plantation forestière (sylviculture)",
+    "cerrado": "Cerrado (savane)",
+    "other": "Autre"
   }
 }

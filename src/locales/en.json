@@ -165,11 +165,11 @@
     "photoPlural": "photos",
     "attach": "Attach",
     "stepTaxonomyTitle": "Step 3: Taxonomy",
-    "stepTaxonomyDesc": "Add multiple sample levels and indicate the quantity of invertebrates for each level:",
-    "samplingLevels": "Sampling Levels",
-    "newLevel": "New Level",
+    "stepTaxonomyDesc": "Add multiple sample depths and indicate the quantity of invertebrates for each depth:",
+    "samplingLevels": "Depths",
+    "newLevel": "New Depth",
     "deleteLevel": "Delete",
-    "level": "Level",
+    "level": "Depth",
     "stepLocationTitle": "Step 4: Location",
     "stepLocationDesc": "Inform where the sample was collected in the field:",
     "gpsMode": "Via Native GPS",
@@ -222,7 +222,7 @@
     "individualsPerM2": "individuals / m²",
     "totalAnimals": "Total Animals",
     "units": "units",
-    "metricsByLevel": "Density and IQMS Score by Level",
+    "metricsByLevel": "Density and IQMS Score by Depth",
     "taxonomicComposition": "Taxonomic Composition (Total)",
     "noInvertebratesFound": "No invertebrates found in this sample.",
     "taxonomicDataUnavailable": "Taxonomic data unavailable.",
@@ -231,7 +231,11 @@
     "noImagesAttached": "No images attached to this sample.",
     "deleteSample": "Delete Sample",
     "lat": "Lat",
-    "lon": "Lon"
+    "lon": "Lon",
+    "vegetationType": "Vegetation Type",
+    "selectVegetationType": "Select the vegetation type",
+    "searchVegetationType": "Search vegetation type...",
+    "selectVegetationTypeAlert": "Please select the vegetation type of the collection site."
   },
   "map": {
     "title": "Map",
@@ -341,5 +345,16 @@
       "low": "Low biological quality and possible severe degradation."
     },
     "video": "Demonstration Video"
+  },
+  "vegetation": {
+    "primary_forest": "Primary forest",
+    "secondary_forest": "Secondary forest (fallow)",
+    "agroforestry": "Agroforestry system",
+    "pasture": "Pasture",
+    "annual_crop": "Annual crop",
+    "perennial_crop": "Perennial crop",
+    "forest_plantation": "Forest plantation (silviculture)",
+    "cerrado": "Cerrado (savanna)",
+    "other": "Other"
   }
 }

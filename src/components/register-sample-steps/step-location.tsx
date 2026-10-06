@@ -15,6 +15,7 @@ import * as Location from "expo-location";
 import { geocode, reverseGeocode } from "@/lib/geocoding";
 import { showAlert } from "@/lib/alert";
 import { useI18n } from "@/hooks/useI18n";
+import { VEGETATION_TYPES } from "@/lib/vegetation";
 
 interface StepLocationProps {
   locationMode: "gps" | "manual";
@@ -29,6 +30,8 @@ interface StepLocationProps {
   setLatitude: (lat: string) => void;
   longitude: string;
   setLongitude: (lon: string) => void;
+  vegetationType: string;
+  setVegetationType: (type: string) => void;
 }
 
 interface SelectionItem {
@@ -183,8 +186,15 @@ export default function StepLocation({
   setLatitude,
   longitude,
   setLongitude,
+  vegetationType,
+  setVegetationType,
 }: StepLocationProps) {
   const { t } = useI18n();
+  const [vegetationModalVisible, setVegetationModalVisible] = React.useState(false);
+  const vegetationOptions = VEGETATION_TYPES.map((type) => ({
+    label: t(`vegetation.${type}`),
+    value: type,
+  }));
   const [loadingGPS, setLoadingGPS] = React.useState(false);
 
   // Listas obtidas via API
@@ -672,7 +682,41 @@ export default function StepLocation({
         </View>
       )}
 
+      {/* Tipo de Vegetação (vale para os dois modos de localização) */}
+      <View style={[styles.inputGroup, styles.vegetationGroup]}>
+        <Text style={styles.inputLabel}>{t("samples.vegetationType")}</Text>
+        <TouchableOpacity
+          style={styles.selectButton}
+          onPress={() => setVegetationModalVisible(true)}
+        >
+          <Text
+            style={[
+              styles.selectButtonText,
+              !vegetationType && styles.placeholderText,
+            ]}
+          >
+            {vegetationType
+              ? t(`vegetation.${vegetationType}`)
+              : t("samples.selectVegetationType")}
+          </Text>
+          <Ionicons
+            name="chevron-down-outline"
+            size={16}
+            color="#64748b"
+          />
+        </TouchableOpacity>
+      </View>
+
       {/* Modals de Seleção */}
+      <SelectionModal
+        visible={vegetationModalVisible}
+        onClose={() => setVegetationModalVisible(false)}
+        title={t("samples.selectVegetationType")}
+        data={vegetationOptions}
+        onSelect={(item) => setVegetationType(item.value)}
+        searchPlaceholder={t("samples.searchVegetationType")}
+      />
+
       <SelectionModal
         visible={countriesModalVisible}
         onClose={() => setCountriesModalVisible(false)}
@@ -791,6 +835,12 @@ const styles = StyleSheet.create({
   manualPanel: {},
   inputGroup: {
     marginBottom: 16,
+  },
+  vegetationGroup: {
+    marginTop: 8,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
   },
   inputLabel: {
     fontSize: 13,

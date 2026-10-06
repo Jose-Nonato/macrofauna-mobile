@@ -234,6 +234,18 @@ export default function SampleDetailModal({
                     </View>
                   </View>
 
+                  <View style={styles.infoRow}>
+                    <Ionicons name="leaf-outline" size={18} color="#54A676" />
+                    <View style={styles.infoTextContainer}>
+                      <Text style={styles.infoLabel}>{t("samples.vegetationType")}</Text>
+                      <Text style={styles.infoValue}>
+                        {sample.vegetation_type
+                          ? t(`vegetation.${sample.vegetation_type}`)
+                          : t("profile.notInformed")}
+                      </Text>
+                    </View>
+                  </View>
+
                   {sample.latitude && sample.longitude && (
                     <View style={styles.infoRow}>
                       <Ionicons name="locate-outline" size={18} color="#54A676" />
@@ -276,30 +288,6 @@ export default function SampleDetailModal({
                   </View>
                 </View>
 
-                {/* Seção 3.5: Densidade e Score IQMS por Nível */}
-                {levelInsects.length > 0 && (
-                  <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>{t("samples.metricsByLevel")}</Text>
-                    <View style={styles.levelMetricsList}>
-                      {levelInsects.map((level, index) => (
-                        <View key={level.id || index} style={styles.levelMetricRow}>
-                          <Text style={styles.levelMetricRowLabel}>
-                            {t("samples.level")} {index + 1}
-                          </Text>
-                          <View style={styles.levelMetricRowValues}>
-                            <Text style={styles.levelMetricRowValue}>
-                              {t("home.density")}: {level.sample_density !== null && level.sample_density !== undefined ? level.sample_density.toFixed(2) : "N/A"}
-                            </Text>
-                            <Text style={styles.levelMetricRowValue}>
-                              IQMS: {level.iqms !== null && level.iqms !== undefined ? level.iqms.toFixed(2) : "N/A"}
-                            </Text>
-                          </View>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                )}
-
                 {/* Seção 4: Insetos / Taxonomia (Total) */}
                 <View style={styles.section}>
                   <Text style={styles.sectionTitle}>{t("samples.taxonomicComposition")}</Text>
@@ -307,6 +295,7 @@ export default function SampleDetailModal({
                     <View style={styles.taxonomyList}>
                       {TAXON_LIST.map((taxon) => {
                         const value = insects[taxon.key] || 0;
+                        const totalCount = TAXON_LIST.reduce((sum, tx) => sum + (insects[tx.key] || 0), 0);
                         if (value === 0) return null; // Oculta taxons que não foram encontrados na amostra
                         return (
                           <View key={taxon.key} style={styles.taxonRow}>
@@ -314,7 +303,12 @@ export default function SampleDetailModal({
                               <Text style={styles.taxonName}>{t(`taxon.${taxon.key}`)}</Text>
                               <Text style={styles.taxonSub}>{taxon.code}</Text>
                             </View>
-                            <Text style={styles.taxonValue}>{value}</Text>
+                            <View style={styles.taxonValueBox}>
+                              <Text style={styles.taxonValue}>{value}</Text>
+                              <Text style={styles.taxonPercent}>
+                                {((value / totalCount) * 100).toFixed(1)}%
+                              </Text>
+                            </View>
                           </View>
                         );
                       })}
@@ -624,34 +618,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 2,
   },
-  levelMetricsList: {
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    padding: 8,
-  },
-  levelMetricRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f1f5f9",
-  },
-  levelMetricRowLabel: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  levelMetricRowValues: {
+  taxonValueBox: {
     alignItems: "flex-end",
   },
-  levelMetricRowValue: {
-    fontSize: 12,
+  taxonPercent: {
+    fontSize: 11,
+    color: "#94a3b8",
     fontWeight: "600",
-    color: "#15803d",
   },
   taxonomyList: {
     backgroundColor: "#ffffff",

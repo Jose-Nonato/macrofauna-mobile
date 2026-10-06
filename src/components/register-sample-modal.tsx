@@ -77,8 +77,9 @@ export default function RegisterSampleModal({
   const [country, setCountry] = useState("Brasil");
   const [latitude, setLatitude] = useState<string>("");
   const [longitude, setLongitude] = useState<string>("");
+  const [vegetationType, setVegetationType] = useState("");
 
-  const isLocationFilled = !!(city.trim() && state.trim() && country.trim() && latitude && longitude);
+  const isLocationFilled = !!(city.trim() && state.trim() && country.trim() && latitude && longitude && vegetationType);
 
   React.useEffect(() => {
     if (visible) {
@@ -89,6 +90,7 @@ export default function RegisterSampleModal({
         setCountry(sampleToEdit.country || "Brasil");
         setLatitude(sampleToEdit.latitude?.toString() || "");
         setLongitude(sampleToEdit.longitude?.toString() || "");
+        setVegetationType(sampleToEdit.vegetation_type || "");
         setLocationMode(sampleToEdit.latitude && sampleToEdit.longitude ? "manual" : "gps");
 
         // Carregar taxons e fotos da amostra de forma assíncrona
@@ -125,6 +127,7 @@ export default function RegisterSampleModal({
         setCountry("Brasil");
         setLatitude("");
         setLongitude("");
+        setVegetationType("");
       }
     }
   }, [visible]);
@@ -220,6 +223,14 @@ export default function RegisterSampleModal({
       return;
     }
 
+    if (!vegetationType) {
+      showAlert(
+        t("samples.requiredFields"),
+        t("samples.selectVegetationTypeAlert")
+      );
+      return;
+    }
+
     setLoading(true);
     let sampleId = "";
 
@@ -305,6 +316,7 @@ export default function RegisterSampleModal({
         city: city.trim(),
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
+        vegetation_type: vegetationType,
       };
 
       // 4. Se modo criação, criar amostra primeiro
@@ -416,6 +428,7 @@ export default function RegisterSampleModal({
               setCountry("Brasil");
               setLatitude("");
               setLongitude("");
+              setVegetationType("");
 
               onSuccess();
               onClose();
@@ -468,6 +481,8 @@ export default function RegisterSampleModal({
             setLatitude={setLatitude}
             longitude={longitude}
             setLongitude={setLongitude}
+            vegetationType={vegetationType}
+            setVegetationType={setVegetationType}
           />
         );
     }
