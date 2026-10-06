@@ -9,7 +9,9 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "@/hooks/useI18n";
-import { calculateIqms } from "@/lib/iqms";
+
+// Profundidades do método TSBF, na ordem em que são adicionadas
+export const DEPTH_LABELS = ["0-10 cm", "10-20 cm", "20-30 cm"];
 
 export const TAXON_LIST = [
   { key: "earthworm", code: "EW" },
@@ -96,7 +98,6 @@ export default function StepTaxonomy({
   };
 
   const currentTaxons = levels[activeLevelIdx] || {};
-  const currentLevelResult = calculateIqms(currentTaxons);
 
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
@@ -131,6 +132,7 @@ export default function StepTaxonomy({
       </View>
 
       {/* Tabs Horizontais para seleção de nível */}
+      {levels.length > 1 && (
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -152,28 +154,12 @@ export default function StepTaxonomy({
                 activeLevelIdx === idx && styles.levelTabTextActive,
               ]}
             >
-              {t("samples.level")} {idx + 1}
+              {DEPTH_LABELS[idx] ?? `${t("samples.level")} ${idx + 1}`}
             </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
-
-      {/* Densidade e Score IQMS calculados só com os dados deste nível */}
-      <View style={styles.levelMetrics}>
-        <View style={styles.levelMetricItem}>
-          <Text style={styles.levelMetricLabel}>{t("home.density")}</Text>
-          <Text style={styles.levelMetricValue}>
-            {currentLevelResult.densityValue.toFixed(2)}
-          </Text>
-        </View>
-        <View style={styles.levelMetricDivider} />
-        <View style={styles.levelMetricItem}>
-          <Text style={styles.levelMetricLabel}>Score IQMS</Text>
-          <Text style={styles.levelMetricValue}>
-            {currentLevelResult.score.toFixed(2)}
-          </Text>
-        </View>
-      </View>
+      )}
 
       {/* Lista de Invertebrados para o Nível Ativo */}
       <View style={styles.taxonList}>
@@ -288,37 +274,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",
     marginBottom: 16,
-  },
-  levelMetrics: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f0fdf4",
-    borderWidth: 1,
-    borderColor: "#bbf7d0",
-    borderRadius: 12,
-    paddingVertical: 12,
-    marginBottom: 16,
-  },
-  levelMetricItem: {
-    flex: 1,
-    alignItems: "center",
-  },
-  levelMetricDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: "#bbf7d0",
-  },
-  levelMetricLabel: {
-    fontSize: 11,
-    fontWeight: "bold",
-    color: "#166534",
-    textTransform: "uppercase",
-    marginBottom: 2,
-  },
-  levelMetricValue: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#15803d",
   },
   levelTab: {
     backgroundColor: "#f1f5f9",

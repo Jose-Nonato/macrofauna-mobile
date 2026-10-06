@@ -381,9 +381,15 @@ export default function ReportsTab() {
                 <Text style={[styles.tableHeaderCell, styles.quantityCell]}>
                   {t("reports.qty")}
                 </Text>
+                <Text style={[styles.tableHeaderCell, styles.percentCell]}>%</Text>
               </View>
 
-              {Object.entries(reportData.taxonData).map(([taxon, quantity]) => (
+              {Object.entries(reportData.taxonData).map(([taxon, quantity]) => {
+                const totalQuantity = Object.values(reportData.taxonData).reduce(
+                  (sum, q) => sum + q,
+                  0
+                );
+                return (
                 <View key={taxon} style={styles.tableRow}>
                   <Text style={[styles.tableCell, styles.nameCell]}>
                     {t(`taxon.${taxon}`, taxon)}
@@ -391,8 +397,15 @@ export default function ReportsTab() {
                   <Text style={[styles.tableCell, styles.quantityCell]}>
                     {quantity}
                   </Text>
+                  <Text style={[styles.tableCell, styles.percentCell]}>
+                    {totalQuantity > 0
+                      ? ((quantity / totalQuantity) * 100).toFixed(1)
+                      : "0.0"}
+                    %
+                  </Text>
                 </View>
-              ))}
+                );
+              })}
             </View>
 
             {/* Botão de Exportar */}
@@ -634,6 +647,10 @@ const styles = StyleSheet.create({
   },
   quantityCell: {
     width: 50,
+    textAlign: "right",
+  },
+  percentCell: {
+    width: 60,
     textAlign: "right",
   },
   tableRow: {

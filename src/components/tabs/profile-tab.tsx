@@ -17,7 +17,6 @@ import { supabase } from "@/lib/supabase";
 import {
   getUserProfile,
   updateUserProfile,
-  deleteUserAccount,
   getUserEmail,
   UserProfile,
 } from "@/lib/profileService";
@@ -158,32 +157,6 @@ export default function ProfileTab() {
     } finally {
       setSaving(false);
     }
-  }
-
-  async function handleDeleteAccount() {
-    showAlert(
-      t("profile.deleteAccount"),
-      t("profile.deleteAccountConfirm"),
-      [
-        { text: t("common.cancel"), style: "cancel" },
-        {
-          text: t("common.delete"),
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setLoading(true);
-              await deleteUserAccount();
-              await supabase.auth.signOut();
-              router.replace("/login");
-            } catch (error: any) {
-              showAlert(t("common.error"), error.message || t("profile.errorDeletingAccount"));
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ]
-    );
   }
 
   async function handleLogout() {
@@ -399,13 +372,6 @@ export default function ProfileTab() {
             <Text style={styles.logoutButtonText}>{t("profile.logoutAccount")}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={handleDeleteAccount}
-          >
-            <Ionicons name="trash" size={20} color="#ffffff" />
-            <Text style={styles.deleteButtonText}>{t("profile.deleteAccount")}</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -679,20 +645,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   logoutButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
-    marginLeft: 8,
-  },
-  deleteButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#dc2626",
-    padding: 14,
-    borderRadius: 8,
-  },
-  deleteButtonText: {
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "600",
