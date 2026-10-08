@@ -19,6 +19,8 @@ import { TAXON_LIST } from "./register-sample-steps/step-taxonomy";
 import { showAlert } from "@/lib/alert";
 import { useI18n } from "@/hooks/useI18n";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { TAXON_ICONS } from "@/lib/taxonInfo";
+import TaxonInfoModal from "./taxon-info-modal";
 
 interface SampleDetailModalProps {
   visible: boolean;
@@ -41,6 +43,7 @@ export default function SampleDetailModal({
   const { language } = useLanguage();
   const [loading, setLoading] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
+  const [taxonInfoKey, setTaxonInfoKey] = React.useState<string | null>(null);
   const [insects, setInsects] = React.useState<any>(null);
   const [levelInsects, setLevelInsects] = React.useState<any[]>([]);
   const [photos, setPhotos] = React.useState<any[]>([]);
@@ -299,10 +302,19 @@ export default function SampleDetailModal({
                         if (value === 0) return null; // Oculta taxons que não foram encontrados na amostra
                         return (
                           <View key={taxon.key} style={styles.taxonRow}>
-                            <View>
-                              <Text style={styles.taxonName}>{t(`taxon.${taxon.key}`)}</Text>
-                              <Text style={styles.taxonSub}>{taxon.code}</Text>
-                            </View>
+                            <TouchableOpacity
+                              style={styles.taxonLeft}
+                              onPress={() => setTaxonInfoKey(taxon.key)}
+                              activeOpacity={0.7}
+                            >
+                              <View style={styles.taxonIconBox}>
+                                <Image source={TAXON_ICONS[taxon.key]} style={styles.taxonIcon} />
+                              </View>
+                              <View>
+                                <Text style={styles.taxonName}>{t(`taxon.${taxon.key}`)}</Text>
+                                <Text style={styles.taxonSub}>{taxon.code}</Text>
+                              </View>
+                            </TouchableOpacity>
                             <View style={styles.taxonValueBox}>
                               <Text style={styles.taxonValue}>{value}</Text>
                               <Text style={styles.taxonPercent}>
@@ -442,6 +454,8 @@ export default function SampleDetailModal({
           />
         </View>
       </Modal>
+
+      <TaxonInfoModal taxonKey={taxonInfoKey} onClose={() => setTaxonInfoKey(null)} />
     </Modal>
   );
 }
@@ -641,6 +655,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",
+  },
+  taxonLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  taxonIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "#14663b",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+  },
+  taxonIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: "contain",
   },
   taxonName: {
     fontSize: 14,

@@ -356,5 +356,23 @@
     "forest_plantation": "Forest plantation (silviculture)",
     "cerrado": "Cerrado (savanna)",
     "other": "Other"
+  },
+  "taxonInfo": {
+    "earthworm": "Earthworms are key to soil structure and fertility, promoting aeration and nutrient cycling.",
+    "ant": "Ants contribute to nutrient cycling, seed dispersal and soil aeration.",
+    "isoptera": "Termites decompose lignified organic matter and are key ecosystem engineers of the soil.",
+    "blattaria": "Cockroaches take an active part in decomposing organic matter, helping recycle nutrients in the soil.",
+    "coleoptera": "Beetles have diverse ecological roles, including decomposition, predation, pollination and soil bioturbation.",
+    "arachnida": "Spiders are important predators that regulate populations of insects and other invertebrates in the soil and vegetation.",
+    "diplopoda": "Millipedes help decompose plant residues, fragmenting litter and speeding up nutrient cycling.",
+    "chilopoda": "Centipedes are agile soil predators that control small invertebrate populations and help balance the soil fauna.",
+    "hemiptera": "True bugs (Hemiptera) have varied feeding habits — plant feeders, predators or detritivores — and play distinct roles in soil food webs.",
+    "dermaptera": "Earwigs are omnivorous opportunists that feed on decaying organic matter, fungi and small invertebrates, helping balance the macrofauna.",
+    "lepidoptera": "Caterpillars are herbivorous lepidopteran larvae that affect plant biomass and, when in the soil, contribute to bioturbation and organic matter cycling.",
+    "gasteropoda": "Land molluscs (slugs and snails) take part in decomposing plant matter and are important links in soil food chains.",
+    "diptera_larvae": "Dipteran larvae (flies and mosquitoes) live in litter and soil, feeding on decaying organic matter and helping to break it down.",
+    "isopoda": "Isopods (woodlice) fragment litter and feed on decaying organic matter, speeding up nutrient cycling.",
+    "orthoptera": "Orthopterans (crickets and grasshoppers) are generally herbivores or omnivores and are part of the soil food web, serving as prey for many predators.",
+    "others": "Other soil organisms include springtails, mites and other invertebrates that perform varied ecological functions in the soil macrofauna."
   }
 }

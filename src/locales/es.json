@@ -356,5 +356,23 @@
     "forest_plantation": "Plantación forestal (silvicultura)",
     "cerrado": "Cerrado (sabana)",
     "other": "Otro"
+  },
+  "taxonInfo": {
+    "earthworm": "Las lombrices son fundamentales para la estructura y fertilidad del suelo, promoviendo la aireación y el ciclo de nutrientes.",
+    "ant": "Las hormigas contribuyen al ciclo de nutrientes, la dispersión de semillas y la aireación del suelo.",
+    "isoptera": "Las termitas descomponen materia orgánica lignificada y son ingenieras fundamentales del ecosistema del suelo.",
+    "blattaria": "Las cucarachas participan activamente en la descomposición de materia orgánica, contribuyendo al reciclaje de nutrientes en el suelo.",
+    "coleoptera": "Los escarabajos tienen diversas funciones ecológicas, como descomposición, depredación, polinización y bioturbación del suelo.",
+    "arachnida": "Las arañas son depredadores importantes que regulan las poblaciones de insectos y otros invertebrados en el suelo y la vegetación.",
+    "diplopoda": "Los diplópodos (milpiés) ayudan a descomponer residuos vegetales, fragmentando la hojarasca y acelerando el ciclo de nutrientes.",
+    "chilopoda": "Los quilópodos (ciempiés) son depredadores ágiles del suelo que controlan poblaciones de pequeños invertebrados y contribuyen al equilibrio de la fauna edáfica.",
+    "hemiptera": "Las chinches (Hemiptera) tienen hábitos alimentarios variados —fitófagos, depredadores o detritívoros— y cumplen distintos papeles en las cadenas tróficas del suelo.",
+    "dermaptera": "Las tijeretas son omnívoras y oportunistas; se alimentan de materia orgánica en descomposición, hongos y pequeños invertebrados, contribuyendo al equilibrio de la macrofauna.",
+    "lepidoptera": "Las orugas son larvas herbívoras de lepidópteros que influyen en la biomasa vegetal y, cuando están en el suelo, contribuyen a la bioturbación y al ciclo de la materia orgánica.",
+    "gasteropoda": "Los moluscos terrestres (babosas y caracoles) participan en la descomposición de materia vegetal y son eslabones importantes en las cadenas tróficas del suelo.",
+    "diptera_larvae": "Las larvas de dípteros (moscas y mosquitos) viven en la hojarasca y el suelo, donde se alimentan de materia orgánica en descomposición y ayudan a fragmentarla.",
+    "isopoda": "Los isópodos (cochinillas de humedad) fragmentan la hojarasca y se alimentan de materia orgánica en descomposición, acelerando el ciclo de nutrientes.",
+    "orthoptera": "Los ortópteros (grillos y saltamontes) suelen ser herbívoros u omnívoros y forman parte de la cadena trófica del suelo, siendo presa de muchos depredadores.",
+    "others": "Otros organismos del suelo incluyen colémbolos, ácaros y demás invertebrados que cumplen diversas funciones ecológicas en la macrofauna edáfica."
   }
 }

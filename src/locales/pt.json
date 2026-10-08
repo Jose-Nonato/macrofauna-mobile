@@ -356,5 +356,23 @@
     "forest_plantation": "Plantio florestal (silvicultura)",
     "cerrado": "Cerrado",
     "other": "Outro"
+  },
+  "taxonInfo": {
+    "earthworm": "Minhocas são fundamentais para a estrutura e fertilidade do solo, promovendo aeração e ciclagem de nutrientes.",
+    "ant": "Formigas contribuem para a ciclagem de nutrientes, dispersão de sementes e aeração do solo.",
+    "isoptera": "Cupins atuam na decomposição de matéria orgânica lignificada, sendo engenheiros fundamentais do ecossistema do solo.",
+    "blattaria": "Baratas participam ativamente da decomposição de matéria orgânica, contribuindo para a reciclagem de nutrientes no solo.",
+    "coleoptera": "Besouros possuem diversas funções ecológicas, incluindo decomposição, predação, polinização e bioturbação do solo.",
+    "arachnida": "Aranhas são predadoras importantes que regulam populações de insetos e outros invertebrados no solo e na vegetação.",
+    "diplopoda": "Diplópodes (piolhos-de-cobra) ajudam na decomposição de resíduos vegetais, fragmentando a serapilheira e acelerando a ciclagem de nutrientes.",
+    "chilopoda": "Quilópodes (centopeias) são predadores ágeis do solo, controlando populações de pequenos invertebrados e contribuindo para o equilíbrio da fauna edáfica.",
+    "hemiptera": "Percevejos (Hemiptera) possuem variados hábitos alimentares — fitófagos, predadores ou detritívoros — desempenhando papéis distintos nas cadeias tróficas do solo.",
+    "dermaptera": "Tesourinhas são onívoras e oportunistas, alimentando-se de matéria orgânica em decomposição, fungos e pequenos invertebrados, contribuindo para o equilíbrio da macrofauna.",
+    "lepidoptera": "Lagartas são larvas de lepidópteros herbívoras que influenciam a biomassa vegetal e, quando presentes no solo, contribuem para a bioturbação e ciclagem de matéria orgânica.",
+    "gasteropoda": "Moluscos terrestres (lesmas e caracóis) participam da decomposição de matéria orgânica vegetal e são importantes elos nas cadeias alimentares do solo.",
+    "diptera_larvae": "Larvas de dípteros (moscas e mosquitos) vivem na serapilheira e no solo, onde se alimentam de matéria orgânica em decomposição e auxiliam na sua fragmentação.",
+    "isopoda": "Isópodes (tatuzinhos-de-jardim) fragmentam a serapilheira e se alimentam de matéria orgânica em decomposição, acelerando a ciclagem de nutrientes.",
+    "orthoptera": "Ortópteros (grilos e gafanhotos) são em geral herbívoros ou onívoros e fazem parte da cadeia alimentar do solo, servindo de presa para diversos predadores.",
+    "others": "Outros organismos do solo incluem colêmbolos, ácaros e demais invertebrados que desempenham funções ecológicas variadas na macrofauna edáfica."
   }
 }

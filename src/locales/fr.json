@@ -356,5 +356,23 @@
     "forest_plantation": "Plantation forestière (sylviculture)",
     "cerrado": "Cerrado (savane)",
     "other": "Autre"
+  },
+  "taxonInfo": {
+    "earthworm": "Les vers de terre sont essentiels à la structure et à la fertilité du sol, favorisant l'aération et le cycle des nutriments.",
+    "ant": "Les fourmis contribuent au cycle des nutriments, à la dispersion des graines et à l'aération du sol.",
+    "isoptera": "Les termites décomposent la matière organique lignifiée et sont des ingénieurs essentiels de l'écosystème du sol.",
+    "blattaria": "Les blattes participent activement à la décomposition de la matière organique, contribuant au recyclage des nutriments dans le sol.",
+    "coleoptera": "Les coléoptères ont diverses fonctions écologiques : décomposition, prédation, pollinisation et bioturbation du sol.",
+    "arachnida": "Les araignées sont d'importants prédateurs qui régulent les populations d'insectes et d'autres invertébrés dans le sol et la végétation.",
+    "diplopoda": "Les diplopodes (mille-pattes) aident à décomposer les résidus végétaux, en fragmentant la litière et en accélérant le cycle des nutriments.",
+    "chilopoda": "Les chilopodes (scolopendres) sont des prédateurs agiles du sol qui contrôlent les petits invertébrés et contribuent à l'équilibre de la faune du sol.",
+    "hemiptera": "Les punaises (Hemiptera) ont des régimes variés — phytophages, prédateurs ou détritivores — et jouent des rôles distincts dans les chaînes trophiques du sol.",
+    "dermaptera": "Les perce-oreilles sont omnivores et opportunistes ; ils se nourrissent de matière organique en décomposition, de champignons et de petits invertébrés, contribuant à l'équilibre de la macrofaune.",
+    "lepidoptera": "Les chenilles sont des larves herbivores de lépidoptères qui influencent la biomasse végétale et, dans le sol, contribuent à la bioturbation et au cycle de la matière organique.",
+    "gasteropoda": "Les mollusques terrestres (limaces et escargots) participent à la décomposition de la matière végétale et sont des maillons importants des chaînes trophiques du sol.",
+    "diptera_larvae": "Les larves de diptères (mouches et moustiques) vivent dans la litière et le sol, où elles se nourrissent de matière organique en décomposition et aident à la fragmenter.",
+    "isopoda": "Les isopodes (cloportes) fragmentent la litière et se nourrissent de matière organique en décomposition, accélérant le cycle des nutriments.",
+    "orthoptera": "Les orthoptères (grillons et sauterelles) sont généralement herbivores ou omnivores et font partie de la chaîne trophique du sol, servant de proies à de nombreux prédateurs.",
+    "others": "Les autres organismes du sol comprennent les collemboles, les acariens et d'autres invertébrés aux fonctions écologiques variées dans la macrofaune du sol."
   }
 }

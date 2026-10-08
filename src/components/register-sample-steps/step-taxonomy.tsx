@@ -6,9 +6,12 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "@/hooks/useI18n";
+import { TAXON_ICONS } from "@/lib/taxonInfo";
+import TaxonInfoModal from "@/components/taxon-info-modal";
 
 // Profundidades do método TSBF, na ordem em que são adicionadas
 export const DEPTH_LABELS = ["0-10 cm", "10-20 cm", "20-30 cm"];
@@ -45,6 +48,7 @@ export default function StepTaxonomy({
 }: StepTaxonomyProps) {
   const { t } = useI18n();
   const [activeLevelIdx, setActiveLevelIdx] = React.useState(0);
+  const [infoKey, setInfoKey] = React.useState<string | null>(null);
 
   const handleAddLevel = () => {
     const emptyLevel: Record<TaxonKey, number> = {
@@ -166,10 +170,19 @@ export default function StepTaxonomy({
         {TAXON_LIST.map((item) => {
           return (
             <View key={item.key} style={styles.taxonItem}>
-              <View style={styles.taxonInfo}>
-                <Text style={styles.taxonLabel}>{t(`taxon.${item.key}`)}</Text>
-                <Text style={styles.taxonSubtitle}>{item.code}</Text>
-              </View>
+              <TouchableOpacity
+                style={styles.taxonInfo}
+                onPress={() => setInfoKey(item.key)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.taxonIconBox}>
+                  <Image source={TAXON_ICONS[item.key]} style={styles.taxonIcon} />
+                </View>
+                <View style={styles.taxonTexts}>
+                  <Text style={styles.taxonLabel}>{t(`taxon.${item.key}`)}</Text>
+                  <Text style={styles.taxonSubtitle}>{item.code}</Text>
+                </View>
+              </TouchableOpacity>
 
               <View style={styles.taxonCounter}>
                 {/* Decrementar */}
@@ -207,6 +220,8 @@ export default function StepTaxonomy({
           );
         })}
       </View>
+
+      <TaxonInfoModal taxonKey={infoKey} onClose={() => setInfoKey(null)} />
     </ScrollView>
   );
 }
@@ -311,6 +326,25 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   taxonInfo: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  taxonIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: "#14663b",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  taxonIcon: {
+    width: 32,
+    height: 32,
+    resizeMode: "contain",
+  },
+  taxonTexts: {
     flex: 1,
   },
   taxonLabel: {
