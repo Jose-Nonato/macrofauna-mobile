@@ -421,7 +421,7 @@ export default function HomeTab() {
                 <Text style={styles.itemLabel}>{t("home.density")}:</Text>
                 <Text style={styles.itemValue}>
                   {item.sample_density !== null
-                    ? `${item.sample_density.toFixed(1)}/m²`
+                    ? `${Math.round(item.sample_density)}/m²`
                     : "N/A"}
                 </Text>
               </View>

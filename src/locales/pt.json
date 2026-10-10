@@ -219,9 +219,7 @@
     "gpsCoordinates": "Coordenadas GPS",
     "collectionDate": "Data da Coleta",
     "ecologicalMetrics": "Métricas Ecológicas",
-    "individualsPerM2": "indivíduos / m²",
     "totalAnimals": "Total Animais",
-    "units": "unidades",
     "metricsByLevel": "Densidade e Score IQMS por Profundidade",
     "taxonomicComposition": "Composição Taxonômica (Total)",
     "noInvertebratesFound": "Nenhum invertebrado encontrado nesta amostra.",
@@ -293,8 +291,6 @@
     "gasteropoda": "Gastrópode",
     "dermaptera": "Tesourinha",
     "diptera_larvae": "Larva de Díptero",
-    "isopoda": "Isópode",
-    "orthoptera": "Ortóptera",
     "others": "Outros"
   },
   "method": {
@@ -371,8 +367,6 @@
     "lepidoptera": "Lagartas são larvas de lepidópteros herbívoras que influenciam a biomassa vegetal e, quando presentes no solo, contribuem para a bioturbação e ciclagem de matéria orgânica.",
     "gasteropoda": "Moluscos terrestres (lesmas e caracóis) participam da decomposição de matéria orgânica vegetal e são importantes elos nas cadeias alimentares do solo.",
     "diptera_larvae": "Larvas de dípteros (moscas e mosquitos) vivem na serapilheira e no solo, onde se alimentam de matéria orgânica em decomposição e auxiliam na sua fragmentação.",
-    "isopoda": "Isópodes (tatuzinhos-de-jardim) fragmentam a serapilheira e se alimentam de matéria orgânica em decomposição, acelerando a ciclagem de nutrientes.",
-    "orthoptera": "Ortópteros (grilos e gafanhotos) são em geral herbívoros ou onívoros e fazem parte da cadeia alimentar do solo, servindo de presa para diversos predadores.",
-    "others": "Outros organismos do solo incluem colêmbolos, ácaros e demais invertebrados que desempenham funções ecológicas variadas na macrofauna edáfica."
+    "others": "Outros organismos do solo, como isópodes (tatuzinhos), ortópteros (grilos e gafanhotos), himenópteros não formigas, colêmbolos e ácaros, que desempenham funções ecológicas variadas na macrofauna edáfica."
   }
 }

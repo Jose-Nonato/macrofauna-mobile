@@ -15,8 +15,6 @@ export const TAXON_ICONS: Record<string, ImageSourcePropType> = {
   lepidoptera: require("../../assets/taxons/lepidoptera.png"),
   gasteropoda: require("../../assets/taxons/gasteropoda.png"),
   diptera_larvae: require("../../assets/taxons/diptera_larvae.png"),
-  isopoda: require("../../assets/taxons/isopoda.png"),
-  orthoptera: require("../../assets/taxons/orthoptera.png"),
   others: require("../../assets/taxons/others.png"),
 };
 

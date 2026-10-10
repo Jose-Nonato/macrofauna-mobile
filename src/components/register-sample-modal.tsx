@@ -11,7 +11,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { createSample, insertInsects, updateSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
 import { uploadPhotoToStorage } from "@/lib/uploadService";
-import { calculateIqms } from "@/lib/iqms";
+import { calculateIqms, othersWithLegacy } from "@/lib/iqms";
 import { showAlert } from "@/lib/alert";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "@/hooks/useI18n";
@@ -64,8 +64,6 @@ export default function RegisterSampleModal({
       gasteropoda: 0,
       dermaptera: 0,
       diptera_larvae: 0,
-      isopoda: 0,
-      orthoptera: 0,
       others: 0,
     },
   ]);
@@ -117,8 +115,6 @@ export default function RegisterSampleModal({
             gasteropoda: 0,
             dermaptera: 0,
             diptera_larvae: 0,
-            isopoda: 0,
-            orthoptera: 0,
             others: 0,
           },
         ]);
@@ -154,11 +150,9 @@ export default function RegisterSampleModal({
           hemiptera: insect.hemiptera || 0,
           lepidoptera: insect.lepidoptera || 0,
           gasteropoda: insect.gasteropoda || 0,
-          others: insect.others || 0,
+          others: othersWithLegacy(insect),
           dermaptera: insect.dermaptera || 0,
           diptera_larvae: insect.diptera_larvae || 0,
-          isopoda: insect.isopoda || 0,
-          orthoptera: insect.orthoptera || 0,
         }));
         setTaxonLevels(levels);
       }
@@ -242,39 +236,11 @@ export default function RegisterSampleModal({
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("auth.notAuthenticated"));
 
-      // 2. Cálculos de acordo com a fórmula do indicador global de macrofauna
-      // (Hurtado Lugo, Velasquez & Lavelle, 2023 — Applied Soil Ecology 193, Eq. 1-4;
-      // pesos DN/TR e a normalização final vêm dessa mesma referência).
-      // "Níveis" representam as camadas de profundidade da amostragem ISO/TSBF
-      // (serrapilheira, 0-10, 10-20, 20-30 cm) e por isso são SOMADAS, não
-      // promediadas, para reconstituir a contagem total do ponto amostral —
-      // essa soma é o que alimenta o score/densidade AGREGADOS da amostra.
-      const emptyTaxonCounts: Record<TaxonKey, number> = {
-        earthworm: 0,
-        ant: 0,
-        isoptera: 0,
-        blattaria: 0,
-        coleoptera: 0,
-        arachnida: 0,
-        diplopoda: 0,
-        chilopoda: 0,
-        hemiptera: 0,
-        lepidoptera: 0,
-        gasteropoda: 0,
-        dermaptera: 0,
-        diptera_larvae: 0,
-        isopoda: 0,
-        orthoptera: 0,
-        others: 0,
-      };
-      const combinedCounts = taxonLevels.reduce((acc, level) => {
-        (Object.keys(emptyTaxonCounts) as TaxonKey[]).forEach((key) => {
-          acc[key] += level[key] || 0;
-        });
-        return acc;
-      }, { ...emptyTaxonCounts });
-
-      const aggregate = calculateIqms(combinedCounts);
+      // 2. Cálculos conforme a planilha de referência (Taller Patrick):
+      // para cada classe, média das contagens entre os níveis (repetições),
+      // log10(média × 16 + 1) ponderado pelos pesos de cada classe, mais DEN
+      // e RT. Ver src/lib/iqms.ts.
+      const aggregate = calculateIqms(taxonLevels);
       const totalAnimals = aggregate.totalAnimals;
       const densityValue = aggregate.densityValue;
       const calculatedScore = aggregate.score;
@@ -283,7 +249,7 @@ export default function RegisterSampleModal({
       // Cada nível grava sua PRÓPRIA densidade/IQMS (calculados só com os
       // dados daquele nível), não o valor agregado da amostra inteira.
       const insectsToInsert = taxonLevels.map((level) => {
-        const levelResult = calculateIqms(level);
+        const levelResult = calculateIqms([level]);
         return {
           sample_id: sampleToEdit ? sampleToEdit.id : "", // será preenchido após criar amostra
           sample_density: levelResult.densityValue,
@@ -301,8 +267,9 @@ export default function RegisterSampleModal({
           gasteropoda: level.gasteropoda || 0,
           dermaptera: level.dermaptera || 0,
           diptera_larvae: level.diptera_larvae || 0,
-          isopoda: level.isopoda || 0,
-          orthoptera: level.orthoptera || 0,
+          // colunas legadas (isopoda/orthoptera) agora fazem parte de "Outros"
+          isopoda: 0,
+          orthoptera: 0,
           others: level.others || 0,
         };
       });
@@ -385,10 +352,10 @@ export default function RegisterSampleModal({
       const alertMessage = sampleToEdit
         ? `${t("samples.editedSuccess")}\nScore IQMS: ${calculatedScore.toFixed(
             2
-          )}/1.0\n${t("home.density")}: ${densityValue.toFixed(2)}`
+          )}/1.0\n${t("home.density")}: ${densityValue}`
         : `${t("samples.savedSuccess")}\nScore IQMS: ${calculatedScore.toFixed(
             2
-          )}/1.0\n${t("home.density")}: ${densityValue.toFixed(2)}`;
+          )}/1.0\n${t("home.density")}: ${densityValue}`;
 
       showAlert(
         alertTitle,
@@ -418,8 +385,6 @@ export default function RegisterSampleModal({
                   gasteropoda: 0,
                   dermaptera: 0,
                   diptera_larvae: 0,
-                  isopoda: 0,
-                  orthoptera: 0,
                   others: 0,
                 },
               ]);

@@ -1,0 +1,21 @@
+tratamento,nivel,EWM,ANT,TER,COL,CHILO,DIPLO,DIPT,BLA,HEMI,DERM,LEPI,GAST,ARAC,OTH,total_nivel,riqueza_nivel
+Natural,1,11,4,1,1,2,0,0,0,0,0,0,0,3,15,37,7
+Natural,2,14,5,1,14,4,2,3,1,1,0,0,0,3,1,49,11
+Natural,3,22,10,0,9,2,2,0,1,0,0,0,0,6,3,55,8
+Agroecologico,1,23,21,0,7,1,1,2,0,0,0,0,2,3,6,66,9
+Agroecologico,2,19,19,0,3,5,0,0,0,0,0,0,1,1,7,55,7
+Agroecologico,3,17,23,0,12,7,1,0,0,0,0,0,2,0,25,87,7
+Convencional,1,11,5,0,29,0,1,0,0,1,1,0,0,2,10,60,8
+Convencional,2,3,15,0,4,2,14,0,0,1,1,0,0,0,3,43,8
+Convencional,3,17,18,0,11,3,14,0,0,0,0,0,0,1,12,76,7
+
+# RESULTADO ESPERADO (app, EWM=18.3, sem somar o numero da repeticao)
+tratamento,total_animais,densidade_ind_m2,riqueza_media,score_iqms
+Natural,141,752,8.67,0.69
+Agroecologico,208,1109,7.67,0.7
+Convencional,179,955,7.67,0.67
+
+# Valores da planilha original (Feuil1!S7, S14, S21), que usa EWM=16.83 em Natural/Agroecologico e inclui a coluna B nas somas
+Natural,,,,0.689
+Agroecologico,,,,0.692
+Convencional,,,,0.675

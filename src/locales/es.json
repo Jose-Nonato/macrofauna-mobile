@@ -219,9 +219,7 @@
     "gpsCoordinates": "Coordenadas GPS",
     "collectionDate": "Fecha de Recolección",
     "ecologicalMetrics": "Métricas Ecológicas",
-    "individualsPerM2": "individuos / m²",
     "totalAnimals": "Total de Animales",
-    "units": "unidades",
     "metricsByLevel": "Densidad y Score IQMS por Profundidad",
     "taxonomicComposition": "Composición Taxonómica (Total)",
     "noInvertebratesFound": "No se encontraron invertebrados en esta muestra.",
@@ -293,8 +291,6 @@
     "gasteropoda": "Gasterópodo",
     "dermaptera": "Tijereta",
     "diptera_larvae": "Larva de Díptero",
-    "isopoda": "Isópodo",
-    "orthoptera": "Ortóptero",
     "others": "Otros"
   },
   "method": {
@@ -371,8 +367,6 @@
     "lepidoptera": "Las orugas son larvas herbívoras de lepidópteros que influyen en la biomasa vegetal y, cuando están en el suelo, contribuyen a la bioturbación y al ciclo de la materia orgánica.",
     "gasteropoda": "Los moluscos terrestres (babosas y caracoles) participan en la descomposición de materia vegetal y son eslabones importantes en las cadenas tróficas del suelo.",
     "diptera_larvae": "Las larvas de dípteros (moscas y mosquitos) viven en la hojarasca y el suelo, donde se alimentan de materia orgánica en descomposición y ayudan a fragmentarla.",
-    "isopoda": "Los isópodos (cochinillas de humedad) fragmentan la hojarasca y se alimentan de materia orgánica en descomposición, acelerando el ciclo de nutrientes.",
-    "orthoptera": "Los ortópteros (grillos y saltamontes) suelen ser herbívoros u omnívoros y forman parte de la cadena trófica del suelo, siendo presa de muchos depredadores.",
-    "others": "Otros organismos del suelo incluyen colémbolos, ácaros y demás invertebrados que cumplen diversas funciones ecológicas en la macrofauna edáfica."
+    "others": "Otros organismos del suelo, como isópodos (cochinillas de humedad), ortópteros (grillos y saltamontes), himenópteros no hormigas, colémbolos y ácaros, que cumplen diversas funciones ecológicas en la macrofauna edáfica."
   }
 }

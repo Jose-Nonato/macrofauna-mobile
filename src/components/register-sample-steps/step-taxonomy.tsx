@@ -17,22 +17,20 @@ import TaxonInfoModal from "@/components/taxon-info-modal";
 export const DEPTH_LABELS = ["0-10 cm", "10-20 cm", "20-30 cm"];
 
 export const TAXON_LIST = [
-  { key: "earthworm", code: "EW" },
-  { key: "ant", code: "AN" },
+  { key: "earthworm", code: "EWM" },
+  { key: "ant", code: "ANT" },
   { key: "isoptera", code: "TER" },
-  { key: "blattaria", code: "BLA" },
   { key: "coleoptera", code: "COL" },
-  { key: "arachnida", code: "ARA" },
+  { key: "chilopoda", code: "CHILO" },
   { key: "diplopoda", code: "DIPLO" },
-  { key: "chilopoda", code: "CHI" },
+  { key: "diptera_larvae", code: "DIPT" },
+  { key: "blattaria", code: "BLA" },
   { key: "hemiptera", code: "HEMI" },
-  { key: "dermaptera", code: "DER" },
-  { key: "lepidoptera", code: "LEP" },
-  { key: "gasteropoda", code: "GAS" },
-  { key: "diptera_larvae", code: "DL" },
-  { key: "isopoda", code: "ISO" },
-  { key: "orthoptera", code: "ORTH" },
-  { key: "others", code: "OT" },
+  { key: "dermaptera", code: "DERM" },
+  { key: "lepidoptera", code: "LEPI" },
+  { key: "gasteropoda", code: "GAST" },
+  { key: "arachnida", code: "ARAC" },
+  { key: "others", code: "OTH" },
 ] as const;
 
 export type TaxonKey = typeof TAXON_LIST[number]["key"];
@@ -65,8 +63,6 @@ export default function StepTaxonomy({
       gasteropoda: 0,
       dermaptera: 0,
       diptera_larvae: 0,
-      isopoda: 0,
-      orthoptera: 0,
       others: 0,
     };
     setLevels((prev) => [...prev, emptyLevel]);

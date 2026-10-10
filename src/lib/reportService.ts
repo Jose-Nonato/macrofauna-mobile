@@ -1,3 +1,4 @@
+import { othersWithLegacy } from "./iqms";
 import { supabase } from "./supabase";
 
 export interface LocationOptions {
@@ -27,8 +28,6 @@ export interface ReportData {
     gasteropoda: number;
     dermaptera: number;
     diptera_larvae: number;
-    isopoda: number;
-    orthoptera: number;
     others: number;
   };
 }
@@ -131,8 +130,6 @@ export async function generateReport(
       gasteropoda: 0,
       dermaptera: 0,
       diptera_larvae: 0,
-      isopoda: 0,
-      orthoptera: 0,
       others: 0,
     };
 
@@ -151,9 +148,7 @@ export async function generateReport(
         taxonData.gasteropoda += insect.gasteropoda || 0;
         taxonData.dermaptera += insect.dermaptera || 0;
         taxonData.diptera_larvae += insect.diptera_larvae || 0;
-        taxonData.isopoda += insect.isopoda || 0;
-        taxonData.orthoptera += insect.orthoptera || 0;
-        taxonData.others += insect.others || 0;
+        taxonData.others += othersWithLegacy(insect);
       });
 
     }
@@ -196,8 +191,6 @@ export async function getSamplesWithInsects(
     gasteropoda: number;
     dermaptera: number;
     diptera_larvae: number;
-    isopoda: number;
-    orthoptera: number;
     others: number;
   }>
 > {
@@ -268,8 +261,6 @@ export async function getSamplesWithInsects(
         gasteropoda: number;
         dermaptera: number;
         diptera_larvae: number;
-        isopoda: number;
-        orthoptera: number;
         others: number;
       }
     >();
@@ -295,8 +286,6 @@ export async function getSamplesWithInsects(
             gasteropoda: 0,
             dermaptera: 0,
             diptera_larvae: 0,
-            isopoda: 0,
-            orthoptera: 0,
             others: 0,
           });
         }
@@ -315,9 +304,7 @@ export async function getSamplesWithInsects(
         sample.gasteropoda += insect.gasteropoda || 0;
         sample.dermaptera += insect.dermaptera || 0;
         sample.diptera_larvae += insect.diptera_larvae || 0;
-        sample.isopoda += insect.isopoda || 0;
-        sample.orthoptera += insect.orthoptera || 0;
-        sample.others += insect.others || 0;
+        sample.others += othersWithLegacy(insect);
       });
     }
 
@@ -353,8 +340,6 @@ export function generateCSV(
     gasteropoda: number;
     dermaptera: number;
     diptera_larvae: number;
-    isopoda: number;
-    orthoptera: number;
     others: number;
   }>
 ): string {
@@ -369,28 +354,26 @@ export function generateCSV(
   // Cabeçalho da tabela
   lines.push("ID DA AMOSTRA,IQMS");
   lines.push(
-    "Minhoca,Formiga,Cupim,Barata,Besouro,Aranha,Milípede,Centípede,Hemíptera,Borboleta,Gastrópode,Tesourinha,Larva de Díptero,Isópode,Ortóptera,Outros"
+    "Minhoca,Formiga,Cupim,Besouro,Centípede,Milípede,Larva de Díptero,Barata,Hemíptera,Tesourinha,Borboleta,Gastrópode,Aranha,Outros"
   );
 
   const header = [
     "ID_AMOSTRA",
     "IQMS",
-    "MINHOCA",
-    "FORMIGA",
-    "CUPIM",
-    "BARATA",
-    "BESOURO",
-    "ARANHA",
-    "MILÍPEDE",
-    "CENTÍPEDE",
-    "HEMÍPTERA",
-    "BORBOLETA",
-    "GASTRÓPODE",
-    "TESOURINHA",
-    "LARVA_DIPTERO",
-    "ISOPODE",
-    "ORTOPTERA",
-    "OUTROS",
+    "EWM_MINHOCA",
+    "ANT_FORMIGA",
+    "TER_CUPIM",
+    "COL_BESOURO",
+    "CHILO_CENTIPEDE",
+    "DIPLO_MILIPEDE",
+    "DIPT_LARVA_DIPTERO",
+    "BLA_BARATA",
+    "HEMI_HEMIPTERA",
+    "DERM_TESOURINHA",
+    "LEPI_BORBOLETA",
+    "GAST_GASTROPODE",
+    "ARAC_ARANHA",
+    "OTH_OUTROS",
   ];
   lines.push(header.join(","));
 
@@ -402,18 +385,16 @@ export function generateCSV(
       sample.earthworm,
       sample.ant,
       sample.isoptera,
-      sample.blattaria,
       sample.coleoptera,
-      sample.arachnida,
-      sample.diplopoda,
       sample.chilopoda,
+      sample.diplopoda,
+      sample.diptera_larvae,
+      sample.blattaria,
       sample.hemiptera,
+      sample.dermaptera,
       sample.lepidoptera,
       sample.gasteropoda,
-      sample.dermaptera,
-      sample.diptera_larvae,
-      sample.isopoda,
-      sample.orthoptera,
+      sample.arachnida,
       sample.others,
     ];
     lines.push(row.join(","));

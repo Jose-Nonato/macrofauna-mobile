@@ -219,9 +219,7 @@
     "gpsCoordinates": "Coordonnées GPS",
     "collectionDate": "Date de collecte",
     "ecologicalMetrics": "Indicateurs écologiques",
-    "individualsPerM2": "individus / m²",
     "totalAnimals": "Total d'animaux",
-    "units": "unités",
     "metricsByLevel": "Densité et score IQMS par profondeur",
     "taxonomicComposition": "Composition taxonomique (total)",
     "noInvertebratesFound": "Aucun invertébré trouvé dans cet échantillon.",
@@ -293,8 +291,6 @@
     "gasteropoda": "Gastéropode",
     "dermaptera": "Perce-oreille",
     "diptera_larvae": "Larve de diptère",
-    "isopoda": "Isopode",
-    "orthoptera": "Criquet",
     "others": "Autres"
   },
   "method": {
@@ -371,8 +367,6 @@
     "lepidoptera": "Les chenilles sont des larves herbivores de lépidoptères qui influencent la biomasse végétale et, dans le sol, contribuent à la bioturbation et au cycle de la matière organique.",
     "gasteropoda": "Les mollusques terrestres (limaces et escargots) participent à la décomposition de la matière végétale et sont des maillons importants des chaînes trophiques du sol.",
     "diptera_larvae": "Les larves de diptères (mouches et moustiques) vivent dans la litière et le sol, où elles se nourrissent de matière organique en décomposition et aident à la fragmenter.",
-    "isopoda": "Les isopodes (cloportes) fragmentent la litière et se nourrissent de matière organique en décomposition, accélérant le cycle des nutriments.",
-    "orthoptera": "Les orthoptères (grillons et sauterelles) sont généralement herbivores ou omnivores et font partie de la chaîne trophique du sol, servant de proies à de nombreux prédateurs.",
-    "others": "Les autres organismes du sol comprennent les collemboles, les acariens et d'autres invertébrés aux fonctions écologiques variées dans la macrofaune du sol."
+    "others": "Autres organismes du sol, comme les isopodes (cloportes), les orthoptères (grillons et sauterelles), les hyménoptères non fourmis, les collemboles et les acariens, aux fonctions écologiques variées dans la macrofaune du sol."
   }
 }

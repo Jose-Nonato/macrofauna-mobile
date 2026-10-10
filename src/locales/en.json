@@ -219,9 +219,7 @@
     "gpsCoordinates": "GPS Coordinates",
     "collectionDate": "Collection Date",
     "ecologicalMetrics": "Ecological Metrics",
-    "individualsPerM2": "individuals / m²",
     "totalAnimals": "Total Animals",
-    "units": "units",
     "metricsByLevel": "Density and IQMS Score by Depth",
     "taxonomicComposition": "Taxonomic Composition (Total)",
     "noInvertebratesFound": "No invertebrates found in this sample.",
@@ -293,8 +291,6 @@
     "gasteropoda": "Gastropod",
     "dermaptera": "Earwig",
     "diptera_larvae": "Fly Larvae",
-    "isopoda": "Isopod",
-    "orthoptera": "Grasshopper",
     "others": "Others"
   },
   "method": {
@@ -371,8 +367,6 @@
     "lepidoptera": "Caterpillars are herbivorous lepidopteran larvae that affect plant biomass and, when in the soil, contribute to bioturbation and organic matter cycling.",
     "gasteropoda": "Land molluscs (slugs and snails) take part in decomposing plant matter and are important links in soil food chains.",
     "diptera_larvae": "Dipteran larvae (flies and mosquitoes) live in litter and soil, feeding on decaying organic matter and helping to break it down.",
-    "isopoda": "Isopods (woodlice) fragment litter and feed on decaying organic matter, speeding up nutrient cycling.",
-    "orthoptera": "Orthopterans (crickets and grasshoppers) are generally herbivores or omnivores and are part of the soil food web, serving as prey for many predators.",
-    "others": "Other soil organisms include springtails, mites and other invertebrates that perform varied ecological functions in the soil macrofauna."
+    "others": "Other soil organisms, such as isopods (woodlice), orthopterans (crickets and grasshoppers), non-ant hymenopterans, springtails and mites, which perform varied ecological functions in the soil macrofauna."
   }
 }

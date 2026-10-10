@@ -1,3 +1,4 @@
+import { othersWithLegacy } from "@/lib/iqms";
 import { deleteSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -92,8 +93,6 @@ export default function SampleDetailModal({
           gasteropoda: 0,
           dermaptera: 0,
           diptera_larvae: 0,
-          isopoda: 0,
-          orthoptera: 0,
           others: 0,
         };
 
@@ -112,9 +111,7 @@ export default function SampleDetailModal({
           consolidatedInsects.gasteropoda += insect.gasteropoda || 0;
           consolidatedInsects.dermaptera += insect.dermaptera || 0;
           consolidatedInsects.diptera_larvae += insect.diptera_larvae || 0;
-          consolidatedInsects.isopoda += insect.isopoda || 0;
-          consolidatedInsects.orthoptera += insect.orthoptera || 0;
-          consolidatedInsects.others += insect.others || 0;
+          consolidatedInsects.others += othersWithLegacy(insect);
         });
       }
 
@@ -277,16 +274,14 @@ export default function SampleDetailModal({
                     <View style={styles.metricItem}>
                       <Text style={styles.metricLabel}>{t("home.density")}</Text>
                       <Text style={styles.metricValue}>
-                        {sample.sample_density !== null ? `${sample.sample_density.toFixed(2)}` : "N/A"}
+                        {sample.sample_density !== null ? `${Math.round(sample.sample_density)}` : "N/A"}
                       </Text>
-                      <Text style={styles.metricUnit}>{t("samples.individualsPerM2")}</Text>
                     </View>
                     <View style={styles.metricItem}>
                       <Text style={styles.metricLabel}>{t("samples.totalAnimals")}</Text>
                       <Text style={styles.metricValue}>
                         {sample.animal_quantity !== null ? sample.animal_quantity : "0"}
                       </Text>
-                      <Text style={styles.metricUnit}>{t("samples.units")}</Text>
                     </View>
                   </View>
                 </View>
