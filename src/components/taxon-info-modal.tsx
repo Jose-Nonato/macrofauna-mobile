@@ -9,8 +9,7 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useI18n } from "@/hooks/useI18n";
-import { TAXON_IMAGES } from "@/lib/taxonInfo";
+import { useTaxonomy } from "@/contexts/TaxonomyContext";
 
 interface TaxonInfoModalProps {
   taxonKey: string | null;
@@ -21,14 +20,14 @@ export default function TaxonInfoModal({
   taxonKey,
   onClose,
 }: TaxonInfoModalProps) {
-  const { t } = useI18n();
+  const { nameOf, descriptionOf, imagesOf } = useTaxonomy();
   const [index, setIndex] = React.useState(0);
 
   React.useEffect(() => {
     setIndex(0);
   }, [taxonKey]);
 
-  const images = taxonKey ? (TAXON_IMAGES[taxonKey] ?? []) : [];
+  const images = taxonKey ? imagesOf(taxonKey) : [];
 
   return (
     <Modal
@@ -41,7 +40,7 @@ export default function TaxonInfoModal({
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>
-              {taxonKey ? t(`taxon.${taxonKey}`) : ""}
+              {taxonKey ? nameOf(taxonKey) : ""}
             </Text>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <Ionicons name="close" size={20} color="#475569" />
@@ -81,7 +80,7 @@ export default function TaxonInfoModal({
             )}
 
             <Text style={styles.description}>
-              {taxonKey ? t(`taxonInfo.${taxonKey}`) : ""}
+              {taxonKey ? descriptionOf(taxonKey) : ""}
             </Text>
           </ScrollView>
         </View>

@@ -13,6 +13,7 @@ export interface UserProfile {
   university: string | null;
   birth_date: string | null;
   created_at: string;
+  role?: "user" | "admin";
 }
 
 // Obter perfil do usuário

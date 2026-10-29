@@ -10,30 +10,14 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "@/hooks/useI18n";
-import { TAXON_ICONS } from "@/lib/taxonInfo";
+import { useTaxonomy } from "@/contexts/TaxonomyContext";
 import TaxonInfoModal from "@/components/taxon-info-modal";
 
 // Profundidades do método TSBF, na ordem em que são adicionadas
 export const DEPTH_LABELS = ["0-10 cm", "10-20 cm", "20-30 cm"];
 
-export const TAXON_LIST = [
-  { key: "earthworm", code: "EWM" },
-  { key: "ant", code: "ANT" },
-  { key: "isoptera", code: "TER" },
-  { key: "coleoptera", code: "COL" },
-  { key: "chilopoda", code: "CHILO" },
-  { key: "diplopoda", code: "DIPLO" },
-  { key: "diptera_larvae", code: "DIPT" },
-  { key: "blattaria", code: "BLA" },
-  { key: "hemiptera", code: "HEMI" },
-  { key: "dermaptera", code: "DERM" },
-  { key: "lepidoptera", code: "LEPI" },
-  { key: "gasteropoda", code: "GAST" },
-  { key: "arachnida", code: "ARAC" },
-  { key: "others", code: "OTH" },
-] as const;
-
-export type TaxonKey = typeof TAXON_LIST[number]["key"];
+// A chave de uma classe taxonômica (cadastrada no banco: tabela taxon_classes).
+export type TaxonKey = string;
 
 interface StepTaxonomyProps {
   levels: Record<TaxonKey, number>[];
@@ -45,26 +29,12 @@ export default function StepTaxonomy({
   setLevels,
 }: StepTaxonomyProps) {
   const { t } = useI18n();
+  const { activeClasses, byKey, nameOf, iconOf } = useTaxonomy();
   const [activeLevelIdx, setActiveLevelIdx] = React.useState(0);
   const [infoKey, setInfoKey] = React.useState<string | null>(null);
 
   const handleAddLevel = () => {
-    const emptyLevel: Record<TaxonKey, number> = {
-      earthworm: 0,
-      ant: 0,
-      isoptera: 0,
-      blattaria: 0,
-      coleoptera: 0,
-      arachnida: 0,
-      diplopoda: 0,
-      chilopoda: 0,
-      hemiptera: 0,
-      lepidoptera: 0,
-      gasteropoda: 0,
-      dermaptera: 0,
-      diptera_larvae: 0,
-      others: 0,
-    };
+    const emptyLevel: Record<TaxonKey, number> = {};
     setLevels((prev) => [...prev, emptyLevel]);
     setActiveLevelIdx(levels.length); // muda para o nível recém-criado
   };
@@ -98,6 +68,18 @@ export default function StepTaxonomy({
   };
 
   const currentTaxons = levels[activeLevelIdx] || {};
+
+  // Classes ativas, mais as desativadas que ainda têm contagem (amostra antiga
+  // em edição), para não perder esses dados ao salvar.
+  const visibleClasses = [
+    ...activeClasses,
+    ...Object.keys(
+      levels.reduce((acc, level) => ({ ...acc, ...level }), {} as Record<string, number>),
+    )
+      .filter((key) => !activeClasses.some((c) => c.key === key))
+      .map((key) => byKey(key))
+      .filter((c): c is NonNullable<typeof c> => !!c && levels.some((l) => (l[c.key] || 0) > 0)),
+  ];
 
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
@@ -163,7 +145,7 @@ export default function StepTaxonomy({
 
       {/* Lista de Invertebrados para o Nível Ativo */}
       <View style={styles.taxonList}>
-        {TAXON_LIST.map((item) => {
+        {visibleClasses.map((item) => {
           return (
             <View key={item.key} style={styles.taxonItem}>
               <TouchableOpacity
@@ -172,10 +154,10 @@ export default function StepTaxonomy({
                 activeOpacity={0.7}
               >
                 <View style={styles.taxonIconBox}>
-                  <Image source={TAXON_ICONS[item.key]} style={styles.taxonIcon} />
+                  <Image source={iconOf(item.key)} style={styles.taxonIcon} />
                 </View>
                 <View style={styles.taxonTexts}>
-                  <Text style={styles.taxonLabel}>{t(`taxon.${item.key}`)}</Text>
+                  <Text style={styles.taxonLabel}>{nameOf(item.key)}</Text>
                   <Text style={styles.taxonSubtitle}>{item.code}</Text>
                 </View>
               </TouchableOpacity>

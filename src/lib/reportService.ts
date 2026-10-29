@@ -1,4 +1,4 @@
-import { othersWithLegacy } from "./iqms";
+import { countsFromInsectRow, getTaxonomySnapshot, SAMPLE_COUNTS_SELECT } from "./taxonomy";
 import { supabase } from "./supabase";
 
 export interface LocationOptions {
@@ -14,22 +14,8 @@ export interface ReportData {
   regularCount: number;
   mediocreCount: number;
   poorCount: number;
-  taxonData: {
-    earthworm: number;
-    ant: number;
-    isoptera: number;
-    blattaria: number;
-    coleoptera: number;
-    arachnida: number;
-    diplopoda: number;
-    chilopoda: number;
-    hemiptera: number;
-    lepidoptera: number;
-    gasteropoda: number;
-    dermaptera: number;
-    diptera_larvae: number;
-    others: number;
-  };
+  // total de indivíduos por chave de classe (todas as ativas, mesmo com 0)
+  taxonData: Record<string, number>;
 }
 
 export async function generateReport(
@@ -108,7 +94,7 @@ export async function generateReport(
     const { data: insectsData, error: insectsError } = await supabase
       .from("insect")
       .select(
-        "sample_id, earthworm, ant, isoptera, blattaria, coleoptera, arachnida, diplopoda, chilopoda, hemiptera, lepidoptera, gasteropoda, dermaptera, diptera_larvae, isopoda, orthoptera, others"
+        `sample_id, earthworm, ant, isoptera, blattaria, coleoptera, arachnida, diplopoda, chilopoda, hemiptera, lepidoptera, gasteropoda, dermaptera, diptera_larvae, isopoda, orthoptera, others, ${SAMPLE_COUNTS_SELECT}`
       )
       .in("sample_id", sampleIds);
 
@@ -116,43 +102,21 @@ export async function generateReport(
 
 
     // Somar dados de insetos - acumula TODOS os registros
-    const taxonData = {
-      earthworm: 0,
-      ant: 0,
-      isoptera: 0,
-      blattaria: 0,
-      coleoptera: 0,
-      arachnida: 0,
-      diplopoda: 0,
-      chilopoda: 0,
-      hemiptera: 0,
-      lepidoptera: 0,
-      gasteropoda: 0,
-      dermaptera: 0,
-      diptera_larvae: 0,
-      others: 0,
-    };
+    const taxonData: Record<string, number> = {};
+    getTaxonomySnapshot()
+      .classes.filter((c) => c.active)
+      .forEach((c) => {
+        taxonData[c.key] = 0;
+      });
 
     if (insectsData && insectsData.length > 0) {
       insectsData.forEach((insect) => {
-        taxonData.earthworm += insect.earthworm || 0;
-        taxonData.ant += insect.ant || 0;
-        taxonData.isoptera += insect.isoptera || 0;
-        taxonData.blattaria += insect.blattaria || 0;
-        taxonData.coleoptera += insect.coleoptera || 0;
-        taxonData.arachnida += insect.arachnida || 0;
-        taxonData.diplopoda += insect.diplopoda || 0;
-        taxonData.chilopoda += insect.chilopoda || 0;
-        taxonData.hemiptera += insect.hemiptera || 0;
-        taxonData.lepidoptera += insect.lepidoptera || 0;
-        taxonData.gasteropoda += insect.gasteropoda || 0;
-        taxonData.dermaptera += insect.dermaptera || 0;
-        taxonData.diptera_larvae += insect.diptera_larvae || 0;
-        taxonData.others += othersWithLegacy(insect);
+        const counts = countsFromInsectRow(insect);
+        Object.keys(counts).forEach((key) => {
+          taxonData[key] = (taxonData[key] || 0) + counts[key];
+        });
       });
-
     }
-
 
     return {
       totalSamples,
@@ -168,32 +132,19 @@ export async function generateReport(
   }
 }
 
+export interface SampleWithCounts {
+  id: string;
+  sample_score: number;
+  counts: Record<string, number>; // total por chave de classe, somando os níveis
+}
+
 export async function getSamplesWithInsects(
   country?: string,
   state?: string,
   city?: string,
   startDate?: string,
   endDate?: string
-): Promise<
-  Array<{
-    id: string;
-    sample_score: number;
-    earthworm: number;
-    ant: number;
-    isoptera: number;
-    blattaria: number;
-    coleoptera: number;
-    arachnida: number;
-    diplopoda: number;
-    chilopoda: number;
-    hemiptera: number;
-    lepidoptera: number;
-    gasteropoda: number;
-    dermaptera: number;
-    diptera_larvae: number;
-    others: number;
-  }>
-> {
+): Promise<SampleWithCounts[]> {
 
   try {
     const { data: userData } = await supabase.auth.getUser();
@@ -236,34 +187,14 @@ export async function getSamplesWithInsects(
     const { data: insectsData, error: insectsError } = await supabase
       .from("insect")
       .select(
-        "sample_id, iqms, earthworm, ant, isoptera, blattaria, coleoptera, arachnida, diplopoda, chilopoda, hemiptera, lepidoptera, gasteropoda, dermaptera, diptera_larvae, isopoda, orthoptera, others"
+        `sample_id, iqms, earthworm, ant, isoptera, blattaria, coleoptera, arachnida, diplopoda, chilopoda, hemiptera, lepidoptera, gasteropoda, dermaptera, diptera_larvae, isopoda, orthoptera, others, ${SAMPLE_COUNTS_SELECT}`
       )
       .in("sample_id", sampleIds);
 
     if (insectsError) throw insectsError;
 
     // Agrupar por sample_id e somar todos os níveis
-    const sampleMap = new Map<
-      string,
-      {
-        id: string;
-        sample_score: number;
-        earthworm: number;
-        ant: number;
-        isoptera: number;
-        blattaria: number;
-        coleoptera: number;
-        arachnida: number;
-        diplopoda: number;
-        chilopoda: number;
-        hemiptera: number;
-        lepidoptera: number;
-        gasteropoda: number;
-        dermaptera: number;
-        diptera_larvae: number;
-        others: number;
-      }
-    >();
+    const sampleMap = new Map<string, SampleWithCounts>();
 
     if (insectsData) {
       insectsData.forEach((insect) => {
@@ -273,38 +204,15 @@ export async function getSamplesWithInsects(
           sampleMap.set(sampleId, {
             id: sampleId,
             sample_score: insect.iqms || 0,
-            earthworm: 0,
-            ant: 0,
-            isoptera: 0,
-            blattaria: 0,
-            coleoptera: 0,
-            arachnida: 0,
-            diplopoda: 0,
-            chilopoda: 0,
-            hemiptera: 0,
-            lepidoptera: 0,
-            gasteropoda: 0,
-            dermaptera: 0,
-            diptera_larvae: 0,
-            others: 0,
+            counts: {},
           });
         }
 
         const sample = sampleMap.get(sampleId)!;
-        sample.earthworm += insect.earthworm || 0;
-        sample.ant += insect.ant || 0;
-        sample.isoptera += insect.isoptera || 0;
-        sample.blattaria += insect.blattaria || 0;
-        sample.coleoptera += insect.coleoptera || 0;
-        sample.arachnida += insect.arachnida || 0;
-        sample.diplopoda += insect.diplopoda || 0;
-        sample.chilopoda += insect.chilopoda || 0;
-        sample.hemiptera += insect.hemiptera || 0;
-        sample.lepidoptera += insect.lepidoptera || 0;
-        sample.gasteropoda += insect.gasteropoda || 0;
-        sample.dermaptera += insect.dermaptera || 0;
-        sample.diptera_larvae += insect.diptera_larvae || 0;
-        sample.others += othersWithLegacy(insect);
+        const counts = countsFromInsectRow(insect);
+        Object.keys(counts).forEach((key) => {
+          sample.counts[key] = (sample.counts[key] || 0) + counts[key];
+        });
       });
     }
 
@@ -323,27 +231,11 @@ export async function getSamplesWithInsects(
   }
 }
 
-export function generateCSV(
-  samplesWithInsects: Array<{
-    id: string;
-    sample_score: number;
-    earthworm: number;
-    ant: number;
-    isoptera: number;
-    blattaria: number;
-    coleoptera: number;
-    arachnida: number;
-    diplopoda: number;
-    chilopoda: number;
-    hemiptera: number;
-    lepidoptera: number;
-    gasteropoda: number;
-    dermaptera: number;
-    diptera_larvae: number;
-    others: number;
-  }>
-): string {
+export function generateCSV(samplesWithInsects: SampleWithCounts[]): string {
   const lines: string[] = [];
+  const classes = getTaxonomySnapshot()
+    .classes.filter((c) => c.active)
+    .sort((a, b) => a.sort_order - b.sort_order);
 
   // Header
   lines.push("RELATÓRIO DE MACROFAUNA - INDICADOR IQMS");
@@ -351,29 +243,14 @@ export function generateCSV(
   lines.push("DATA DO RELATÓRIO," + new Date().toLocaleDateString("pt-BR"));
   lines.push("");
 
-  // Cabeçalho da tabela
+  // Cabeçalho da tabela: código da classe e nome em português
   lines.push("ID DA AMOSTRA,IQMS");
-  lines.push(
-    "Minhoca,Formiga,Cupim,Besouro,Centípede,Milípede,Larva de Díptero,Barata,Hemíptera,Tesourinha,Borboleta,Gastrópode,Aranha,Outros"
-  );
+  lines.push(classes.map((c) => csvCell(c.names.pt || c.key)).join(","));
 
   const header = [
     "ID_AMOSTRA",
     "IQMS",
-    "EWM_MINHOCA",
-    "ANT_FORMIGA",
-    "TER_CUPIM",
-    "COL_BESOURO",
-    "CHILO_CENTIPEDE",
-    "DIPLO_MILIPEDE",
-    "DIPT_LARVA_DIPTERO",
-    "BLA_BARATA",
-    "HEMI_HEMIPTERA",
-    "DERM_TESOURINHA",
-    "LEPI_BORBOLETA",
-    "GAST_GASTROPODE",
-    "ARAC_ARANHA",
-    "OTH_OUTROS",
+    ...classes.map((c) => csvCell(`${c.code}_${csvKey(c.names.pt || c.key)}`)),
   ];
   lines.push(header.join(","));
 
@@ -382,25 +259,25 @@ export function generateCSV(
     const row = [
       sample.id,
       sample.sample_score.toFixed(2),
-      sample.earthworm,
-      sample.ant,
-      sample.isoptera,
-      sample.coleoptera,
-      sample.chilopoda,
-      sample.diplopoda,
-      sample.diptera_larvae,
-      sample.blattaria,
-      sample.hemiptera,
-      sample.dermaptera,
-      sample.lepidoptera,
-      sample.gasteropoda,
-      sample.arachnida,
-      sample.others,
+      ...classes.map((c) => sample.counts[c.key] || 0),
     ];
     lines.push(row.join(","));
   });
 
   return lines.join("\n");
+}
+
+function csvCell(value: string): string {
+  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+// Nome da classe em maiúsculas, sem acentos nem espaços (cabeçalho do CSV).
+function csvKey(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toUpperCase()
+    .replace(/\s+/g, "_");
 }
 
 export async function getLocationOptions(): Promise<LocationOptions> {

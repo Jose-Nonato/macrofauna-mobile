@@ -1,5 +1,6 @@
 import { ensureUserProfile } from "./profileService";
 import { supabase } from "./supabase";
+import { SAMPLE_COUNTS_SELECT } from "./taxonomy";
 
 function generateSimpleUUID() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -32,7 +33,7 @@ export async function getAllInsects() {
 export async function getInsectsBySample(sampleId: any) {
   const { data, error } = await supabase
     .from("insect")
-    .select("*")
+    .select(`*, ${SAMPLE_COUNTS_SELECT}`)
     .eq("sample_id", sampleId);
   if (error) throw error;
   return data;
@@ -54,11 +55,19 @@ export async function createSample(sample: any) {
   return data;
 }
 
-export async function insertInsects(insects: any) {
-  const { error } = await supabase.from("insect").insert(insects);
+// Devolve os ids na mesma ordem das linhas enviadas (um por nível).
+export async function insertInsects(insects: any): Promise<string[]> {
+  const { data, error } = await supabase.from("insect").insert(insects).select("id");
   if (error) {
     throw error;
   }
+  return (data || []).map((row: any) => row.id);
+}
+
+export async function insertSampleCounts(counts: any[]) {
+  if (counts.length === 0) return;
+  const { error } = await supabase.from("sample_counts").insert(counts);
+  if (error) throw error;
 }
 
 export async function insertPhotos(photos: any) {

@@ -9,9 +9,11 @@ import {
   Platform,
 } from "react-native";
 import { supabase } from "@/lib/supabase";
-import { createSample, insertInsects, updateSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
+import { createSample, insertInsects, insertSampleCounts, updateSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
 import { uploadPhotoToStorage } from "@/lib/uploadService";
-import { calculateIqms, othersWithLegacy } from "@/lib/iqms";
+import { calculateIqms } from "@/lib/iqms";
+import { countsFromInsectRow, LEGACY_TAXON_KEYS } from "@/lib/taxonomy";
+import { useTaxonomy } from "@/contexts/TaxonomyContext";
 import { showAlert } from "@/lib/alert";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "@/hooks/useI18n";
@@ -20,7 +22,6 @@ import { useI18n } from "@/hooks/useI18n";
 import StepVideo from "./register-sample-steps/step-video";
 import StepPhotos from "./register-sample-steps/step-photos";
 import StepTaxonomy, {
-  TAXON_LIST,
   TaxonKey,
 } from "./register-sample-steps/step-taxonomy";
 import StepLocation from "./register-sample-steps/step-location";
@@ -39,6 +40,7 @@ export default function RegisterSampleModal({
   sampleToEdit,
 }: RegisterSampleModalProps) {
   const { t } = useI18n();
+  const { taxonomy } = useTaxonomy();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [loading, setLoading] = useState(false);
 
@@ -50,22 +52,7 @@ export default function RegisterSampleModal({
 
   // Passo 3: Taxonomia da Macrofauna (Suporta múltiplos níveis)
   const [taxonLevels, setTaxonLevels] = useState<Record<TaxonKey, number>[]>([
-    {
-      earthworm: 0,
-      ant: 0,
-      isoptera: 0,
-      blattaria: 0,
-      coleoptera: 0,
-      arachnida: 0,
-      diplopoda: 0,
-      chilopoda: 0,
-      hemiptera: 0,
-      lepidoptera: 0,
-      gasteropoda: 0,
-      dermaptera: 0,
-      diptera_larvae: 0,
-      others: 0,
-    },
+    {},
   ]);
 
   // Passo 4: Localização
@@ -101,22 +88,7 @@ export default function RegisterSampleModal({
         setPhotoLeste([]);
         setPhotoOeste([]);
         setTaxonLevels([
-          {
-            earthworm: 0,
-            ant: 0,
-            isoptera: 0,
-            blattaria: 0,
-            coleoptera: 0,
-            arachnida: 0,
-            diplopoda: 0,
-            chilopoda: 0,
-            hemiptera: 0,
-            lepidoptera: 0,
-            gasteropoda: 0,
-            dermaptera: 0,
-            diptera_larvae: 0,
-            others: 0,
-          },
+          {},
         ]);
         setCity("");
         setState("");
@@ -138,22 +110,7 @@ export default function RegisterSampleModal({
 
       if (insectsData && insectsData.length > 0) {
         // Mapear cada linha de inseto retornada para o seu nível correspondente
-        const levels = insectsData.map((insect: any) => ({
-          earthworm: insect.earthworm || 0,
-          ant: insect.ant || 0,
-          isoptera: insect.isoptera || 0,
-          blattaria: insect.blattaria || 0,
-          coleoptera: insect.coleoptera || 0,
-          arachnida: insect.arachnida || 0,
-          diplopoda: insect.diplopoda || 0,
-          chilopoda: insect.chilopoda || 0,
-          hemiptera: insect.hemiptera || 0,
-          lepidoptera: insect.lepidoptera || 0,
-          gasteropoda: insect.gasteropoda || 0,
-          others: othersWithLegacy(insect),
-          dermaptera: insect.dermaptera || 0,
-          diptera_larvae: insect.diptera_larvae || 0,
-        }));
+        const levels = insectsData.map((insect: any) => countsFromInsectRow(insect));
         setTaxonLevels(levels);
       }
 
@@ -250,27 +207,19 @@ export default function RegisterSampleModal({
       // dados daquele nível), não o valor agregado da amostra inteira.
       const insectsToInsert = taxonLevels.map((level) => {
         const levelResult = calculateIqms([level]);
+        const legacyColumns: Record<string, number> = {};
+        LEGACY_TAXON_KEYS.forEach((key) => {
+          legacyColumns[key] = level[key] || 0;
+        });
         return {
           sample_id: sampleToEdit ? sampleToEdit.id : "", // será preenchido após criar amostra
           sample_density: levelResult.densityValue,
           iqms: levelResult.score,
-          earthworm: level.earthworm || 0,
-          ant: level.ant || 0,
-          isoptera: level.isoptera || 0,
-          blattaria: level.blattaria || 0,
-          coleoptera: level.coleoptera || 0,
-          arachnida: level.arachnida || 0,
-          diplopoda: level.diplopoda || 0,
-          chilopoda: level.chilopoda || 0,
-          hemiptera: level.hemiptera || 0,
-          lepidoptera: level.lepidoptera || 0,
-          gasteropoda: level.gasteropoda || 0,
-          dermaptera: level.dermaptera || 0,
-          diptera_larvae: level.diptera_larvae || 0,
+          // colunas fixas, lidas por versões antigas do app
+          ...legacyColumns,
           // colunas legadas (isopoda/orthoptera) agora fazem parte de "Outros"
           isopoda: 0,
           orthoptera: 0,
-          others: level.others || 0,
         };
       });
 
@@ -308,7 +257,19 @@ export default function RegisterSampleModal({
         }
 
         // 5. Inserir insetos
-        await insertInsects(insectsToInsert);
+        const insectIds = await insertInsects(insectsToInsert);
+
+        // 5.1 Contagens normalizadas por classe (inclui classes novas, sem
+        // coluna em `insect`)
+        await insertSampleCounts(
+          insectIds.flatMap((insectId, levelIdx) =>
+            taxonomy.classes.filter((c) => c.id).map((c) => ({
+              insect_id: insectId,
+              taxon_id: c.id,
+              count: taxonLevels[levelIdx]?.[c.key] || 0,
+            })),
+          ),
+        );
 
         // 6. Fazer upload e salvar fotos
         const directions = [
@@ -338,6 +299,8 @@ export default function RegisterSampleModal({
         // Rollback: deletar amostra criada se algo der erro
         if (sampleCreatedForRollback && sampleId) {
           try {
+            await supabase.from("insect").delete().eq("sample_id", sampleId);
+            await supabase.from("photos").delete().eq("sample_id", sampleId);
             await supabase.from("samples").delete().eq("id", sampleId);
           } catch (rollbackError) {
           }
@@ -371,22 +334,7 @@ export default function RegisterSampleModal({
               setPhotoLeste([]);
               setPhotoOeste([]);
               setTaxonLevels([
-                {
-                  earthworm: 0,
-                  ant: 0,
-                  isoptera: 0,
-                  blattaria: 0,
-                  coleoptera: 0,
-                  arachnida: 0,
-                  diplopoda: 0,
-                  chilopoda: 0,
-                  hemiptera: 0,
-                  lepidoptera: 0,
-                  gasteropoda: 0,
-                  dermaptera: 0,
-                  diptera_larvae: 0,
-                  others: 0,
-                },
+                {},
               ]);
               setCity("");
               setState("");

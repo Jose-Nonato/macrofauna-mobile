@@ -364,6 +364,15 @@ export default function ProfileTab() {
 
         {/* Actions */}
         <View style={styles.actionsContainer}>
+          {profile?.role === "admin" && (
+            <TouchableOpacity
+              style={[styles.logoutButton, { backgroundColor: "#1f2937", marginBottom: 12 }]}
+              onPress={() => router.push("/admin" as any)}
+            >
+              <Ionicons name="shield-checkmark" size={20} color="#ffffff" />
+              <Text style={styles.logoutButtonText}>Painel administrativo</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.logoutButton}
             onPress={handleLogout}

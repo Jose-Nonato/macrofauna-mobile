@@ -25,9 +25,11 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { showAlert } from "@/lib/alert";
 import { useI18n } from "@/hooks/useI18n";
+import { useTaxonomy } from "@/contexts/TaxonomyContext";
 
 export default function ReportsTab() {
   const { t } = useI18n();
+  const { nameOf } = useTaxonomy();
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [reportData, setReportData] = useState<ReportData | null>(null);
@@ -392,7 +394,7 @@ export default function ReportsTab() {
                 return (
                 <View key={taxon} style={styles.tableRow}>
                   <Text style={[styles.tableCell, styles.nameCell]}>
-                    {t(`taxon.${taxon}`, taxon)}
+                    {nameOf(taxon)}
                   </Text>
                   <Text style={[styles.tableCell, styles.quantityCell]}>
                     {quantity}

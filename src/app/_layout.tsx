@@ -5,6 +5,7 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { TaxonomyProvider } from "@/contexts/TaxonomyContext";
 
 function RootLayoutContent() {
   const [session, setSession] = useState<Session | null>(null);
@@ -65,6 +66,7 @@ function RootLayoutContent() {
   }
 
   return (
+    <TaxonomyProvider userId={session?.user.id}>
     <Stack>
       <Stack.Screen
         name="login"
@@ -78,7 +80,12 @@ function RootLayoutContent() {
         name="index"
         options={{ headerShown: false, title: "Início" }}
       />
+      <Stack.Screen
+        name="admin"
+        options={{ headerShown: false, title: "Administração" }}
+      />
     </Stack>
+    </TaxonomyProvider>
   );
 }
 

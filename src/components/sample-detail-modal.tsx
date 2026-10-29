@@ -1,4 +1,5 @@
-import { othersWithLegacy } from "@/lib/iqms";
+import { countsFromInsectRow } from "@/lib/taxonomy";
+import { useTaxonomy } from "@/contexts/TaxonomyContext";
 import { deleteSample, getInsectsBySample, getPhotosBySample } from "@/lib/services";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -16,11 +17,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { TAXON_LIST } from "./register-sample-steps/step-taxonomy";
 import { showAlert } from "@/lib/alert";
 import { useI18n } from "@/hooks/useI18n";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { TAXON_ICONS } from "@/lib/taxonInfo";
 import TaxonInfoModal from "./taxon-info-modal";
 
 interface SampleDetailModalProps {
@@ -42,6 +41,7 @@ export default function SampleDetailModal({
 }: SampleDetailModalProps) {
   const { t } = useI18n();
   const { language } = useLanguage();
+  const { taxonomy, nameOf, iconOf } = useTaxonomy();
   const [loading, setLoading] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
   const [taxonInfoKey, setTaxonInfoKey] = React.useState<string | null>(null);
@@ -76,42 +76,15 @@ export default function SampleDetailModal({
         getPhotosBySample(sample.id),
       ]);
 
-      // Consolidar todos os níveis de insetos
+      // Consolidar todos os níveis de insetos (contagens por classe)
       let consolidatedInsects: any = null;
       if (insectsData && insectsData.length > 0) {
-        consolidatedInsects = {
-          earthworm: 0,
-          ant: 0,
-          isoptera: 0,
-          blattaria: 0,
-          coleoptera: 0,
-          arachnida: 0,
-          diplopoda: 0,
-          chilopoda: 0,
-          hemiptera: 0,
-          lepidoptera: 0,
-          gasteropoda: 0,
-          dermaptera: 0,
-          diptera_larvae: 0,
-          others: 0,
-        };
-
-        // Somar todos os níveis
+        consolidatedInsects = {};
         insectsData.forEach((insect: any) => {
-          consolidatedInsects.earthworm += insect.earthworm || 0;
-          consolidatedInsects.ant += insect.ant || 0;
-          consolidatedInsects.isoptera += insect.isoptera || 0;
-          consolidatedInsects.blattaria += insect.blattaria || 0;
-          consolidatedInsects.coleoptera += insect.coleoptera || 0;
-          consolidatedInsects.arachnida += insect.arachnida || 0;
-          consolidatedInsects.diplopoda += insect.diplopoda || 0;
-          consolidatedInsects.chilopoda += insect.chilopoda || 0;
-          consolidatedInsects.hemiptera += insect.hemiptera || 0;
-          consolidatedInsects.lepidoptera += insect.lepidoptera || 0;
-          consolidatedInsects.gasteropoda += insect.gasteropoda || 0;
-          consolidatedInsects.dermaptera += insect.dermaptera || 0;
-          consolidatedInsects.diptera_larvae += insect.diptera_larvae || 0;
-          consolidatedInsects.others += othersWithLegacy(insect);
+          const counts = countsFromInsectRow(insect);
+          Object.keys(counts).forEach((key) => {
+            consolidatedInsects[key] = (consolidatedInsects[key] || 0) + counts[key];
+          });
         });
       }
 
@@ -291,9 +264,9 @@ export default function SampleDetailModal({
                   <Text style={styles.sectionTitle}>{t("samples.taxonomicComposition")}</Text>
                   {insects ? (
                     <View style={styles.taxonomyList}>
-                      {TAXON_LIST.map((taxon) => {
+                      {taxonomy.classes.map((taxon) => {
                         const value = insects[taxon.key] || 0;
-                        const totalCount = TAXON_LIST.reduce((sum, tx) => sum + (insects[tx.key] || 0), 0);
+                        const totalCount = taxonomy.classes.reduce((sum, tx) => sum + (insects[tx.key] || 0), 0);
                         if (value === 0) return null; // Oculta taxons que não foram encontrados na amostra
                         return (
                           <View key={taxon.key} style={styles.taxonRow}>
@@ -303,10 +276,10 @@ export default function SampleDetailModal({
                               activeOpacity={0.7}
                             >
                               <View style={styles.taxonIconBox}>
-                                <Image source={TAXON_ICONS[taxon.key]} style={styles.taxonIcon} />
+                                <Image source={iconOf(taxon.key)} style={styles.taxonIcon} />
                               </View>
                               <View>
-                                <Text style={styles.taxonName}>{t(`taxon.${taxon.key}`)}</Text>
+                                <Text style={styles.taxonName}>{nameOf(taxon.key)}</Text>
                                 <Text style={styles.taxonSub}>{taxon.code}</Text>
                               </View>
                             </TouchableOpacity>
@@ -320,7 +293,7 @@ export default function SampleDetailModal({
                         );
                       })}
                       {/* Se nenhum taxon for exibido */}
-                      {TAXON_LIST.every((taxon) => (insects[taxon.key] || 0) === 0) && (
+                      {taxonomy.classes.every((taxon) => (insects[taxon.key] || 0) === 0) && (
                         <Text style={styles.emptyText}>{t("samples.noInvertebratesFound")}</Text>
                       )}
                     </View>
